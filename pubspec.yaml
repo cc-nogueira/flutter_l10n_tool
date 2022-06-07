@@ -1,0 +1,26 @@
+name: flutter_objectbox_layered_template
+description: Flutter Layered Template with ObjectBox Persistence
+
+publish_to: 'none'
+version: 0.0.2
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  _di_layer:
+    path: ./packages/_di_layer
+  _presentation_layer:
+    path: ./packages/_presentation_layer
+    
+  flutter:
+    sdk: flutter
+  flutter_riverpod: any
+
+dev_dependencies:
+  flutter_lints: ^2.0.1
+  flutter_test:
+    sdk: flutter
+        
+flutter:
+  uses-material-design: true
