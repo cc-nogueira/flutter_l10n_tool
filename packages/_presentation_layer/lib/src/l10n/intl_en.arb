@@ -1,29 +1,77 @@
 {
   "@@locale": "en",
 
-  "title_home_page": "ObjectBox Example",
-  "@title_home_page": {
-    "description": "Title for home page"
+  "test_plural": "You have {count, plural, one{You have 1 photo} other{You have # photos}}",
+  "@test_plural": {
+    "placeholders": {
+      "num": {},
+      "xpto": {},
+      "count": {}
+    }
   },
+
+  "test_select": "Order your {dayPart, select, morning{breakfast} noon{lunch} night{dinner} other{snack}} now",
+  "@test_select": {
+    "placeholders": {
+      "dayPart": {}
+    }
+  },
+
+  "title_home_page": "Localization App",
 
   "title_error_page": "Error",
   "@title_error_page": {
     "description": "Title for error page"
   },
-    
-  "title_contacts_page": "Contacts",
-  "@title_contacts_page": {
-    "description": "Title for contacts page"
-  },  
 
-  "title_contact_page": "Contact",
-  "@title_contact_page": {
-    "description": "Title for contact page"
+  "title_project_selector_drawer": "Project Selector",
+  "@title_project_selector_drawer": {
+    "description": "Title for project navigation drawer"
+  },
+
+  "title_project_configuration_drawer": "Project Configuration",
+  "@title_project_configuration_drawer": {
+    "description": "Title for project configuraton drawer"
+  },
+
+  "title_preferences_drawer": "Preferences",
+  "@title_preferences_drawer": {
+    "description": "Title for preferences drawer"
+  },
+
+  "title_help_drawer": "About",
+  "@title_help_drawer": {
+    "description": "Title for help drawer"
   },
   
-  "message_no_contacts": "No contacts",
-  "@message_no_contacts": {
-    "description": "Message for no contacts"
+  "title_load_project": "Loading project",
+  "@title_load_project": {
+    "description": "Title for loading project"
+  },
+
+  "label_close_project": "Close Project",
+  "@label_close_project": {
+    "description": "Label for close project"
+  },
+
+  "label_open_project": "Open Folder",
+  "@label_open_project": {
+    "description": "Label for open project"
+  },
+
+  "label_open_recent": "Open Recent",
+  "@label_open_recent": {
+    "description": "Label for open recent"
+  },
+
+  "label_choose": "Choose",
+  "@label_choose": {
+    "description": "Label for choose button"
+  },
+
+  "label_close": "Close",
+  "@label_close": {
+    "description": "Label for close button"
   },
 
   "message_loading": "Loading",
@@ -31,18 +79,101 @@
     "description": "Message loading"
   },
 
-  "message_no_message": "No message",
-  "@message_no_message": {
-    "description": "Message for no message"
+  "message_loading_with_yaml_conf": "Loading project with yaml configuration.",
+  "@message_loading_with_yaml_conf": {
+    "description": "Message loading with yaml configuration"
   },
 
-  "label_from": "From",
-  "@label_from": {
-    "description": "Label for from"
+  "message_loading_without_yaml_conf": "Loading project without yaml configuration",
+  "@message_loading_without_yaml_conf": {
+    "description": "Message loading without yaml configuration"
   },
 
-  "title_pending_message": "Pending Message",
-  "@title_pending_message": {
-    "description": "Title for pending message"
+  "message_project_already_selected": "Project already selected",
+  "@message_project_already_selected": {
+    "description": "Message for project alredy selected"
+  },
+
+  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} other{Loading...} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} confirmingLoaded{Finishing...} loaded{Configuration loaded.} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
+  "@message_loading_stage": {
+    "description": "Message for loading stage",
+    "placeholders": {
+      "stage": {}
+    }
+  },
+
+  "message_no_project_selected": "No project selected",
+  "@message_no_project_selected": {
+    "description": "Message for no project selected"
+  },
+
+"error_arb_resource_global_format": "Global resource \"{id}\" should have a string value.",
+  "@error_arb_resource_global_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_resource_format": "Resource \"{id}\" should have a string value.",
+  "@error_arb_resource_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_resource_attribute_format": "Ensure that resource \"{id}\" value is a map with string valued keys.",
+  "@error_arb_resource_attribute_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_placeholders_format": "The \"placeholders\" attribute for {type} message \"{id}\" is not properly formatted. Ensure that it is a map with string valued keys.",
+  "@error_arb_placeholders_format": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_one_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that each resource has a corresponding @resource.",
+  "@error_arb_missing_one_resource_attribute": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_missing_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that {type} resources have a corresponding @resource.",
+  "@error_arb_missing_resource_attribute": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholders": "Unable to find placeholders for the {type} message: {id}.",
+  "@error_arb_missing_placeholders": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholder": "Unable to find \"{name}\" placeholder in the {type} message: {id}",
+  "@error_arb_missing_placeholder": {
+    "placeholders": {
+      "id": {},
+      "name": {},
+      "type": {}
+    }
+  },
+
+  "error_locale_specification": "Make sure that the locale is specified in the file's '@@locale' property or as part of the filename (e.g. file_en.arb)",
+
+  "error_multiple_files_with_same_location": "Multiple arb files with the same \"{locale}\" locale detected.",
+  "@error_multiple_files_with_same_location": {
+    "placeholders": {
+      "locale": {}
+    }
   }
 }

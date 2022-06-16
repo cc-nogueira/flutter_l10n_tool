@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:_domain_layer/domain_layer.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../common/widget/message_widget.dart';
 import '../../l10n/translations.dart';
-import '../../routes/routes.dart';
+import '../navigation/navigation_and_scaffold.dart';
 
 /// Projects landing page.
 ///
@@ -11,26 +16,49 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tr = Translations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(tr.title_home_page)),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            _contactsPageCard(context, tr),
-          ],
-        ),
-      ),
-    );
+    const title = ProjectTitle();
+    const body = MessageWidget('Localization App');
+    return _isMobile
+        ? _mobileScaffold(context, title, body)
+        : const NavigationAndScaffold(title: title, body: body);
   }
 
-  Card _contactsPageCard(BuildContext context, Translations tr) => Card(
-        color: Theme.of(context).colorScheme.background.withOpacity(0.5),
-        child: ListTile(
-          leading: const CircleAvatar(child: Icon(Icons.people)),
-          title: Text(tr.title_contacts_page),
-          onTap: () => Navigator.pushNamed(context, Routes.contacts),
-        ),
+  Widget _mobileScaffold(BuildContext context, Widget title, Widget body) => Scaffold(
+        appBar: AppBar(title: title),
+        body: body,
       );
+
+  bool get _isMobile => Platform.isAndroid || Platform.isIOS;
+}
+
+class ProjectTitle extends ConsumerWidget {
+  const ProjectTitle({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final project = ref.watch(projectProvider);
+    if (!project.loaded) {
+      final tr = Translations.of(context);
+      return Text(tr.title_home_page);
+    }
+    final colors = Theme.of(context).colorScheme;
+    final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
+    final pathStyle = TextStyle(fontWeight: FontWeight.w300, color: colors.onSurfaceVariant);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(project.name, style: nameStyle),
+        const SizedBox(width: 10.0),
+        Expanded(
+          child: Text(
+            project.path,
+            style: pathStyle,
+            softWrap: true,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
 }

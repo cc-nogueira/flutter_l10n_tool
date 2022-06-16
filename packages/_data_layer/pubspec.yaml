@@ -15,10 +15,11 @@ dependencies:
     
   flutter:
     sdk: flutter
+    
   objectbox: ^1.5.0
   objectbox_flutter_libs: ^1.5.0
-  path_provider: ^2.0.10
-  riverpod: any
+  path_provider: ^2.0.11    
+  riverpod: 2.0.0-dev.9
 
 dev_dependencies:
   build_runner: ^2.1.10

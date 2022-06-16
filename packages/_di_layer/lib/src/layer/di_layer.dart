@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:_core_layer/core_layer.dart';
 import 'package:_data_layer/data_layer.dart';
 import 'package:_domain_layer/domain_layer.dart';
@@ -57,13 +55,6 @@ class DiLayer extends AppLayer {
     presentationLayerProvider,
   ];
 
-  /// Init provider with user system locales.
-  ///
-  /// This provider will be continued updated through the ExampleApp that is a WidgetsBindingObserver.
-  void preInitWith(List<Locale> systemLocales) {
-    _read(systemLocalesProvider.notifier).state = systemLocales;
-  }
-
   /// Init all layers and configure those that requires dependency injections.
   @override
   Future<void> init() async {
@@ -85,8 +76,7 @@ class DiLayer extends AppLayer {
   void _configureDomainLayer() {
     final domainConfiguration = _read(domainConfigurationProvider);
     domainConfiguration(
-      contactsRepository: _read(contactsRepositoryProvider),
-      messageService: _read(messageServiceProvider),
+      preferencesRepository: _read(preferencesRepositoryProvider),
     );
   }
 }

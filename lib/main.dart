@@ -1,19 +1,35 @@
+import 'dart:io';
+
 import 'package:_di_layer/di_layer.dart';
 import 'package:_presentation_layer/presentation_layer.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isWindows) {
+    doWhenWindowReady(() {
+      const min = Size(640, 400);
+      const initial = Size(1280, 720);
+      final win = appWindow;
+      win.minSize = min;
+      win.size = initial;
+      win.alignment = Alignment.topRight;
+      win.title = "L10n";
+      win.show();
+    });
+  }
 
   runApp(
     ProviderScope(
       child: Consumer(
-        builder: (_, ref, __) => ref.watch(appProvider(widgetsBinding)).when(
+        builder: (_, ref, __) => ref.watch(appProvider).when(
               loading: () => const Center(child: CircularProgressIndicator()),
               data: (app) => app,
-              error: (error, _) => ExampleApp.error(error, read: ref.read),
+              error: (error, _) => L10nApp.error(error),
             ),
       ),
     ),
@@ -22,15 +38,11 @@ void main() {
 
 /// Provides the configured application.
 ///
-/// Async initialzes all layers through DI Layer init method.
-final appProvider =
-    FutureProvider.family.autoDispose<Widget, WidgetsBinding>((ref, widgetsBinding) async {
+/// Async initializes all layers through DI Layer init method.
+final appProvider = FutureProvider.autoDispose<Widget>((ref) async {
   final diLayer = ref.watch(diLayerProvider);
-  diLayer.preInitWith(widgetsBinding.platformDispatcher.locales);
   await diLayer.init();
 
-  final app = ExampleApp(read: ref.read);
-  widgetsBinding.addObserver(app);
-
+  const app = L10nApp();
   return app;
 });
