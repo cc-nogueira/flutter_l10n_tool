@@ -7,6 +7,11 @@ final titleCaseRegExp = RegExp(r'\w+\W*');
 ///
 /// Provide utility implementatino for String.
 extension StringUtils on String {
+  /// Alternate value if String is empty
+  ///
+  /// Return the receiver or a alternate value if this is empty
+  String ifEmpty(String value) => isEmpty ? value : this;
+
   /// Cut a string to a max length.
   ///
   /// Returns a String with a maximum number of characters.
