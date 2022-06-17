@@ -12,7 +12,7 @@ class ArbValidator {
   final Map<String, dynamic> meta;
 
   void validate() {
-    if (configuration.requiredResourceAttributes) {
+    if (configuration.effectiveRequiredResourceAttributes) {
       _validateAllResourcesWithAttributes();
     }
     _validatePluralResources();

@@ -4,13 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/translations.dart';
 import '../project/widget/configuration_form.dart';
+import '../project/widget/project_configuration_buttons.dart';
+import '../project/widget/project_configuration_toggle_buttons.dart';
 import 'navigation_drawer.dart';
 import 'navigation_drawer_option.dart';
-
-final _formConfigurationProvider = StateProvider<L10nConfiguration>((ref) {
-  final actualConfiguration = ref.watch(projectConfigurationProvider);
-  return actualConfiguration.copyWith();
-});
 
 class ProjectConfigurationDrawer extends NavigationDrawer {
   const ProjectConfigurationDrawer({super.key})
@@ -55,22 +52,24 @@ class _ProjectConfigurationWidget extends ConsumerWidget {
       return Container();
     }
 
-    final isFromYamlFile =
-        ref.watch(_formConfigurationProvider.select((conf) => conf.isFromYamlFile == true));
     return ListView(
       padding: const EdgeInsets.only(left: 4.0, right: 12.0),
       children: [
-        Text(isFromYamlFile ? 'Configuration from l10n.yaml' : 'Default configuration'),
+        _configurationToggleButtons(),
         const SizedBox(height: 24),
-        _configurationForm(isFromYamlFile),
+        _configurationForm(),
+        const SizedBox(height: 24),
+        _configurationButtons(),
       ],
     );
   }
 
-  Widget _configurationForm(bool isFromYamlFile) {
-    return Form(
-      key: _formKey,
-      child: ConfigurationForm(_formConfigurationProvider, isFromYamlFile: isFromYamlFile),
-    );
-  }
+  Widget _configurationToggleButtons() => const ProjectConfigurationToggleButtons();
+
+  Widget _configurationForm() => Form(
+        key: _formKey,
+        child: const ConfigurationForm(),
+      );
+
+  Widget _configurationButtons() => const ProjectConfigurationButtons();
 }

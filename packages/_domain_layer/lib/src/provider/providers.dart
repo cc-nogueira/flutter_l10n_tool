@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:riverpod/riverpod.dart';
 
+import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';
 import '../usecase/preferences_usecase.dart';
@@ -38,6 +39,14 @@ final isProjectLoadedProvider = Provider(
 final projectConfigurationProvider = Provider(
   (ref) => ref.watch(projectProvider.select((p) => p.configuration)),
 );
+
+/// Form configuration provider (configuration being edited)
+final formConfigurationProvider = StateProvider<L10nConfiguration>((ref) {
+  final projectConfiguration = ref.watch(projectConfigurationProvider);
+  return projectConfiguration.copyWith();
+});
+
+final resetConfigurationProvider = StateProvider<bool>((_) => false);
 
 /// Recent projects provider
 final recentProjectsProvider = StateProvider<List<Project>>(

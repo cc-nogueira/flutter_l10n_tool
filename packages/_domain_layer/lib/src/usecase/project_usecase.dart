@@ -44,7 +44,7 @@ class ProjectUsecase {
       final content = await file.readAsString();
       configuration = _readL10nConfiguration(content);
     } else {
-      configuration = const L10nConfiguration(isFromYamlFile: false);
+      configuration = const L10nConfiguration(usingYamlFile: false);
     }
     _projectNotifier._configuration(configuration);
   }
@@ -52,23 +52,25 @@ class ProjectUsecase {
   Future<void> readTemplateFile() async {
     final project = _project;
     final configuration = project.configuration;
-    final dir = Directory('${project.path}/${configuration.arbDir}');
+    final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
     if (!dir.existsSync()) {
-      throw MissingArbDir(configuration.arbDir);
+      throw MissingArbDir(configuration.effectiveArbDir);
     }
-    final file = File('${project.path}/${configuration.arbDir}/${configuration.templateArbFile}');
+    final file = File(
+        '${project.path}/${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
     if (file.existsSync()) {
       final content = await file.readAsString();
-      _readTemplateFile(configuration.templateArbFile, content);
+      _readTemplateFile(configuration.effectiveTemplateArbFile, content);
     } else {
-      throw MissingArbTemplateFile('${configuration.arbDir}/${configuration.templateArbFile}');
+      throw MissingArbTemplateFile(
+          '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
     }
   }
 
   Future<void> readTranslationFiles() async {
     final project = _project;
     final configuration = project.configuration;
-    final dir = Directory('${project.path}/${configuration.arbDir}');
+    final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
     if (dir.existsSync()) {
       final languageFiles = <File>[];
       final dirList = dir.listSync();
@@ -76,7 +78,7 @@ class ProjectUsecase {
         if (file is File) {
           final name = file.uri.pathSegments.last;
           if (name.endsWith('.arb')) {
-            if (name != configuration.templateArbFile) {
+            if (name != configuration.effectiveTemplateArbFile) {
               languageFiles.add(file);
             }
           }
@@ -86,7 +88,7 @@ class ProjectUsecase {
         await _readTranslationFile(file);
       }
     } else {
-      throw MissingArbDir(configuration.arbDir);
+      throw MissingArbDir(configuration.effectiveArbDir);
     }
   }
 
@@ -119,18 +121,16 @@ class ProjectUsecase {
     final yaml = loadYaml(content);
     final conf = yaml is Map ? yaml : <String, dynamic>{};
     return L10nConfiguration(
-      isFromYamlFile: true,
-      syntheticPackage: conf['synthetic-package'] ?? L10nConfiguration.defaultSyntheticPackage,
-      arbDir: conf['arb-dir'] ?? L10nConfiguration.defaultArbDir,
-      outputDir: conf['output-dir'] ?? L10nConfiguration.defaultOutputDir,
-      templateArbFile: conf['template-arb-file'] ?? L10nConfiguration.defaultTemplateArbFile,
-      outputLocalizationFile:
-          conf['output-localization-file'] ?? L10nConfiguration.defaultOutputLocalizationFile,
-      outputClass: conf['output-class'] ?? L10nConfiguration.defaultOutputClass,
-      header: conf['header'] ?? L10nConfiguration.defaultHeader,
-      requiredResourceAttributes: conf['required-resource-attributes'] ??
-          L10nConfiguration.defaultRequiredResourceAttributes,
-      nullableGetter: conf['nullable-getter'] ?? L10nConfiguration.defaultNullableGetter,
+      usingYamlFile: true,
+      syntheticPackage: conf['synthetic-package'],
+      arbDir: conf['arb-dir'],
+      outputDir: conf['output-dir'],
+      templateArbFile: conf['template-arb-file'],
+      outputLocalizationFile: conf['output-localization-file'],
+      outputClass: conf['output-class'],
+      header: conf['header'],
+      requiredResourceAttributes: conf['required-resource-attributes'],
+      nullableGetter: conf['nullable-getter'],
     );
   }
 

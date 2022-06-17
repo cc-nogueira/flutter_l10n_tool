@@ -94,7 +94,7 @@
     "description": "Message for project alredy selected"
   },
 
-  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} other{Loading...} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} confirmingLoaded{Finishing...} loaded{Configuration loaded.} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
+  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} confirmingLoaded{Finishing...} loaded{Configuration loaded.} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
   "@message_loading_stage": {
     "description": "Message for loading stage",
     "placeholders": {

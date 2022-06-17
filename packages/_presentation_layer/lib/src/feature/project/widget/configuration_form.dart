@@ -5,25 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/translations.dart';
 
 class ConfigurationForm extends ConsumerWidget {
-  const ConfigurationForm(this.configurationProvider, {super.key, required this.isFromYamlFile});
-
-  final StateProvider<L10nConfiguration> configurationProvider;
-  final bool isFromYamlFile;
+  const ConfigurationForm({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(resetConfigurationProvider);
     final tr = Translations.of(context);
-    final controller = ref.watch(configurationProvider.notifier);
-    return _ConfigurationForm(tr, controller, isFromYamlFile: isFromYamlFile);
+    final controller = ref.watch(formConfigurationProvider.notifier);
+    return _ConfigurationForm(tr, controller);
   }
 }
 
 class _ConfigurationForm extends StatefulWidget {
-  const _ConfigurationForm(this.tr, this.configurationController, {required this.isFromYamlFile});
+  const _ConfigurationForm(this.tr, this.configurationController);
 
   final Translations tr;
   final StateController<L10nConfiguration> configurationController;
-  final bool isFromYamlFile;
 
   @override
   State<_ConfigurationForm> createState() => _ConfigurationFormState();
@@ -65,6 +62,22 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
   }
 
   @override
+  void didUpdateWidget(covariant _ConfigurationForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _reconfigureTextControllers());
+  }
+
+  void _reconfigureTextControllers() {
+    _arbDirTextController.text = widget.configuration.arbDir;
+    _outputDirTextController.text = widget.configuration.outputDir;
+    _templateArbFileTextController.text = widget.configuration.templateArbFile;
+    _outputLocalizationFileTextController.text = widget.configuration.outputLocalizationFile;
+    _outputClassTextController.text = widget.configuration.outputClass;
+    _headerTextController.text = widget.configuration.header;
+    setState(() {});
+  }
+
+  @override
   void dispose() {
     _arbDirTextController.dispose();
     _outputDirTextController.dispose();
@@ -96,7 +109,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'arb folder',
           _arbDirTextController,
-          readOnly: !widget.isFromYamlFile,
           hintText: L10nConfiguration.defaultArbDir,
           onChanged: (_) => _onFormChanged(),
           focusNode: _arbDirFocus,
@@ -108,7 +120,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'output folder',
           _outputDirTextController,
-          readOnly: !widget.isFromYamlFile,
           hintText: _arbDirTextController.text.isEmpty
               ? L10nConfiguration.defaultArbDir
               : _arbDirTextController.text,
@@ -122,7 +133,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'template file',
           _templateArbFileTextController,
-          readOnly: !widget.isFromYamlFile,
           hintText: L10nConfiguration.defaultTemplateArbFile,
           onChanged: (_) => _onFormChanged(),
           focusNode: _templateArbFileFocus,
@@ -134,7 +144,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'output file',
           _outputLocalizationFileTextController,
-          readOnly: !widget.isFromYamlFile,
           hintText: L10nConfiguration.defaultOutputLocalizationFile,
           onChanged: (_) => _onFormChanged(),
           focusNode: _outputLocalizationFocus,
@@ -146,7 +155,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'output class',
           _outputClassTextController,
-          readOnly: !widget.isFromYamlFile,
           hintText: L10nConfiguration.defaultOutputClass,
           onChanged: (_) => _onFormChanged(),
           focusNode: _outputClassFocus,
@@ -158,7 +166,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'header',
           _headerTextController,
-          readOnly: !widget.isFromYamlFile,
           onChanged: (_) => _onFormChanged(),
           focusNode: _headerFocus,
           nextFocus: _arbDirFocus,
@@ -181,12 +188,14 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
     int? maxLength,
     TextCapitalization textCapitalization = TextCapitalization.none,
     bool readOnly = false,
+    bool enabled = true,
     VoidCallback? onTap,
     int? maxLines = 1,
   }) =>
       TextFormField(
         controller: controller,
         readOnly: readOnly,
+        enabled: enabled,
         onTap: onTap,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
@@ -224,13 +233,15 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
 
   void _onFormChanged() => setState(() {
         widget.configuration = L10nConfiguration(
-          isFromYamlFile: false,
+          syntheticPackage: widget.configuration.syntheticPackage,
           arbDir: _arbDirTextController.text,
           outputDir: _outputDirTextController.text,
           templateArbFile: _templateArbFileTextController.text,
           outputLocalizationFile: _outputLocalizationFileTextController.text,
           outputClass: _outputClassTextController.text,
           header: _headerTextController.text,
+          nullableGetter: widget.configuration.nullableGetter,
+          requiredResourceAttributes: widget.configuration.requiredResourceAttributes,
         );
       });
 

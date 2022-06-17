@@ -127,8 +127,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
   @override
   Widget build(BuildContext context) {
     _projectUsecase = ref.watch(projectUsecaseProvider);
-    final isFromYamlFile = ref.watch(
-      projectConfigurationProvider.select((conf) => conf.isFromYamlFile),
+    final usingYamlFile = ref.watch(
+      projectConfigurationProvider.select((conf) => conf.usingYamlFile),
     );
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -141,7 +141,7 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _title(textTheme, isFromYamlFile),
+            _title(textTheme, usingYamlFile),
             _progressIndicator(),
             const SizedBox(height: 16),
             _progressDescription(),
@@ -154,10 +154,10 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     );
   }
 
-  Widget _title(TextTheme theme, bool? isFromYamlFile) {
-    final text = isFromYamlFile == null
+  Widget _title(TextTheme theme, bool? usingYamlFile) {
+    final text = usingYamlFile == null
         ? ''
-        : (isFromYamlFile
+        : (usingYamlFile
             ? widget.tr.message_loading_with_yaml_conf
             : widget.tr.message_loading_without_yaml_conf);
     return Container(
