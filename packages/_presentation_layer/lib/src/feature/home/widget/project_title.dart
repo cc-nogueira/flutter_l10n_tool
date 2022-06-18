@@ -1,35 +1,8 @@
-import 'dart:io';
-
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../common/widget/message_widget.dart';
-import '../../l10n/translations.dart';
-import '../navigation/navigation_and_scaffold.dart';
-
-/// Projects landing page.
-///
-/// Shows a page with main navigation cards.
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const title = ProjectTitle();
-    const body = MessageWidget('Localization App');
-    return _isMobile
-        ? _mobileScaffold(context, title, body)
-        : const NavigationAndScaffold(title: title, body: body);
-  }
-
-  Widget _mobileScaffold(BuildContext context, Widget title, Widget body) => Scaffold(
-        appBar: AppBar(title: title),
-        body: body,
-      );
-
-  bool get _isMobile => Platform.isAndroid || Platform.isIOS;
-}
+import '../../../l10n/app_localizations.dart';
 
 class ProjectTitle extends ConsumerWidget {
   const ProjectTitle({super.key});
@@ -37,9 +10,9 @@ class ProjectTitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final project = ref.watch(projectProvider);
-    if (!project.loaded) {
-      final tr = Translations.of(context);
-      return Text(tr.title_home_page);
+    if (project.path.isEmpty) {
+      final loc = AppLocalizations.of(context);
+      return Text(loc.title_home_page);
     }
     final colors = Theme.of(context).colorScheme;
     final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);

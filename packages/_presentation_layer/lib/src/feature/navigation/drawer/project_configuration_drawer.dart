@@ -2,10 +2,10 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../l10n/translations.dart';
-import '../project/widget/configuration_form.dart';
-import '../project/widget/project_configuration_buttons.dart';
-import '../project/widget/project_configuration_toggle_buttons.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../project/widget/configuration_form.dart';
+import '../../project/widget/project_configuration_buttons.dart';
+import '../../project/widget/project_configuration_toggle_buttons.dart';
 import 'navigation_drawer.dart';
 import 'navigation_drawer_option.dart';
 
@@ -13,14 +13,14 @@ class ProjectConfigurationDrawer extends NavigationDrawer {
   const ProjectConfigurationDrawer({super.key})
       : super(
           NavigationDrawerOption.configuration,
-          padding: const EdgeInsets.only(left: 8.0),
+          childrenPadding: const EdgeInsets.only(left: 8.0),
         );
 
   @override
-  String titleText(Translations tr) => tr.title_project_configuration_drawer;
+  String titleText(AppLocalizations loc) => loc.title_project_configuration_drawer;
 
   @override
-  List<Widget> headerChildren(BuildContext context, WidgetRef ref, Translations tr) {
+  List<Widget> headerChildren(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final projectLoaded = ref.watch(isProjectLoadedProvider);
     if (projectLoaded) {
       return [];
@@ -29,12 +29,12 @@ class ProjectConfigurationDrawer extends NavigationDrawer {
     final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
     return [
       const SizedBox(height: 12),
-      Text('(${tr.message_no_project_selected})', style: nameStyle),
+      Text('(${loc.message_no_project_selected})', style: nameStyle),
     ];
   }
 
   @override
-  List<Widget> children(BuildContext context, WidgetRef ref, Translations tr) {
+  List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final projectLoaded = ref.watch(isProjectLoadedProvider);
     return [Expanded(child: _ProjectConfigurationWidget(projectLoaded: projectLoaded))];
   }

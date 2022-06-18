@@ -3,16 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
-import '../../../l10n/translations.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
-import '../../navigation/navigation_drawer_option.dart';
 import '../common/load_stage.dart';
 
 class LoadProjectDialog extends ConsumerStatefulWidget {
-  const LoadProjectDialog(this.projectPath, this.tr, {super.key});
+  const LoadProjectDialog(this.projectPath, this.loc, {super.key});
 
   final String projectPath;
-  final Translations tr;
+  final AppLocalizations loc;
 
   @override
   ConsumerState<LoadProjectDialog> createState() => _LoadProjectDialogState();
@@ -21,7 +20,7 @@ class LoadProjectDialog extends ConsumerStatefulWidget {
 class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
   static const _contentInsets = EdgeInsets.symmetric(horizontal: 24);
   static const _buttonRowInsets = EdgeInsets.symmetric(horizontal: 16);
-  static const _progressWait = Duration(milliseconds: 150);
+  static const _progressWait = Duration(milliseconds: 100);
 
   late ProjectUsecase _projectUsecase;
   late LoadStage _loadStage;
@@ -33,9 +32,12 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     super.initState();
   }
 
-  void _keepLoading() {
-    if (_loadStage.waiting || _loadStage.finished) {
+  void _keepLoading(BuildContext context) {
+    if (_loadStage.waiting) {
       return;
+    }
+    if (_loadStage.finished) {
+      _postFrameClose();
     }
     switch (_loadStage) {
       case LoadStage.initial:
@@ -50,9 +52,6 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
         break;
       case LoadStage.doneReadingResourceDefinitions:
         _readTranslationFiles();
-        break;
-      case LoadStage.doneReadingTranslations:
-        _markLoaded();
         break;
       default:
     }
@@ -69,8 +68,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     try {
       await _projectUsecase.loadPubspec();
       _setStage(LoadStage.doneReadingPubspec);
-    } on PubspecException catch (e) {
-      _handlePubspecException(e);
+    } on L10nException catch (e) {
+      _handleL10nException(e);
     } catch (e) {
       _handleException(e);
     }
@@ -82,6 +81,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     try {
       await _projectUsecase.defineConfiguration();
       _setStage(LoadStage.doneDefiningConfiguration);
+    } on L10nException catch (e) {
+      _handleL10nException(e);
     } catch (e) {
       _handleException(e);
     }
@@ -93,8 +94,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     try {
       await _projectUsecase.readTemplateFile();
       _setStage(LoadStage.doneReadingResourceDefinitions);
-    } on ArbException catch (e) {
-      _handleArbException(e);
+    } on L10nException catch (e) {
+      _handleL10nException(e);
     } catch (e) {
       _handleException(e);
     }
@@ -106,19 +107,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     try {
       await _projectUsecase.readTranslationFiles();
       _setStage(LoadStage.doneReadingTranslations);
-    } on ArbException catch (e) {
-      _handleArbException(e);
-    } catch (e) {
-      _handleException(e);
-    }
-  }
-
-  void _markLoaded() async {
-    await Future.delayed(_progressWait);
-    _setStage(LoadStage.confirmingLoaded);
-    try {
-      _projectUsecase.confirmLoaded();
-      _setStage(LoadStage.loaded);
+    } on L10nException catch (e) {
+      _handleL10nException(e);
     } catch (e) {
       _handleException(e);
     }
@@ -127,12 +117,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
   @override
   Widget build(BuildContext context) {
     _projectUsecase = ref.watch(projectUsecaseProvider);
-    final usingYamlFile = ref.watch(
-      projectConfigurationProvider.select((conf) => conf.usingYamlFile),
-    );
     final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    _keepLoading();
+    _keepLoading(context);
     return WillPopScope(
       onWillPop: () async => false,
       child: AlertDialog(
@@ -141,7 +127,7 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _title(textTheme, usingYamlFile),
+            _title(context),
             _progressIndicator(),
             const SizedBox(height: 16),
             _progressDescription(),
@@ -154,19 +140,22 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     );
   }
 
-  Widget _title(TextTheme theme, bool? usingYamlFile) {
-    final text = usingYamlFile == null
-        ? ''
-        : (usingYamlFile
-            ? widget.tr.message_loading_with_yaml_conf
-            : widget.tr.message_loading_without_yaml_conf);
+  Widget _title(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
+    final usingYamlFile = ref.watch(
+      projectConfigurationProvider.select((conf) => conf.usingYamlFile),
+    );
+    final text = usingYamlFile
+        ? widget.loc.message_loading_with_yaml_conf
+        : widget.loc.message_loading_without_yaml_conf;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       constraints: const BoxConstraints(minWidth: 400.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.tr.message_loading, style: theme.headlineSmall),
+          Text(widget.loc.message_loading, style: theme.headlineSmall),
           const SizedBox(height: 8),
           Text(text),
           const SizedBox(height: 8),
@@ -201,53 +190,20 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     );
   }
 
-  Widget get _stageDescription => Text(widget.tr.message_loading_stage(_loadStage.description));
+  Widget get _stageDescription => Text(widget.loc.message_loading_stage(_loadStage.description));
 
   Widget _dialogButtons(ColorScheme colors) {
     final List<Widget> okCancelButtons = [
       textButton(text: 'Cancel', onPressed: _loadStage.finished ? null : _cancelLoading),
-      const SizedBox(width: 16),
-      textButton(text: 'OK', onPressed: _loadStage.finished ? _ok : null),
     ];
 
-    return _loadStage.complete
-        ? Padding(
-            padding: _buttonRowInsets,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                textButton(text: 'Proj. Configuration', onPressed: _viewProjectConfiguration),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: okCancelButtons,
-                ),
-              ],
-            ),
-          )
-        : Padding(
-            padding: _buttonRowInsets,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: okCancelButtons,
-            ),
-          );
-  }
-
-  void _ok() {
-    Navigator.pop(context);
-    if (_loadStage.complete) {
-      ref.read(activeNavigationProvider.notifier).state = null;
-    }
-  }
-
-  void _viewProjectConfiguration() {
-    Navigator.pop(context);
-    ref.read(activeNavigationProvider.notifier).state = NavigationDrawerOption.configuration;
-  }
-
-  void _cancelLoading() {
-    _setStage(LoadStage.canceled);
-    Navigator.pop(context);
+    return Padding(
+      padding: _buttonRowInsets,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: okCancelButtons,
+      ),
+    );
   }
 
   void _setStage(LoadStage stage) {
@@ -256,26 +212,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     }
   }
 
-  void _handlePubspecException(PubspecException e) {
-    if (e is MissingPubspecException) {
-      _setError('Did not find pubspec.yaml file in this folder');
-    } else if (e is DependencyException) {
-      _setError('DependencyException');
-    } else {
-      _handleException(e);
-    }
-  }
-
-  void _handleArbException(ArbException e) {
-    if (e is MissingArbDir) {
-      _setError('Missing ARB folder: ${e.path}.');
-    } else if (e is MissingArbTemplateFile) {
-      _setError('Missing ARB template file: ${e.path}.');
-    } else if (e is ArbMultipleFilesWithSameLocationException) {
-      _setError('Multiple files with the same location');
-    } else {
-      _handleException(e);
-    }
+  void _handleL10nException(L10nException e) {
+    _setError(e.message(context));
   }
 
   void _handleException(Object e) {
@@ -289,5 +227,19 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
         _error = message;
       });
     }
+  }
+
+  void _cancelLoading() {
+    _setStage(LoadStage.canceled);
+    Navigator.pop(context);
+  }
+
+  void _postFrameClose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(projectProvider).hasNoError) {
+        ref.read(activeNavigationProvider.notifier).state = null;
+      }
+      Navigator.pop(context);
+    });
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../common/desktop/container_with_title_bar.dart';
-import '../../provider/presentation_providers.dart';
-import 'navigation_drawer.dart';
-import 'navigation_drawer_rail.dart';
+import '../../../common/desktop/container_with_title_bar.dart';
+import '../../../provider/presentation_providers.dart';
+import '../drawer/active_navigation_drawer.dart';
+import '../drawer/navigation_drawer_rail.dart';
 
 class NavigationAndScaffold extends ConsumerWidget {
   const NavigationAndScaffold({super.key, required this.title, required this.body});

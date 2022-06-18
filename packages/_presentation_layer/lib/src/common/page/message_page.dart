@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../l10n/translations.dart';
+import '../../l10n/app_localizations.dart';
 import '../widget/message_widget.dart';
 
 /// Simple message page.
@@ -35,7 +35,7 @@ class ErrorMessagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MessagePage(
-      title: Translations.of(context).title_error_page,
+      title: AppLocalizations.of(context).title_error_page,
       message: error.toString(),
     );
   }

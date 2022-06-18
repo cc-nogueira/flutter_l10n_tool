@@ -2,7 +2,7 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n/translations.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ConfigurationForm extends ConsumerWidget {
   const ConfigurationForm({super.key});
@@ -10,16 +10,16 @@ class ConfigurationForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(resetConfigurationProvider);
-    final tr = Translations.of(context);
+    final loc = AppLocalizations.of(context);
     final controller = ref.watch(formConfigurationProvider.notifier);
-    return _ConfigurationForm(tr, controller);
+    return _ConfigurationForm(loc, controller);
   }
 }
 
 class _ConfigurationForm extends StatefulWidget {
-  const _ConfigurationForm(this.tr, this.configurationController);
+  const _ConfigurationForm(this.loc, this.configurationController);
 
-  final Translations tr;
+  final AppLocalizations loc;
   final StateController<L10nConfiguration> configurationController;
 
   @override

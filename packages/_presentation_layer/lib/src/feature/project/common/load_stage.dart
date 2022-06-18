@@ -5,11 +5,9 @@ enum LoadStage {
   definingConfiguration('definingConfiguration', 0.3, true),
   doneDefiningConfiguration('definingConfiguration', 0.4, false),
   readingResourceDefinitions('readingResourceDefinitions', 0.5, true),
-  doneReadingResourceDefinitions('readingResourceDefinitions', 0.6, false),
-  readingTranslations('readingTranslations', 0.7, true),
-  doneReadingTranslations('readingTranslations', 0.8, false),
-  confirmingLoaded('confirmingLoaded', 0.9, true),
-  loaded('loaded', 1.0, false, true, true),
+  doneReadingResourceDefinitions('readingResourceDefinitions', 0.7, false),
+  readingTranslations('readingTranslations', 0.8, true),
+  doneReadingTranslations('readingTranslations', 1.0, false, true, true),
   error('error', 1.0, false, true),
   canceled('canceled', 1.0, false, true);
 

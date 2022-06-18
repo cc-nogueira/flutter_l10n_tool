@@ -1,22 +1,6 @@
 {
   "@@locale": "en",
 
-  "test_plural": "You have {count, plural, one{You have 1 photo} other{You have # photos}}",
-  "@test_plural": {
-    "placeholders": {
-      "num": {},
-      "xpto": {},
-      "count": {}
-    }
-  },
-
-  "test_select": "Order your {dayPart, select, morning{breakfast} noon{lunch} night{dinner} other{snack}} now",
-  "@test_select": {
-    "placeholders": {
-      "dayPart": {}
-    }
-  },
-
   "title_home_page": "Localization App",
 
   "title_error_page": "Error",
@@ -105,75 +89,5 @@
   "message_no_project_selected": "No project selected",
   "@message_no_project_selected": {
     "description": "Message for no project selected"
-  },
-
-"error_arb_resource_global_format": "Global resource \"{id}\" should have a string value.",
-  "@error_arb_resource_global_format": {
-    "placeholders": {
-      "id": {}
-    }
-  },
-
-  "error_arb_resource_format": "Resource \"{id}\" should have a string value.",
-  "@error_arb_resource_format": {
-    "placeholders": {
-      "id": {}
-    }
-  },
-
-  "error_arb_resource_attribute_format": "Ensure that resource \"{id}\" value is a map with string valued keys.",
-  "@error_arb_resource_attribute_format": {
-    "placeholders": {
-      "id": {}
-    }
-  },
-
-  "error_arb_placeholders_format": "The \"placeholders\" attribute for {type} message \"{id}\" is not properly formatted. Ensure that it is a map with string valued keys.",
-  "@error_arb_placeholders_format": {
-    "placeholders": {
-      "id": {},
-      "type": {}
-    }
-  },
-
-  "error_arb_missing_one_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that each resource has a corresponding @resource.",
-  "@error_arb_missing_one_resource_attribute": {
-    "placeholders": {
-      "id": {}
-    }
-  },
-
-  "error_arb_missing_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that {type} resources have a corresponding @resource.",
-  "@error_arb_missing_resource_attribute": {
-    "placeholders": {
-      "id": {},
-      "type": {}
-    }
-  },
-
-  "error_arb_missing_placeholders": "Unable to find placeholders for the {type} message: {id}.",
-  "@error_arb_missing_placeholders": {
-    "placeholders": {
-      "id": {},
-      "type": {}
-    }
-  },
-
-  "error_arb_missing_placeholder": "Unable to find \"{name}\" placeholder in the {type} message: {id}",
-  "@error_arb_missing_placeholder": {
-    "placeholders": {
-      "id": {},
-      "name": {},
-      "type": {}
-    }
-  },
-
-  "error_locale_specification": "Make sure that the locale is specified in the file's '@@locale' property or as part of the filename (e.g. file_en.arb)",
-
-  "error_multiple_files_with_same_location": "Multiple arb files with the same \"{locale}\" locale detected.",
-  "@error_multiple_files_with_same_location": {
-    "placeholders": {
-      "locale": {}
-    }
   }
 }

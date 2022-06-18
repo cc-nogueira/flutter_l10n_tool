@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/page/message_page.dart';
-import '../l10n/translations.dart';
+import '../l10n/app_localizations.dart';
 import '../provider/presentation_providers.dart';
 import '../routes/routes.dart';
 
@@ -32,9 +32,12 @@ class L10nApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ref.watch(themeProvider),
-      onGenerateTitle: (context) => Translations.of(context).title_home_page,
-      localizationsDelegates: Translations.localizationsDelegates,
-      supportedLocales: Translations.supportedLocales,
+      onGenerateTitle: (context) => AppLocalizations.of(context).title_home_page,
+      localizationsDelegates: const [
+        DomainLocalizations.delegate,
+        ...AppLocalizations.localizationsDelegates
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
       onGenerateRoute: _routes.onGenerateRoute,
       initialRoute: Routes.home,
@@ -44,9 +47,9 @@ class L10nApp extends ConsumerWidget {
   Widget get _errorApp => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.blue),
-        onGenerateTitle: (context) => Translations.of(context).title_home_page,
-        localizationsDelegates: Translations.localizationsDelegates,
-        supportedLocales: Translations.supportedLocales,
+        onGenerateTitle: (context) => AppLocalizations.of(context).title_home_page,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: ErrorMessagePage(error!),
       );
 }

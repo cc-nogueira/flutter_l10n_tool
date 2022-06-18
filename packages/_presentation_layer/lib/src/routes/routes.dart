@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../common/page/message_page.dart';
-import '../feature/home/home_page.dart';
+import '../feature/home/page/home_page.dart';
 
 /// Routes management class.
 ///

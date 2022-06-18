@@ -62,7 +62,7 @@ class ContainerWithTitleBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (leading != null) SizedBox(width: leadingWidth ?? 56.0, child: leading!),
-          _dragTitle(context),
+          _dragTitle(),
           _trailingControls(context),
         ],
       ),
@@ -70,7 +70,7 @@ class ContainerWithTitleBar extends StatelessWidget {
   }
 
   /// Internal - expanded title inside a drag window container.
-  Widget _dragTitle(BuildContext context) => Expanded(
+  Widget _dragTitle() => Expanded(
         child: GestureDetector(
           onPanStart: (_) => appWindow.startDragging(),
           child: Container(

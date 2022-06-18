@@ -4,9 +4,8 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../l10n/translations.dart';
-
-import '../project/widget/load_project_dialog.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../project/page/load_project_dialog.dart';
 import 'navigation_drawer.dart';
 import 'navigation_drawer_option.dart';
 
@@ -16,10 +15,10 @@ class ProjectSelectorDrawer extends NavigationDrawer {
   static const Widget _verticalSpacer = SizedBox(height: 4.0);
 
   @override
-  String titleText(Translations tr) => tr.title_project_selector_drawer;
+  String titleText(AppLocalizations loc) => loc.title_project_selector_drawer;
 
   @override
-  List<Widget> headerChildren(BuildContext context, WidgetRef ref, Translations tr) {
+  List<Widget> headerChildren(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final projectLoaded = ref.watch(isProjectLoadedProvider);
     if (projectLoaded) {
       return [];
@@ -27,13 +26,12 @@ class ProjectSelectorDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
     return [
-      const SizedBox(height: 12),
-      Text('(${tr.message_no_project_selected})', style: nameStyle),
+      Text('(${loc.message_no_project_selected})', style: nameStyle),
     ];
   }
 
   @override
-  List<Widget> children(BuildContext context, WidgetRef ref, Translations tr) {
+  List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final textButtonStyle = TextButton.styleFrom(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -63,11 +61,11 @@ class _CloseProjectButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projectLoaded = ref.watch(isProjectLoadedProvider);
-    final tr = Translations.of(context);
+    final loc = AppLocalizations.of(context);
     return TextButton.icon(
       style: style,
       icon: const Icon(Icons.close),
-      label: Text(tr.label_close_project),
+      label: Text(loc.label_close_project),
       onPressed: projectLoaded ? () => _onPressed(ref.read) : null,
     );
   }
@@ -82,24 +80,24 @@ class _OpenProjectButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tr = Translations.of(context);
+    final loc = AppLocalizations.of(context);
     return TextButton.icon(
       style: style,
       icon: const Icon(Icons.folder_outlined),
-      label: Text('${tr.label_open_project} ...'),
-      onPressed: () => _onPressed(context, tr, ref.read),
+      label: Text('${loc.label_open_project} ...'),
+      onPressed: () => _onPressed(context, loc, ref.read),
     );
   }
 
-  void _onPressed(BuildContext context, Translations tr, Reader read) async {
-    final projectPath = await getDirectoryPath(confirmButtonText: tr.label_choose);
+  void _onPressed(BuildContext context, AppLocalizations loc, Reader read) async {
+    final projectPath = await getDirectoryPath(confirmButtonText: loc.label_choose);
     if (projectPath == null) {
       return;
     }
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) => LoadProjectDialog(projectPath, tr),
+      builder: (BuildContext context) => LoadProjectDialog(projectPath, loc),
     );
   }
 }
@@ -115,7 +113,7 @@ class _RecentListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showRecent = ref.watch(_showRecentProvider);
-    final tr = Translations.of(context);
+    final loc = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     if (showRecent) {
       return Expanded(
@@ -137,7 +135,7 @@ class _RecentListWidget extends ConsumerWidget {
                   label: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(tr.label_open_recent),
+                      Text(loc.label_open_recent),
                       Icon(showRecent ? Icons.arrow_drop_down_circle_outlined : Icons.arrow_right),
                     ],
                   ),
@@ -146,7 +144,7 @@ class _RecentListWidget extends ConsumerWidget {
                 Expanded(
                   child: ListView(
                     shrinkWrap: true,
-                    children: _recentList(context, ref, tr, colors),
+                    children: _recentList(context, ref, loc, colors),
                   ),
                 ),
               ],
@@ -161,7 +159,7 @@ class _RecentListWidget extends ConsumerWidget {
       label: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(tr.label_open_recent),
+          Text(loc.label_open_recent),
           const Padding(
             padding: EdgeInsets.only(right: 4.0),
             child: Icon(Icons.arrow_right),
@@ -173,7 +171,7 @@ class _RecentListWidget extends ConsumerWidget {
   }
 
   List<Widget> _recentList(
-      BuildContext context, WidgetRef ref, Translations tr, ColorScheme colors) {
+      BuildContext context, WidgetRef ref, AppLocalizations loc, ColorScheme colors) {
     final recentList = ref.watch(recentProjectsProvider);
     final project = ref.watch(projectProvider);
     return [
@@ -192,15 +190,15 @@ class _RecentListWidget extends ConsumerWidget {
               child: Text('...'),
             ),
           ),
-          onTap: () => _openRecent(context, ref.read, tr, recent),
+          onTap: () => _openRecent(context, ref.read, loc, recent),
         ),
     ];
   }
 
-  void _openRecent(BuildContext context, Reader read, Translations tr, Project project) {
+  void _openRecent(BuildContext context, Reader read, AppLocalizations loc, Project project) {
     if (read(projectProvider) == project) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr.message_project_already_selected)),
+        SnackBar(content: Text(loc.message_project_already_selected)),
       );
     } else {
       //read(projectProvider.notifier).state = project;
