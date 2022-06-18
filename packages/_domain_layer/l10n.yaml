@@ -1,0 +1,6 @@
+arb-dir: lib/src/l10n
+header: "//ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_string_escapes"
+output-localization-file: "domain_localizations.dart"
+output-class: "DomainLocalizations"
+synthetic-package: false
+template-arb-file: "domain_en.arb"

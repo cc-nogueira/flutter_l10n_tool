@@ -1,0 +1,117 @@
+{
+  "@@locale": "en",
+
+  "error_l10n": "L10n error",
+
+  "error_invalid_configuration_file": "Invalid localization configuration file: l10n.yaml",
+
+  "error_missing_pubspec": "Could not find pubspec.yaml file in this folder.",
+
+  "error_missing_pubspec_dependency": "Could not find required dependency \"{name}\" in pubspec.yaml",
+  "@error_missing_pubspec_dependency": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_missing_arb_folder": "Missing ARB folder: {path}",
+  "@error_missing_arb_folder": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+
+  "error_missing_arb_template_file": "Missing ARB template file: {path}",
+  "@error_missing_arb_template_file": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+
+  "error_invalid_arb_file_format": "Invalid content in ARB file: {name}",
+  "@error_invalid_arb_file_format": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_incomplete_pubspec_dependency": "Incomplete dependency specification for \"{name}\"",
+  "@error_incomplete_pubspec_dependency": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_locale_specification": "Make sure that the locale is specified in the file's '@@locale' property or as part of the filename (e.g. file_en.arb) for: {name}",
+  "@error_locale_specification": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "error_multiple_files_with_same_locale": "Multiple arb files with the same \"{locale}\" locale detected.",
+  "@error_multiple_files_with_same_locale": {
+    "placeholders": {
+      "locale": {}
+    }
+  },
+
+  "error_arb_resource_global_format": "Global resource \"{id}\" should have a string value.",
+  "@error_arb_resource_global_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_resource_format": "Resource \"{id}\" should have a string value.",
+  "@error_arb_resource_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  
+  "error_arb_resource_attribute_format": "Ensure that resource \"{id}\" value is a map with string valued keys.",
+  "@error_arb_resource_attribute_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_missing_a_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that each resource has a corresponding @resource.",
+  "@error_arb_missing_a_resource_attribute": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_missing_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that {type} resources have a corresponding @resource.",
+  "@error_arb_missing_resource_attribute": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholders": "Unable to find placeholders for the {type} message: {id}.",
+  "@error_arb_missing_placeholders": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholder": "Unable to find \"{name}\" placeholder in the {type} message: {id}",
+  "@error_arb_missing_placeholder": {
+    "placeholders": {
+      "id": {},
+      "type": {},
+      "name": {}
+    }
+  },
+  
+  "error_arb_placeholders_format": "The \"placeholders\" attribute for \"{id}\" is not properly formatted. Ensure that it is a map with string valued keys.",
+  "@error_arb_placeholders_format": {
+    "placeholders": {
+      "id": {}
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import '../entity/project/l10n_configuration.dart';
-import '../exception/arb_exception.dart';
+import '../exception/l10n_arb_resource_definition_exception.dart';
 
 class ArbValidator {
   const ArbValidator(this.configuration, {required this.resources, required this.meta});
@@ -25,10 +25,10 @@ class ArbValidator {
       final attributeKey = '@$key';
       final definition = meta[attributeKey];
       if (definition == null) {
-        throw ArbResourceDefinitionException.missingOne(attributeKey);
+        throw L10nMissingAnArbResourceException(attributeKey);
       }
       if (definition is! Map<String, dynamic>) {
-        throw ArbResourceDefinitionException.format(key);
+        throw L10nArbResourceDefinitionException(key);
       }
     }
   }
@@ -40,18 +40,18 @@ class ArbValidator {
         final attributeKey = '@${entry.key}';
         final definition = meta[attributeKey];
         if (definition == null || definition is! Map<String, dynamic>) {
-          throw ArbResourceDefinitionException.missing(attributeKey, type: 'plural');
+          throw L10nMissingArbResourceException(attributeKey, type: 'plural');
         }
         final placeholders = definition['placeholders'];
         if (placeholders == null) {
-          throw ArbResourceDefinitionException.missingPlaceholders(entry.key, type: 'plural');
+          throw L10nMissingResourcePlaceholdersException(entry.key, type: 'plural');
         }
         if (placeholders is! Map<String, dynamic>) {
-          throw ArbResourceDefinitionException.placeholdersFormat(entry.key, type: 'plural');
+          throw L10nArbResourcePlaceholdersFormatException(entry.key);
         }
         final placeholder = placeholders[pluralKey];
         if (placeholder == null || placeholder is! Map) {
-          throw ArbResourceDefinitionException.missingPlaceholder(
+          throw L10nMissingResourcePlaceholderException(
             entry.key,
             type: 'plural',
             placeholderName: pluralKey,
@@ -68,18 +68,18 @@ class ArbValidator {
         final attributeKey = '@${entry.key}';
         final definition = meta[attributeKey];
         if (definition == null || definition is! Map<String, dynamic>) {
-          throw ArbResourceDefinitionException.missing(attributeKey, type: 'select');
+          throw L10nMissingArbResourceException(attributeKey, type: 'select');
         }
         final placeholders = definition['placeholders'];
         if (placeholders == null) {
-          throw ArbResourceDefinitionException.missingPlaceholders(entry.key, type: 'select');
+          throw L10nMissingResourcePlaceholdersException(entry.key, type: 'select');
         }
         if (placeholders is! Map<String, dynamic>) {
-          throw ArbResourceDefinitionException.placeholdersFormat(entry.key, type: 'select');
+          throw L10nArbResourcePlaceholdersFormatException(entry.key);
         }
         final placeholder = placeholders[selectKey];
         if (placeholder == null || placeholder is! Map) {
-          throw ArbResourceDefinitionException.missingPlaceholder(
+          throw L10nMissingResourcePlaceholderException(
             entry.key,
             type: 'select',
             placeholderName: selectKey,
@@ -93,7 +93,7 @@ class ArbValidator {
     for (final entry in meta.entries) {
       final placeholders = entry.value['placeholders'];
       if (placeholders != null && placeholders is! Map<String, dynamic>) {
-        throw ArbResourceDefinitionException.placeholdersFormat(entry.key, type: '');
+        throw L10nArbResourcePlaceholdersFormatException(entry.key);
       }
     }
   }

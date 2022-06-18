@@ -32,7 +32,7 @@ final projectProvider = StateNotifierProvider<ProjectNotifier, Project>((_) => P
 
 /// Project loaded provider
 final isProjectLoadedProvider = Provider(
-  (ref) => ref.watch(projectProvider.select((p) => p.loaded)),
+  (ref) => ref.watch(projectProvider.select((p) => p.path.isNotEmpty)),
 );
 
 /// Project configuration provider

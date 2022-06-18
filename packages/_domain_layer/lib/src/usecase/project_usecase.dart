@@ -11,8 +11,9 @@ import '../entity/project/arb_resource.dart';
 import '../entity/project/arb_template.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
-import '../exception/arb_exception.dart';
-import '../exception/pubspec_exception.dart';
+import '../exception/l10n_arb_resource_definition_exception.dart';
+import '../exception/l10n_exception.dart';
+import '../exception/l10n_pubspec_exception.dart';
 import '../provider/providers.dart';
 import '../validator/arb_validator.dart';
 
@@ -29,11 +30,19 @@ class ProjectUsecase {
 
   Future<void> loadPubspec() async {
     final file = File('${_project.path}/pubspec.yaml');
-    if (file.existsSync()) {
-      final content = await file.readAsString();
-      _readPubspec(content);
-    } else {
-      throw const MissingPubspecException();
+    try {
+      if (file.existsSync()) {
+        final content = await file.readAsString();
+        _readPubspec(content);
+      } else {
+        throw const L10nMissingPubspecException();
+      }
+    } on L10nException catch (e) {
+      _projectNotifier._l10nException(e);
+      rethrow;
+    } catch (e) {
+      _projectNotifier._error(e);
+      rethrow;
     }
   }
 
@@ -41,8 +50,16 @@ class ProjectUsecase {
     final file = File('${_project.path}/l10n.yaml');
     late L10nConfiguration configuration;
     if (file.existsSync()) {
-      final content = await file.readAsString();
-      configuration = _readL10nConfiguration(content);
+      try {
+        final content = await file.readAsString();
+        configuration = _readL10nConfiguration(content);
+      } on L10nException catch (e) {
+        _projectNotifier._l10nException(e);
+        rethrow;
+      } catch (e) {
+        _projectNotifier._error(e);
+        rethrow;
+      }
     } else {
       configuration = const L10nConfiguration(usingYamlFile: false);
     }
@@ -53,17 +70,25 @@ class ProjectUsecase {
     final project = _project;
     final configuration = project.configuration;
     final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
-    if (!dir.existsSync()) {
-      throw MissingArbDir(configuration.effectiveArbDir);
-    }
-    final file = File(
-        '${project.path}/${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
-    if (file.existsSync()) {
-      final content = await file.readAsString();
-      _readTemplateFile(configuration.effectiveTemplateArbFile, content);
-    } else {
-      throw MissingArbTemplateFile(
-          '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
+    try {
+      if (!dir.existsSync()) {
+        throw L10nMissingArbFolderException(configuration.effectiveArbDir);
+      }
+      final file = File(
+          '${project.path}/${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
+      if (file.existsSync()) {
+        final content = await file.readAsString();
+        _readTemplateFile(configuration.effectiveTemplateArbFile, content);
+      } else {
+        throw L10nMissingArbTemplateFileException(
+            '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
+      }
+    } on L10nException catch (e) {
+      _projectNotifier._l10nException(e);
+      rethrow;
+    } catch (e) {
+      _projectNotifier._error(e);
+      rethrow;
     }
   }
 
@@ -71,24 +96,32 @@ class ProjectUsecase {
     final project = _project;
     final configuration = project.configuration;
     final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
-    if (dir.existsSync()) {
-      final languageFiles = <File>[];
-      final dirList = dir.listSync();
-      for (final file in dirList) {
-        if (file is File) {
-          final name = file.uri.pathSegments.last;
-          if (name.endsWith('.arb')) {
-            if (name != configuration.effectiveTemplateArbFile) {
-              languageFiles.add(file);
+    try {
+      if (dir.existsSync()) {
+        final languageFiles = <File>[];
+        final dirList = dir.listSync();
+        for (final file in dirList) {
+          if (file is File) {
+            final name = file.uri.pathSegments.last;
+            if (name.endsWith('.arb')) {
+              if (name != configuration.effectiveTemplateArbFile) {
+                languageFiles.add(file);
+              }
             }
           }
         }
+        for (final file in languageFiles) {
+          await _readTranslationFile(file);
+        }
+      } else {
+        throw L10nMissingArbFolderException(configuration.effectiveArbDir);
       }
-      for (final file in languageFiles) {
-        await _readTranslationFile(file);
-      }
-    } else {
-      throw MissingArbDir(configuration.effectiveArbDir);
+    } on L10nException catch (e) {
+      _projectNotifier._l10nException(e);
+      rethrow;
+    } catch (e) {
+      _projectNotifier._error(e);
+      rethrow;
     }
   }
 
@@ -97,7 +130,7 @@ class ProjectUsecase {
     if (project.path.isEmpty || project.translations.isEmpty) {
       throw StateError('Project cannot be confirmed as loaded.');
     }
-    _projectNotifier.confirmLoaded();
+    _projectNotifier._confirmLoaded();
   }
 
   Project get _project => read(projectProvider);
@@ -105,33 +138,43 @@ class ProjectUsecase {
 
   void _readPubspec(String yaml) {
     final pubspec = Pubspec.parse(yaml);
-    _projectNotifier.name(pubspec.name);
+    _projectNotifier._name(pubspec.name);
 
-    const depName = 'flutter_localizations';
-    final dep = pubspec.dependencies[depName];
+    const localizationsDepName = 'flutter_localizations';
+    var dep = pubspec.dependencies[localizationsDepName];
     if (dep == null) {
-      throw DependencyException.missing(depName);
+      throw const L10nMissingDependencyException(localizationsDepName);
     }
     if (dep is! SdkDependency) {
-      throw DependencyException.incomplete(depName);
+      throw const L10nIncompleteDependencyException(localizationsDepName);
+    }
+
+    const intlDepName = 'intl';
+    dep = pubspec.dependencies[intlDepName];
+    if (dep == null) {
+      throw const L10nMissingDependencyException(intlDepName);
     }
   }
 
   L10nConfiguration _readL10nConfiguration(String content) {
-    final yaml = loadYaml(content);
-    final conf = yaml is Map ? yaml : <String, dynamic>{};
-    return L10nConfiguration(
-      usingYamlFile: true,
-      syntheticPackage: conf['synthetic-package'],
-      arbDir: conf['arb-dir'],
-      outputDir: conf['output-dir'],
-      templateArbFile: conf['template-arb-file'],
-      outputLocalizationFile: conf['output-localization-file'],
-      outputClass: conf['output-class'],
-      header: conf['header'],
-      requiredResourceAttributes: conf['required-resource-attributes'],
-      nullableGetter: conf['nullable-getter'],
-    );
+    final yaml = loadYaml(content) ?? <String, dynamic>{};
+    if (yaml is Map) {
+      return L10nConfiguration(
+        usingYamlFile: true,
+        syntheticPackage: yaml['synthetic-package'] ?? L10nConfiguration.defaultSyntheticPackage,
+        arbDir: yaml['arb-dir'] ?? '',
+        outputDir: yaml['output-dir'] ?? '',
+        templateArbFile: yaml['template-arb-file'] ?? '',
+        outputLocalizationFile: yaml['output-localization-file'] ?? '',
+        outputClass: yaml['output-class'] ?? '',
+        header: yaml['header'] ?? '',
+        requiredResourceAttributes: yaml['required-resource-attributes'] ??
+            L10nConfiguration.defaultRequiredResourceAttributes,
+        nullableGetter: yaml['nullable-getter'] ?? L10nConfiguration.defaultNullableGetter,
+      );
+    } else {
+      throw const L10nInvalidConfigurationFileException();
+    }
   }
 
   void _readTemplateFile(String fileName, String content) {
@@ -145,7 +188,7 @@ class ProjectUsecase {
           if (entry.value is String) {
             global[entry.key] = entry.value;
           } else {
-            throw ArbResourceDefinitionException.globalFormat(entry.key);
+            throw L10nArbGlobalResourceDefinitionException(entry.key);
           }
         } else if (entry.key.startsWith('@')) {
           meta[entry.key] = entry.value;
@@ -153,12 +196,12 @@ class ProjectUsecase {
           if (entry.value is String) {
             resources[entry.key] = entry.value;
           } else {
-            throw ArbResourceDefinitionException.format(entry.key);
+            throw L10nArbResourceDefinitionException(entry.key);
           }
         }
       }
     } else {
-      throw ArbFileFormatException(fileName);
+      throw L10nArbFileFormatException(fileName);
     }
 
     final validator = ArbValidator(_project.configuration, resources: resources, meta: meta);
@@ -200,7 +243,7 @@ class ProjectUsecase {
     final arbPlaceholders = <ArbPlaceholderBase>[];
     for (final entry in placeholders.entries) {
       if (entry.value is! Map<String, dynamic>) {
-        throw ArbResourceDefinitionException.placeholdersFormat(entry.key, type: '');
+        throw L10nArbResourcePlaceholdersFormatException(entry.key);
       }
       final key = entry.key;
       final type = entry.value['type'] as String?;
@@ -234,7 +277,7 @@ class ProjectUsecase {
                 optionalParameters[entry.key] = entry.value;
               }
             } catch (e) {
-              throw const ArbException();
+              throw const L10nException();
             }
           }
         }
@@ -273,13 +316,13 @@ class ProjectUsecase {
           if (entry.value is String) {
             resources[entry.key] = entry.value;
           } else {
-            throw ArbResourceDefinitionException.format(entry.key);
+            throw L10nArbResourceDefinitionException(entry.key);
           }
         }
       }
       _projectNotifier._localeTranslations(_localeTranslations(locale, resources));
     } else {
-      throw ArbFileFormatException(name);
+      throw L10nArbFileFormatException(name);
     }
   }
 
@@ -289,7 +332,7 @@ class ProjectUsecase {
   String _matchLocaleFromFileName(String name) {
     final match = _localeFromFileNameRegExp.firstMatch(name);
     if (match == null) {
-      throw ArbFileMissingLocaleException(name);
+      throw L10nFileMissingLocaleException(name);
     }
     return match.group(1)!;
   }
@@ -306,7 +349,7 @@ class ProjectNotifier extends StateNotifier<Project> {
     state = const Project();
   }
 
-  void name(String name) {
+  void _name(String name) {
     state = state.copyWith(name: name);
   }
 
@@ -321,14 +364,22 @@ class ProjectNotifier extends StateNotifier<Project> {
   void _localeTranslations(ArbLocaleTranslations localeTranslations) {
     final locale = localeTranslations.locale;
     if (state.translations.containsKey(locale)) {
-      throw ArbMultipleFilesWithSameLocationException(locale);
+      throw L10nMultipleFilesWithSameLocationException(locale);
     }
     final translations = Map.of(state.translations);
     translations[locale] = localeTranslations;
     state = state.copyWith(translations: translations);
   }
 
-  void confirmLoaded() {
+  void _l10nException(L10nException exception) {
+    state = state.copyWith(l10nException: exception);
+  }
+
+  void _error(Object error) {
+    state = state.copyWith(loadError: error);
+  }
+
+  void _confirmLoaded() {
     state = state.copyWith(loaded: true);
   }
 }

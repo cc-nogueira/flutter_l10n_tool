@@ -42,8 +42,8 @@ class L10nConfiguration with _$L10nConfiguration {
   static const recommendedSyntheticPackage = false;
   static const recommendedNullableGetter = false;
   static const recommendedArbDir = 'lib/src/l10n';
-  static const recommendedHeader = '"//ignore_for_file: non_constant_identifier_names, '
-      'unnecessary_brace_in_string_interps, unnecessary_string_escapes"';
+  static const recommendedHeader = '//ignore_for_file: non_constant_identifier_names, '
+      'unnecessary_brace_in_string_interps, unnecessary_string_escapes';
 
   bool get effectiveSyntheticPackage => syntheticPackage;
   String get effectiveArbDir => arbDir.ifEmpty(defaultArbDir);
