@@ -28,7 +28,6 @@ class ProjectConfigurationDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
     return [
-      const SizedBox(height: 12),
       Text('(${loc.message_no_project_selected})', style: nameStyle),
     ];
   }

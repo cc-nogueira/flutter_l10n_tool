@@ -2,7 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/widget/label_divider.dart';
 import '../../../l10n/app_localizations.dart';
+import 'configuration_form_dropdown.dart';
 
 class ConfigurationForm extends ConsumerWidget {
   const ConfigurationForm({super.key});
@@ -10,16 +12,18 @@ class ConfigurationForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(resetConfigurationProvider);
+    final currentConfiguration = ref.watch(projectConfigurationProvider);
     final loc = AppLocalizations.of(context);
     final controller = ref.watch(formConfigurationProvider.notifier);
-    return _ConfigurationForm(loc, controller);
+    return _ConfigurationForm(loc, currentConfiguration, controller);
   }
 }
 
 class _ConfigurationForm extends StatefulWidget {
-  const _ConfigurationForm(this.loc, this.configurationController);
+  const _ConfigurationForm(this.loc, this.currentConfiguration, this.configurationController);
 
   final AppLocalizations loc;
+  final L10nConfiguration currentConfiguration;
   final StateController<L10nConfiguration> configurationController;
 
   @override
@@ -104,13 +108,19 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        LabelDivider(
+          padding: const EdgeInsets.only(bottom: 16),
+          color: colors.onBackground,
+          label: const Text('Input'),
+          separation: 8,
+        ),
         _formField(
           context,
           colors,
           'arb folder',
           _arbDirTextController,
+          currentValue: widget.currentConfiguration.arbDir,
           hintText: L10nConfiguration.defaultArbDir,
-          onChanged: (_) => _onFormChanged(),
           focusNode: _arbDirFocus,
           nextFocus: _outputDirFocus,
         ),
@@ -118,12 +128,32 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
         _formField(
           context,
           colors,
+          'template file',
+          _templateArbFileTextController,
+          currentValue: widget.currentConfiguration.templateArbFile,
+          hintText: L10nConfiguration.defaultTemplateArbFile,
+          focusNode: _templateArbFileFocus,
+          nextFocus: _outputLocalizationFocus,
+        ),
+        _verticalSeparator,
+        RequiredResouceAttributesDropdown(loc: widget.loc),
+        LabelDivider(
+          padding: const EdgeInsets.only(top: 24, bottom: 16),
+          color: colors.onBackground,
+          label: const Text('Output'),
+          separation: 8,
+        ),
+        UseSyntheticPackageDropdown(loc: widget.loc),
+        _verticalSeparator,
+        _formField(
+          context,
+          colors,
           'output folder',
           _outputDirTextController,
+          currentValue: widget.currentConfiguration.outputDir,
           hintText: _arbDirTextController.text.isEmpty
               ? L10nConfiguration.defaultArbDir
               : _arbDirTextController.text,
-          onChanged: (_) => _onFormChanged(),
           focusNode: _outputDirFocus,
           nextFocus: _templateArbFileFocus,
         ),
@@ -131,21 +161,10 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
         _formField(
           context,
           colors,
-          'template file',
-          _templateArbFileTextController,
-          hintText: L10nConfiguration.defaultTemplateArbFile,
-          onChanged: (_) => _onFormChanged(),
-          focusNode: _templateArbFileFocus,
-          nextFocus: _outputLocalizationFocus,
-        ),
-        _verticalSeparator,
-        _formField(
-          context,
-          colors,
           'output file',
           _outputLocalizationFileTextController,
+          currentValue: widget.currentConfiguration.outputLocalizationFile,
           hintText: L10nConfiguration.defaultOutputLocalizationFile,
-          onChanged: (_) => _onFormChanged(),
           focusNode: _outputLocalizationFocus,
           nextFocus: _outputClassFocus,
         ),
@@ -155,18 +174,25 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           colors,
           'output class',
           _outputClassTextController,
+          currentValue: widget.currentConfiguration.outputClass,
           hintText: L10nConfiguration.defaultOutputClass,
-          onChanged: (_) => _onFormChanged(),
           focusNode: _outputClassFocus,
           nextFocus: _headerFocus,
         ),
+        LabelDivider(
+          padding: const EdgeInsets.only(top: 24, bottom: 16),
+          color: colors.onBackground,
+          label: const Text('Generation'),
+          separation: 8,
+        ),
+        NullableGetterDropdown(loc: widget.loc),
         _verticalSeparator,
         _formField(
           context,
           colors,
           'header',
           _headerTextController,
-          onChanged: (_) => _onFormChanged(),
+          currentValue: widget.currentConfiguration.header,
           focusNode: _headerFocus,
           nextFocus: _arbDirFocus,
           maxLines: null,
@@ -180,8 +206,8 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
     ColorScheme colors,
     String label,
     TextEditingController controller, {
+    String? currentValue,
     String? hintText,
-    void Function(String)? onChanged,
     required FocusNode focusNode,
     FocusNode? nextFocus,
     String? Function(String?)? validator,
@@ -189,47 +215,34 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
     TextCapitalization textCapitalization = TextCapitalization.none,
     bool readOnly = false,
     bool enabled = true,
-    VoidCallback? onTap,
     int? maxLines = 1,
-  }) =>
-      TextFormField(
-        controller: controller,
-        readOnly: readOnly,
-        enabled: enabled,
-        onTap: onTap,
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: colors.primary),
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          labelText: label,
-          hintText: hintText,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: controller.text.isEmpty
-              ? null
-              : IconButton(
-                  icon: const Icon(Icons.clear),
-                  tooltip: 'clear',
-                  onPressed: () {
-                    controller.clear();
-                    _onFormChanged();
-                  },
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-                ),
-          counterText: '',
-        ),
-        maxLength: maxLength,
-        onChanged: onChanged,
-        validator: validator,
-        focusNode: focusNode,
-        onEditingComplete:
-            nextFocus == null ? null : () => _focusNext(context, focusNode, nextFocus),
-        textInputAction: nextFocus == null ? TextInputAction.done : TextInputAction.next,
-        textCapitalization: textCapitalization,
-        maxLines: maxLines,
-      );
+  }) {
+    final isModified = currentValue != null && currentValue != controller.text;
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      enabled: enabled,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
+        border: const OutlineInputBorder(),
+        enabledBorder: _enabledBorder(colors, isModified),
+        focusedBorder: _focusedBorder(colors, isModified),
+        labelText: label,
+        hintText: hintText,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        counterText: '',
+      ),
+      maxLength: maxLength,
+      onChanged: (_) => _onFormChanged(),
+      validator: validator,
+      focusNode: focusNode,
+      onEditingComplete: nextFocus == null ? null : () => _focusNext(context, focusNode, nextFocus),
+      textInputAction: nextFocus == null ? TextInputAction.done : TextInputAction.next,
+      textCapitalization: textCapitalization,
+      maxLines: maxLines,
+    );
+  }
 
   void _onFormChanged() => setState(() {
         widget.configuration = L10nConfiguration(
@@ -249,4 +262,12 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
     current.unfocus();
     FocusScope.of(context).requestFocus(next);
   }
+
+  InputBorder? _enabledBorder(ColorScheme colors, bool modified) => modified
+      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 1.2))
+      : null;
+
+  InputBorder? _focusedBorder(ColorScheme colors, bool modified) => modified
+      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 2.0))
+      : null;
 }
