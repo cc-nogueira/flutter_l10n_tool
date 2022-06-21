@@ -28,6 +28,36 @@ class ProjectUsecase {
 
   void closeProject() => _projectNotifier._close();
 
+  Future<void> saveConfiguration(L10nConfiguration configuration) async {
+    final content = [
+      if (configuration.arbDir.isNotEmpty) 'arb-dir: ${configuration.arbDir}',
+      if (configuration.templateArbFile.isNotEmpty)
+        'template-arb-file: ${configuration.templateArbFile}',
+      if (configuration.requiredResourceAttributes !=
+          L10nConfiguration.defaultRequiredResourceAttributes)
+        'required-resource-attributes: ${configuration.requiredResourceAttributes}',
+      if (configuration.syntheticPackage != L10nConfiguration.defaultSyntheticPackage)
+        'synthetic-package: ${configuration.syntheticPackage}',
+      if (configuration.outputDir.isNotEmpty) 'output-dir: ${configuration.outputDir}',
+      if (configuration.outputLocalizationFile.isNotEmpty)
+        'output-localization-file: ${configuration.outputLocalizationFile}',
+      if (configuration.outputClass.isNotEmpty) 'output-class: ${configuration.outputClass}',
+      if (configuration.nullableGetter != L10nConfiguration.defaultNullableGetter)
+        'nullable-getter: ${configuration.nullableGetter}',
+      if (configuration.header.isNotEmpty) 'header: ${_yamlText(configuration.header)}',
+    ];
+
+    final file = File('${_project.path}/l10n.yaml');
+    await file.writeAsString(content.join('\n'));
+  }
+
+  String _yamlText(String text) {
+    if (text.contains(':')) {
+      return '"$text"';
+    }
+    return text;
+  }
+
   Future<void> loadPubspec() async {
     final file = File('${_project.path}/pubspec.yaml');
     try {
@@ -161,10 +191,10 @@ class ProjectUsecase {
     if (yaml is Map) {
       return L10nConfiguration(
         usingYamlFile: true,
-        syntheticPackage: yaml['synthetic-package'] ?? L10nConfiguration.defaultSyntheticPackage,
         arbDir: yaml['arb-dir'] ?? '',
-        outputDir: yaml['output-dir'] ?? '',
         templateArbFile: yaml['template-arb-file'] ?? '',
+        syntheticPackage: yaml['synthetic-package'] ?? L10nConfiguration.defaultSyntheticPackage,
+        outputDir: yaml['output-dir'] ?? '',
         outputLocalizationFile: yaml['output-localization-file'] ?? '',
         outputClass: yaml['output-class'] ?? '',
         header: yaml['header'] ?? '',

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
+import '../../../l10n/app_localizations.dart';
+import '../page/load_project_dialog.dart';
 
 class ProjectConfigurationButtons extends ConsumerWidget {
   const ProjectConfigurationButtons({super.key});
@@ -10,30 +12,60 @@ class ProjectConfigurationButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return _ProjectConfigurationButtons(
-      configuration: ref.watch(projectConfigurationProvider),
-      formConfigurationController: ref.watch(formConfigurationProvider.notifier),
+      read: ref.read,
+      currentConfiguration: ref.watch(projectConfigurationProvider),
+      formConfiguration: ref.watch(formConfigurationProvider),
     );
   }
 }
 
 class _ProjectConfigurationButtons extends StatelessWidget {
   const _ProjectConfigurationButtons({
-    required this.configuration,
-    required this.formConfigurationController,
+    required this.read,
+    required this.currentConfiguration,
+    required this.formConfiguration,
   });
 
-  final L10nConfiguration configuration;
-  final StateController<L10nConfiguration> formConfigurationController;
+  final Reader read;
+  final L10nConfiguration currentConfiguration;
+  final L10nConfiguration formConfiguration;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _doSomethingButton(),
-      ],
+    final loc = AppLocalizations.of(context);
+    final isModified = currentConfiguration != formConfiguration;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _discardButton(isModified),
+          const SizedBox(width: 16),
+          _confirmButton(context, loc, isModified),
+          const SizedBox(width: 4.0),
+        ],
+      ),
     );
   }
 
-  Widget _doSomethingButton() => outlinedButton(text: 'Do something', onPressed: null);
+  Widget _discardButton(bool isModified) => textButton(
+      text: 'Discard Changes',
+      onPressed: isModified
+          ? () => read(formConfigurationProvider.notifier).state = currentConfiguration
+          : null);
+
+  Widget _confirmButton(BuildContext context, AppLocalizations loc, bool isModified) => textButton(
+      text: 'Confirm',
+      onPressed: isModified
+          ? () async {
+              final usecase = read(projectUsecaseProvider);
+              await usecase.saveConfiguration(formConfiguration);
+              showDialog<void>(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) =>
+                    LoadProjectDialog(read(projectProvider).path, loc),
+              );
+            }
+          : null);
 }

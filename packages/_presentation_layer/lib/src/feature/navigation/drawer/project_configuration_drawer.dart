@@ -51,14 +51,23 @@ class _ProjectConfigurationWidget extends ConsumerWidget {
       return Container();
     }
 
-    return ListView(
-      padding: const EdgeInsets.only(left: 4.0, right: 12.0),
+    return Column(
       children: [
-        _configurationToggleButtons(),
-        const SizedBox(height: 24),
-        _configurationForm(),
-        const SizedBox(height: 24),
-        _configurationButtons(),
+        Padding(
+          padding: const EdgeInsets.only(top: 2.0, right: 8.0),
+          child: _configurationToggleButtons(),
+        ),
+        const SizedBox(height: 16.0),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(left: 4.0, right: 12.0),
+            children: [
+              _configurationForm(),
+              const SizedBox(height: 24),
+              _configurationButtons(),
+            ],
+          ),
+        ),
       ],
     );
   }

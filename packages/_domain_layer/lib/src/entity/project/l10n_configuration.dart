@@ -45,7 +45,6 @@ class L10nConfiguration with _$L10nConfiguration {
   static const recommendedHeader = '//ignore_for_file: non_constant_identifier_names, '
       'unnecessary_brace_in_string_interps, unnecessary_string_escapes';
 
-  bool get effectiveSyntheticPackage => syntheticPackage;
   String get effectiveArbDir => arbDir.ifEmpty(defaultArbDir);
   String get effectiveOutputDir => outputDir.ifEmpty(effectiveArbDir);
   String get effectiveTemplateArbFile => templateArbFile.ifEmpty(defaultTemplateArbFile);
@@ -53,8 +52,6 @@ class L10nConfiguration with _$L10nConfiguration {
       outputLocalizationFile.ifEmpty(defaultOutputLocalizationFile);
   String get effectiveOutputClass => outputClass.ifEmpty(defaultOutputClass);
   String get effectiveHeader => header.ifEmpty(defaultHeader);
-  bool get effectiveRequiredResourceAttributes => requiredResourceAttributes;
-  bool get effectiveNullableGetter => nullableGetter;
 
   bool get isDefault =>
       !markedCustom &&

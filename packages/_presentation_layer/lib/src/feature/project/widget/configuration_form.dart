@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/label_divider.dart';
 import '../../../l10n/app_localizations.dart';
 import 'configuration_form_dropdown.dart';
+import 'configuration_form_text_field.dart';
 
 class ConfigurationForm extends ConsumerWidget {
   const ConfigurationForm({super.key});
@@ -44,10 +45,13 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
   late final TextEditingController _headerTextController;
 
   final FocusNode _arbDirFocus = FocusNode();
-  final FocusNode _outputDirFocus = FocusNode();
   final FocusNode _templateArbFileFocus = FocusNode();
+  final FocusNode _requiredAttibutesFocus = FocusNode();
+  final FocusNode _syntheticPackageFocus = FocusNode();
+  final FocusNode _outputDirFocus = FocusNode();
   final FocusNode _outputLocalizationFocus = FocusNode();
   final FocusNode _outputClassFocus = FocusNode();
+  final FocusNode _nullableGetterFocus = FocusNode();
   final FocusNode _headerFocus = FocusNode();
 
   final _verticalSeparator = const SizedBox(height: 16);
@@ -84,16 +88,19 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
   @override
   void dispose() {
     _arbDirTextController.dispose();
-    _outputDirTextController.dispose();
     _templateArbFileTextController.dispose();
+    _outputDirTextController.dispose();
     _outputLocalizationFileTextController.dispose();
     _outputClassTextController.dispose();
     _headerTextController.dispose();
     _arbDirFocus.dispose();
-    _outputDirFocus.dispose();
     _templateArbFileFocus.dispose();
+    _requiredAttibutesFocus.dispose();
+    _syntheticPackageFocus.dispose();
+    _outputDirFocus.dispose();
     _outputLocalizationFocus.dispose();
     _outputClassFocus.dispose();
+    _nullableGetterFocus.dispose();
     _headerFocus.dispose();
     super.dispose();
   }
@@ -114,70 +121,106 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           label: const Text('Input'),
           separation: 8,
         ),
-        _formField(
-          context,
-          colors,
-          'arb folder',
-          _arbDirTextController,
-          currentValue: widget.currentConfiguration.arbDir,
+        ConfigurationFormTextField(
+          label: 'arb folder',
           hintText: L10nConfiguration.defaultArbDir,
+          textController: _arbDirTextController,
           focusNode: _arbDirFocus,
-          nextFocus: _outputDirFocus,
+          nextFocus: _templateArbFileFocus,
+          enabled: !widget.configuration.syntheticPackage,
+          currentValue: () => widget.currentConfiguration.arbDir,
+          setValue: (value) => setState(
+            () => widget.configurationController.update((state) => state.copyWith(arbDir: value)),
+          ),
         ),
         _verticalSeparator,
-        _formField(
-          context,
-          colors,
-          'template file',
-          _templateArbFileTextController,
-          currentValue: widget.currentConfiguration.templateArbFile,
+        ConfigurationFormTextField(
+          label: 'template file',
           hintText: L10nConfiguration.defaultTemplateArbFile,
+          textController: _templateArbFileTextController,
           focusNode: _templateArbFileFocus,
-          nextFocus: _outputLocalizationFocus,
+          nextFocus: _requiredAttibutesFocus,
+          currentValue: () => widget.currentConfiguration.templateArbFile,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(templateArbFile: value)),
+          ),
         ),
         _verticalSeparator,
-        RequiredResouceAttributesDropdown(loc: widget.loc),
+        ConfigurationFormDropdown<bool>(
+          label: 'required attributes',
+          options: const [true, false],
+          optionLabel: (value) =>
+              value ? 'require attribute to all resources' : 'don\'t require resource attributes',
+          currentValue: () => widget.currentConfiguration.requiredResourceAttributes,
+          formValue: () => widget.configuration.requiredResourceAttributes,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(requiredResourceAttributes: value ?? false)),
+          ),
+          focusNode: _requiredAttibutesFocus,
+        ),
         LabelDivider(
           padding: const EdgeInsets.only(top: 24, bottom: 16),
           color: colors.onBackground,
           label: const Text('Output'),
           separation: 8,
         ),
-        UseSyntheticPackageDropdown(loc: widget.loc),
-        _verticalSeparator,
-        _formField(
-          context,
-          colors,
-          'output folder',
-          _outputDirTextController,
-          currentValue: widget.currentConfiguration.outputDir,
-          hintText: _arbDirTextController.text.isEmpty
-              ? L10nConfiguration.defaultArbDir
-              : _arbDirTextController.text,
-          focusNode: _outputDirFocus,
-          nextFocus: _templateArbFileFocus,
+        ConfigurationFormDropdown<bool>(
+          label: 'synthetic package',
+          options: const [true, false],
+          optionLabel: (value) => value ? 'use synthetic package' : 'use output folder',
+          currentValue: () => widget.currentConfiguration.syntheticPackage,
+          formValue: () => widget.configuration.syntheticPackage,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(syntheticPackage: value ?? true)),
+          ),
+          focusNode: _syntheticPackageFocus,
         ),
         _verticalSeparator,
-        _formField(
-          context,
-          colors,
-          'output file',
-          _outputLocalizationFileTextController,
-          currentValue: widget.currentConfiguration.outputLocalizationFile,
+        ConfigurationFormTextField(
+          enabled: !widget.configuration.syntheticPackage,
+          label: 'output folder',
+          hintText: widget.configuration.syntheticPackage
+              ? '.dart_tool/flutter_gen/gen_l10n'
+              : _arbDirTextController.text.isEmpty
+                  ? L10nConfiguration.defaultArbDir
+                  : _arbDirTextController.text,
+          textController: widget.configuration.syntheticPackage ? null : _outputDirTextController,
+          focusNode: _outputDirFocus,
+          nextFocus: _outputLocalizationFocus,
+          currentValue: () => widget.currentConfiguration.outputDir,
+          setValue: (value) => setState(
+            () =>
+                widget.configurationController.update((state) => state.copyWith(outputDir: value)),
+          ),
+        ),
+        _verticalSeparator,
+        ConfigurationFormTextField(
+          label: 'output file',
           hintText: L10nConfiguration.defaultOutputLocalizationFile,
+          textController: _outputLocalizationFileTextController,
           focusNode: _outputLocalizationFocus,
           nextFocus: _outputClassFocus,
+          currentValue: () => widget.currentConfiguration.outputLocalizationFile,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(outputLocalizationFile: value)),
+          ),
         ),
         _verticalSeparator,
-        _formField(
-          context,
-          colors,
-          'output class',
-          _outputClassTextController,
-          currentValue: widget.currentConfiguration.outputClass,
+        ConfigurationFormTextField(
+          label: 'output class',
           hintText: L10nConfiguration.defaultOutputClass,
+          textController: _outputClassTextController,
           focusNode: _outputClassFocus,
-          nextFocus: _headerFocus,
+          nextFocus: _nullableGetterFocus,
+          currentValue: () => widget.currentConfiguration.outputClass,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(outputClass: value)),
+          ),
         ),
         LabelDivider(
           padding: const EdgeInsets.only(top: 24, bottom: 16),
@@ -185,89 +228,32 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           label: const Text('Generation'),
           separation: 8,
         ),
-        NullableGetterDropdown(loc: widget.loc),
+        ConfigurationFormDropdown<bool>(
+          label: 'nullable getter',
+          options: const [true, false],
+          optionLabel: (value) =>
+              value ? 'generate nullable getter' : 'generate non nullable getter',
+          currentValue: () => widget.currentConfiguration.nullableGetter,
+          formValue: () => widget.configuration.nullableGetter,
+          setValue: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(nullableGetter: value ?? true)),
+          ),
+          focusNode: _nullableGetterFocus,
+        ),
         _verticalSeparator,
-        _formField(
-          context,
-          colors,
-          'header',
-          _headerTextController,
-          currentValue: widget.currentConfiguration.header,
+        ConfigurationFormTextField(
+          label: 'header',
+          textController: _headerTextController,
           focusNode: _headerFocus,
           nextFocus: _arbDirFocus,
           maxLines: null,
+          currentValue: () => widget.currentConfiguration.header,
+          setValue: (value) => setState(
+            () => widget.configurationController.update((state) => state.copyWith(header: value)),
+          ),
         ),
       ],
     );
   }
-
-  Widget _formField(
-    BuildContext context,
-    ColorScheme colors,
-    String label,
-    TextEditingController controller, {
-    String? currentValue,
-    String? hintText,
-    required FocusNode focusNode,
-    FocusNode? nextFocus,
-    String? Function(String?)? validator,
-    int? maxLength,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-    bool readOnly = false,
-    bool enabled = true,
-    int? maxLines = 1,
-  }) {
-    final isModified = currentValue != null && currentValue != controller.text;
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      enabled: enabled,
-      style: const TextStyle(fontSize: 14),
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
-        border: const OutlineInputBorder(),
-        enabledBorder: _enabledBorder(colors, isModified),
-        focusedBorder: _focusedBorder(colors, isModified),
-        labelText: label,
-        hintText: hintText,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        counterText: '',
-      ),
-      maxLength: maxLength,
-      onChanged: (_) => _onFormChanged(),
-      validator: validator,
-      focusNode: focusNode,
-      onEditingComplete: nextFocus == null ? null : () => _focusNext(context, focusNode, nextFocus),
-      textInputAction: nextFocus == null ? TextInputAction.done : TextInputAction.next,
-      textCapitalization: textCapitalization,
-      maxLines: maxLines,
-    );
-  }
-
-  void _onFormChanged() => setState(() {
-        widget.configuration = L10nConfiguration(
-          syntheticPackage: widget.configuration.syntheticPackage,
-          arbDir: _arbDirTextController.text,
-          outputDir: _outputDirTextController.text,
-          templateArbFile: _templateArbFileTextController.text,
-          outputLocalizationFile: _outputLocalizationFileTextController.text,
-          outputClass: _outputClassTextController.text,
-          header: _headerTextController.text,
-          nullableGetter: widget.configuration.nullableGetter,
-          requiredResourceAttributes: widget.configuration.requiredResourceAttributes,
-        );
-      });
-
-  void _focusNext(BuildContext context, FocusNode current, FocusNode next) {
-    current.unfocus();
-    FocusScope.of(context).requestFocus(next);
-  }
-
-  InputBorder? _enabledBorder(ColorScheme colors, bool modified) => modified
-      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 1.2))
-      : null;
-
-  InputBorder? _focusedBorder(ColorScheme colors, bool modified) => modified
-      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 2.0))
-      : null;
 }

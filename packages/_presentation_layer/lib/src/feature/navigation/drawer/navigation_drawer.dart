@@ -66,35 +66,38 @@ abstract class NavigationDrawer extends ConsumerWidget {
   /// Returns a [DrawerHeader] with this option color.
   /// This header is a column with the require subclass defined [titleText] followed by optional
   /// subclass defined [headerChildren].
-  DrawerHeader _header(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+  Widget _header(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    return DrawerHeader(
-      padding: EdgeInsets.zero,
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: option.color(colors)),
-        child: Row(
-          children: [
-            SizedBox(
-              width: width,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _dragTitle(Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                    child: Text(titleText(loc)),
-                  )),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: headerChildren(context, ref, loc),
+    return SizedBox(
+      height: 150,
+      child: DrawerHeader(
+        padding: EdgeInsets.zero,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: option.color(colors)),
+          child: Row(
+            children: [
+              SizedBox(
+                width: width,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _dragTitle(Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                      child: Text(titleText(loc)),
+                    )),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: headerChildren(context, ref, loc),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

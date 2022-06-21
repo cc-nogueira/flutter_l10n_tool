@@ -1,4 +1,4 @@
 arb-dir: lib/src/l10n
-header: "//ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_string_escapes"
-nullable-getter: false
 synthetic-package: false
+nullable-getter: false
+header: "//ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_string_escapes"
