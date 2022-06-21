@@ -2,17 +2,17 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n/app_localizations.dart';
-import '../../project/widget/configuration_form.dart';
-import '../../project/widget/project_configuration_buttons.dart';
-import '../../project/widget/project_configuration_toggle_buttons.dart';
-import 'navigation_drawer.dart';
-import 'navigation_drawer_option.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../common/navigation_drawer_option.dart';
+import '../../widget/navigation_drawer.dart';
+import '../widget/configuration_buttons.dart';
+import '../widget/configuration_form.dart';
+import '../widget/configuration_toggle_buttons.dart';
 
 class ProjectConfigurationDrawer extends NavigationDrawer {
   const ProjectConfigurationDrawer({super.key})
       : super(
-          NavigationDrawerOption.configuration,
+          NavigationDrawerTopOption.configuration,
           childrenPadding: const EdgeInsets.only(left: 8.0),
         );
 
@@ -72,12 +72,12 @@ class _ProjectConfigurationWidget extends ConsumerWidget {
     );
   }
 
-  Widget _configurationToggleButtons() => const ProjectConfigurationToggleButtons();
+  Widget _configurationToggleButtons() => const ConfigurationToggleButtons();
 
   Widget _configurationForm() => Form(
         key: _formKey,
         child: const ConfigurationForm(),
       );
 
-  Widget _configurationButtons() => const ProjectConfigurationButtons();
+  Widget _configurationButtons() => const ConfigurationButtons();
 }

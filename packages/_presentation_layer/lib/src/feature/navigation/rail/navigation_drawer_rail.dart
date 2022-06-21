@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../provider/presentation_providers.dart';
-import 'navigation_drawer_option.dart';
+import '../common/navigation_drawer_option.dart';
 
 /// Project [NavigationRail].
 ///
@@ -29,14 +29,15 @@ class NavigationDrawerRail extends ConsumerWidget {
       destinations: _destinations,
       selectedIndex: activeNavigation?.index,
       onDestinationSelected: (index) =>
-          _onDestinationTap(ref.read, NavigationDrawerOption.values[index]),
+          _onDestinationTap(ref.read, NavigationDrawerTopOption.values[index]),
+      trailing: _navigationTrailing(context),
     );
   }
 
   /// Internal - generate a list of [NavigationRailDestination] with [NavigationDrawerOption].
   /// Destination icons are retrieved from each drawer option.
   /// Since this app rail is always collaped labels do not need to be internationalized.
-  List<NavigationRailDestination> get _destinations => NavigationDrawerOption.values
+  List<NavigationRailDestination> get _destinations => NavigationDrawerTopOption.values
       .map(
         (nav) => NavigationRailDestination(
           icon: Padding(
@@ -48,6 +49,8 @@ class NavigationDrawerRail extends ConsumerWidget {
         ),
       )
       .toList();
+
+  Widget? _navigationTrailing(BuildContext context) => Column(children: const []);
 
   /// Internal - [NavigationRail.onDestinationSelected] callback.
   ///

@@ -2,23 +2,23 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../common/widget/buttons.dart';
+import '../../../../common/widget/buttons.dart';
 
-class ProjectConfigurationToggleButtons extends ConsumerWidget {
-  const ProjectConfigurationToggleButtons({super.key});
+class ConfigurationToggleButtons extends ConsumerWidget {
+  const ConfigurationToggleButtons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(formConfigurationProvider);
-    return _ProjectConfigurationToggleButtons(
+    return _ConfigurationToggleButtons(
       formConfigurationController: ref.watch(formConfigurationProvider.notifier),
       resetConfigurationController: ref.watch(resetConfigurationProvider.notifier),
     );
   }
 }
 
-class _ProjectConfigurationToggleButtons extends StatelessWidget {
-  const _ProjectConfigurationToggleButtons({
+class _ConfigurationToggleButtons extends StatelessWidget {
+  const _ConfigurationToggleButtons({
     required this.formConfigurationController,
     required this.resetConfigurationController,
   });

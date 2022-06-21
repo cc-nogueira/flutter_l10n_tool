@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/desktop/container_with_title_bar.dart';
 import '../../../provider/presentation_providers.dart';
-import '../drawer/active_navigation_drawer.dart';
-import '../drawer/navigation_drawer_rail.dart';
+import '../../navigation/rail/navigation_drawer_rail.dart';
+import '../../navigation/widget/navigation_divider.dart';
+import 'active_navigation_drawer.dart';
 
 class NavigationAndScaffold extends ConsumerWidget {
   const NavigationAndScaffold({super.key, required this.title, required this.body});
@@ -24,7 +25,7 @@ class NavigationAndScaffold extends ConsumerWidget {
               children: [
                 if (hasActiveDrawer) ...const [
                   ActiveNavigationDrawer(),
-                  VerticalDivider(width: 1.0, thickness: 1.0)
+                  NavigationDivider(),
                 ],
                 Expanded(
                   child: ContainerWithTitleBar(

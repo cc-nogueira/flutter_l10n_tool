@@ -2,8 +2,8 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../common/widget/label_divider.dart';
-import '../../../l10n/app_localizations.dart';
+import '../../../../common/widget/label_divider.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'configuration_form_dropdown.dart';
 import 'configuration_form_text_field.dart';
 

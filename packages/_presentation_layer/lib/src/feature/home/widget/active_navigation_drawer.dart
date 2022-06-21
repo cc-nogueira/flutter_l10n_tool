@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../provider/presentation_providers.dart';
-import 'help_drawer.dart';
-import 'navigation_drawer_option.dart';
-import 'preferences_drawer.dart';
-import 'project_configuration_drawer.dart';
-import 'project_selector_drawer.dart';
+import '../../navigation/common/navigation_drawer_option.dart';
+import '../../navigation/configuration/drawer/project_configuration_drawer.dart';
+import '../../navigation/help/help_drawer.dart';
+import '../../navigation/preferences/preferences_drawer.dart';
+import '../../navigation/project_selector/project_selector_drawer.dart';
 
 /// Convenient widget to show the active navigation drawer or an empty container.
 ///
@@ -24,13 +24,13 @@ class ActiveNavigationDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeNavigation = ref.watch(activeNavigationProvider);
     switch (activeNavigation) {
-      case NavigationDrawerOption.projectSelector:
+      case NavigationDrawerTopOption.projectSelector:
         return const ProjectSelectorDrawer();
-      case NavigationDrawerOption.configuration:
+      case NavigationDrawerTopOption.configuration:
         return const ProjectConfigurationDrawer();
-      case NavigationDrawerOption.preferences:
+      case NavigationDrawerTopOption.preferences:
         return const PreferencesDrawer();
-      case NavigationDrawerOption.help:
+      case NavigationDrawerBottomOption.help:
         return const HelpDrawer();
       default:
         return Container();

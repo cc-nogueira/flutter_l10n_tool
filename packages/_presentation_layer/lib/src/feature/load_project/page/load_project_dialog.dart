@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
+import '../../navigation/common/navigation_drawer_option.dart';
 import '../common/load_stage.dart';
 
 class LoadProjectDialog extends ConsumerStatefulWidget {
@@ -236,7 +237,8 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
 
   void _postFrameClose() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (ref.read(projectProvider).hasNoError) {
+      if (ref.read(projectProvider).hasNoError &&
+          ref.read(activeNavigationProvider) == NavigationDrawerTopOption.projectSelector) {
         ref.read(activeNavigationProvider.notifier).state = null;
       }
       Navigator.pop(context);

@@ -2,16 +2,16 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../common/widget/buttons.dart';
-import '../../../l10n/app_localizations.dart';
-import '../page/load_project_dialog.dart';
+import '../../../../common/widget/buttons.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../load_project/page/load_project_dialog.dart';
 
-class ProjectConfigurationButtons extends ConsumerWidget {
-  const ProjectConfigurationButtons({super.key});
+class ConfigurationButtons extends ConsumerWidget {
+  const ConfigurationButtons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return _ProjectConfigurationButtons(
+    return _ConfigurationButtons(
       read: ref.read,
       currentConfiguration: ref.watch(projectConfigurationProvider),
       formConfiguration: ref.watch(formConfigurationProvider),
@@ -19,8 +19,8 @@ class ProjectConfigurationButtons extends ConsumerWidget {
   }
 }
 
-class _ProjectConfigurationButtons extends StatelessWidget {
-  const _ProjectConfigurationButtons({
+class _ConfigurationButtons extends StatelessWidget {
+  const _ConfigurationButtons({
     required this.read,
     required this.currentConfiguration,
     required this.formConfiguration,

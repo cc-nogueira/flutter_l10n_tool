@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
-import 'navigation_drawer_option.dart';
+import '../common/navigation_drawer_option.dart';
 
 /// Abstract class defines the common structure of a project navigation drawer.
 ///

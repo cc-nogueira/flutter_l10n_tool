@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/helper/theme_builder.dart';
-import '../feature/navigation/drawer/navigation_drawer_option.dart';
+import '../feature/navigation/common/navigation_drawer_option.dart';
 
 // -- Theme:
 
@@ -27,4 +27,4 @@ final themeProvider = Provider((ref) {
 
 /// Navigation rail/drawer
 final activeNavigationProvider =
-    StateProvider<NavigationDrawerOption?>((_) => NavigationDrawerOption.projectSelector);
+    StateProvider<NavigationDrawerOption?>((_) => NavigationDrawerTopOption.projectSelector);

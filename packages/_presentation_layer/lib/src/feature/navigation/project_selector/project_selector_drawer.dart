@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../project/page/load_project_dialog.dart';
-import 'navigation_drawer.dart';
-import 'navigation_drawer_option.dart';
+import '../../load_project/page/load_project_dialog.dart';
+import '../common/navigation_drawer_option.dart';
+import '../widget/navigation_drawer.dart';
 
 class ProjectSelectorDrawer extends NavigationDrawer {
-  const ProjectSelectorDrawer({super.key}) : super(NavigationDrawerOption.projectSelector);
+  const ProjectSelectorDrawer({super.key}) : super(NavigationDrawerTopOption.projectSelector);
 
   static const Widget _verticalSpacer = SizedBox(height: 4.0);
 
