@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:yaml/yaml.dart';
+import 'package:yaml_writer/yaml_writer.dart';
 
 import '../entity/project/arb_locale_translations.dart';
 import '../entity/project/arb_placeholder.dart';
@@ -28,34 +29,25 @@ class ProjectUsecase {
 
   void closeProject() => _projectNotifier._close();
 
-  Future<void> saveConfiguration(L10nConfiguration configuration) async {
-    final content = [
-      if (configuration.arbDir.isNotEmpty) 'arb-dir: ${configuration.arbDir}',
-      if (configuration.templateArbFile.isNotEmpty)
-        'template-arb-file: ${configuration.templateArbFile}',
-      if (configuration.requiredResourceAttributes !=
-          L10nConfiguration.defaultRequiredResourceAttributes)
-        'required-resource-attributes: ${configuration.requiredResourceAttributes}',
-      if (configuration.syntheticPackage != L10nConfiguration.defaultSyntheticPackage)
-        'synthetic-package: ${configuration.syntheticPackage}',
-      if (configuration.outputDir.isNotEmpty) 'output-dir: ${configuration.outputDir}',
-      if (configuration.outputLocalizationFile.isNotEmpty)
-        'output-localization-file: ${configuration.outputLocalizationFile}',
-      if (configuration.outputClass.isNotEmpty) 'output-class: ${configuration.outputClass}',
-      if (configuration.nullableGetter != L10nConfiguration.defaultNullableGetter)
-        'nullable-getter: ${configuration.nullableGetter}',
-      if (configuration.header.isNotEmpty) 'header: ${_yamlText(configuration.header)}',
-    ];
-
+  Future<void> saveConfiguration(L10nConfiguration conf) async {
+    final writer = YAMLWriter();
+    final content = writer.write({
+      if (conf.arbDir.isNotEmpty) 'arb-dir': conf.arbDir,
+      if (conf.templateArbFile.isNotEmpty) 'template-arb-file': conf.templateArbFile,
+      if (conf.requiredResourceAttributes != L10nConfiguration.defaultRequiredResourceAttributes)
+        'required-resource-attributes': conf.requiredResourceAttributes,
+      if (conf.syntheticPackage != L10nConfiguration.defaultSyntheticPackage)
+        'synthetic-package': conf.syntheticPackage,
+      if (conf.outputDir.isNotEmpty) 'output-dir': conf.outputDir,
+      if (conf.outputLocalizationFile.isNotEmpty)
+        'output-localization-file': conf.outputLocalizationFile,
+      if (conf.outputClass.isNotEmpty) 'output-class': conf.outputClass,
+      if (conf.nullableGetter != L10nConfiguration.defaultNullableGetter)
+        'nullable-getter': conf.nullableGetter,
+      if (conf.header.isNotEmpty) 'header': conf.header,
+    });
     final file = File('${_project.path}/l10n.yaml');
-    await file.writeAsString(content.join('\n'));
-  }
-
-  String _yamlText(String text) {
-    if (text.contains(':')) {
-      return '"$text"';
-    }
-    return text;
+    await file.writeAsString(content);
   }
 
   Future<void> loadPubspec() async {
@@ -153,14 +145,6 @@ class ProjectUsecase {
       _projectNotifier._error(e);
       rethrow;
     }
-  }
-
-  void confirmLoaded() {
-    final project = _project;
-    if (project.path.isEmpty || project.translations.isEmpty) {
-      throw StateError('Project cannot be confirmed as loaded.');
-    }
-    _projectNotifier._confirmLoaded();
   }
 
   Project get _project => read(projectProvider);
@@ -407,9 +391,5 @@ class ProjectNotifier extends StateNotifier<Project> {
 
   void _error(Object error) {
     state = state.copyWith(loadError: error);
-  }
-
-  void _confirmLoaded() {
-    state = state.copyWith(loaded: true);
   }
 }

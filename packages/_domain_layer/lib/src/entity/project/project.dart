@@ -16,7 +16,6 @@ class Project with _$Project {
     @Default(L10nConfiguration()) L10nConfiguration configuration,
     @Default(ArbTemplate()) ArbTemplate template,
     @Default({}) Map<String, ArbLocaleTranslations> translations,
-    @Default(false) bool loaded,
     L10nException? l10nException,
     Object? loadError,
   }) = _Project;
@@ -25,4 +24,6 @@ class Project with _$Project {
 
   bool get hasError => l10nException != null || loadError != null;
   bool get hasNoError => !hasError;
+  bool get isReady => path.isNotEmpty && hasNoError;
+  bool get isNotReady => !isReady;
 }
