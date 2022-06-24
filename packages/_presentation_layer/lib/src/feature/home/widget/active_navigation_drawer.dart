@@ -6,7 +6,8 @@ import '../../navigation/common/navigation_drawer_option.dart';
 import '../../navigation/configuration/drawer/project_configuration_drawer.dart';
 import '../../navigation/help/help_drawer.dart';
 import '../../navigation/preferences/preferences_drawer.dart';
-import '../../navigation/project_selector/project_selector_drawer.dart';
+import '../../navigation/project_selector/drawer/project_selector_drawer.dart';
+import '../../navigation/resources/resources_drawer.dart';
 
 /// Convenient widget to show the active navigation drawer or an empty container.
 ///
@@ -30,6 +31,8 @@ class ActiveNavigationDrawer extends ConsumerWidget {
         return const ProjectConfigurationDrawer();
       case NavigationDrawerTopOption.preferences:
         return const PreferencesDrawer();
+      case NavigationDrawerTopOption.resources:
+        return const ResourcesDrawer();
       case NavigationDrawerBottomOption.help:
         return const HelpDrawer();
       default:

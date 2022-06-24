@@ -239,7 +239,7 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (ref.read(projectProvider).hasNoError &&
           ref.read(activeNavigationProvider) == NavigationDrawerTopOption.projectSelector) {
-        ref.read(activeNavigationProvider.notifier).state = null;
+        ref.read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.resources;
       }
       Navigator.pop(context);
     });

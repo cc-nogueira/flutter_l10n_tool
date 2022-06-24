@@ -232,17 +232,19 @@ class ProjectUsecase {
     required Map<String, dynamic> meta,
   }) {
     final globalResources = global.entries.map((e) => ArbResource(key: e.key, value: e.value));
-    final resourceDefinitions = resources.keys.map((key) => _resourceDefinition(key, meta));
+    final resourceDefinitions = resources.entries
+        .map((keyValue) => _resourceDefinition(keyValue.key, keyValue.value, meta));
     return ArbTemplate(
       globalResources: globalResources.toList(growable: false),
       resourceDefinitions: resourceDefinitions.toList(growable: false),
     );
   }
 
-  ArbResourceDefinition _resourceDefinition(String key, Map<String, dynamic> meta) {
+  ArbResourceDefinition _resourceDefinition(String key, String value, Map<String, dynamic> meta) {
     final attributeKey = '@$key';
     final attributes = meta[attributeKey];
     return ArbResourceDefinition(
+      type: ArbResourceDefinition.typeForValue(value),
       key: key,
       context: attributes?['context'] as String?,
       description: attributes?['description'] as String?,
@@ -311,9 +313,9 @@ class ProjectUsecase {
   }
 
   ArbLocaleTranslations _localeTranslations(String locale, Map<String, String> resources) {
-    final arbResources = <ArbResource>[];
+    final arbResources = <String, ArbResource>{};
     for (final entry in resources.entries) {
-      arbResources.add(ArbResource(key: entry.key, value: entry.value));
+      arbResources[entry.key] = ArbResource(key: entry.key, value: entry.value);
     }
     return ArbLocaleTranslations(locale: locale, translations: arbResources);
   }

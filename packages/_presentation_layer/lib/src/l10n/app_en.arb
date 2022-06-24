@@ -10,7 +10,8 @@
 
   "title_project_selector_drawer": "Project Selector",
   "@title_project_selector_drawer": {
-    "description": "Title for project navigation drawer"
+    "description": "Title for project navigation drawer",
+    "context": "drawer"
   },
 
   "title_project_configuration_drawer": "Project Configuration",
@@ -21,6 +22,11 @@
   "title_preferences_drawer": "Preferences",
   "@title_preferences_drawer": {
     "description": "Title for preferences drawer"
+  },
+  
+  "title_resources_drawer": "Resources",
+  "@title_resources_drawer": {
+    "description": "Title for resources drawer"
   },
 
   "title_help_drawer": "About",

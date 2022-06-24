@@ -1,0 +1,23 @@
+{
+  "@@locale": "pt",
+
+  "title_home_page": "Localization App",
+  "title_error_page": "Erro",
+  "title_project_selector_drawer": "Selecionar Projeto",
+  "title_project_configuration_drawer": "Configurar Projeto",
+  "title_preferences_drawer": "Preferencias",
+  "title_resources_drawer": "Recursos",
+  "title_help_drawer": "Sobre",
+  "title_load_project": "Carregando projeto",
+  "label_close_project": "Fechar Projeto",
+  "label_open_project": "Abrir Pasta",
+  "label_open_recent": "Abrir Recente",
+  "label_choose": "Selecionar",
+  "label_close": "Fechar",
+  "message_loading": "Carregando",
+  "message_loading_with_yaml_conf": "Carregando projeto usando configuração yaml",
+  "message_loading_without_yaml_conf": "Carregando project sem configuração yaml",
+  "message_project_already_selected": "Projeto já selecionado",
+  "message_loading_stage": "{stage, select, initial{Carregando...} readingPubspec{Lendo pubspec.yaml} definingConfiguration{Definindo configuração} readingResourceDefinitions{Lendo definições...} readingTranslations{Lendo aquivos de tradução...} confirmingLoaded{Finalizando...} loaded{Configuração carregada.} error{Erro carregando configuração.} canceled{Carregamento cancelado.} other{Carregando...}}",
+  "message_no_project_selected": "Nenhum projeto selecionado"
+}

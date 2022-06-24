@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:riverpod/riverpod.dart';
 
+import '../entity/project/arb_resource.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';
@@ -56,3 +57,6 @@ final recentProjectsProvider = StateProvider<List<Project>>(
     Project(id: 2, name: 'three', path: '/dev/flutter/cc.nogueira/test/prov/project/three-flutter'),
   ],
 );
+
+/// Selected resource provider
+final selectedResourceProvider = StateProvider<ArbResourceDefinition?>((_) => null);

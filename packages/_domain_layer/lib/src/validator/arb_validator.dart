@@ -1,11 +1,9 @@
+import '../entity/project/arb_resource.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../exception/l10n_arb_resource_definition_exception.dart';
 
 class ArbValidator {
   const ArbValidator(this.configuration, {required this.resources, required this.meta});
-
-  static final _pluralResourceRegExp = RegExp(r'{\s*(\w+)\s*,\s*plural\s*,.*}');
-  static final _selectResourceRegExp = RegExp(r'{\s*(\w+)\s*,\s*select\s*,.*}');
 
   final L10nConfiguration configuration;
   final Map<String, String> resources;
@@ -35,8 +33,8 @@ class ArbValidator {
 
   void _validatePluralResources() {
     for (final entry in resources.entries) {
-      final pluralKey = _pluralKey(entry.value);
-      if (pluralKey != null) {
+      final key = pluralKey(entry.value);
+      if (key != null) {
         final attributeKey = '@${entry.key}';
         final definition = meta[attributeKey];
         if (definition == null || definition is! Map<String, dynamic>) {
@@ -49,12 +47,12 @@ class ArbValidator {
         if (placeholders is! Map<String, dynamic>) {
           throw L10nArbResourcePlaceholdersFormatException(entry.key);
         }
-        final placeholder = placeholders[pluralKey];
+        final placeholder = placeholders[key];
         if (placeholder == null || placeholder is! Map) {
           throw L10nMissingResourcePlaceholderException(
             entry.key,
             type: 'plural',
-            placeholderName: pluralKey,
+            placeholderName: key,
           );
         }
       }
@@ -63,8 +61,8 @@ class ArbValidator {
 
   void _validateSelectResources() {
     for (final entry in resources.entries) {
-      final selectKey = _selectKey(entry.value);
-      if (selectKey != null) {
+      final key = selectKey(entry.value);
+      if (key != null) {
         final attributeKey = '@${entry.key}';
         final definition = meta[attributeKey];
         if (definition == null || definition is! Map<String, dynamic>) {
@@ -77,12 +75,12 @@ class ArbValidator {
         if (placeholders is! Map<String, dynamic>) {
           throw L10nArbResourcePlaceholdersFormatException(entry.key);
         }
-        final placeholder = placeholders[selectKey];
+        final placeholder = placeholders[key];
         if (placeholder == null || placeholder is! Map) {
           throw L10nMissingResourcePlaceholderException(
             entry.key,
             type: 'select',
-            placeholderName: selectKey,
+            placeholderName: key,
           );
         }
       }
@@ -98,13 +96,13 @@ class ArbValidator {
     }
   }
 
-  String? _pluralKey(String resourceValue) {
-    final match = _pluralResourceRegExp.firstMatch(resourceValue);
+  String? pluralKey(String resourceValue) {
+    final match = ArbResourceDefinition.pluralResourceRegExp.firstMatch(resourceValue);
     return match?.group(1);
   }
 
-  String? _selectKey(String resourceValue) {
-    final match = _selectResourceRegExp.firstMatch(resourceValue);
+  String? selectKey(String resourceValue) {
+    final match = ArbResourceDefinition.selectResourceRegExp.firstMatch(resourceValue);
     return match?.group(1);
   }
 }

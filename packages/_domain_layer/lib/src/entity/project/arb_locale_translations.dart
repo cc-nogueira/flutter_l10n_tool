@@ -8,6 +8,6 @@ part 'arb_locale_translations.freezed.dart';
 class ArbLocaleTranslations with _$ArbLocaleTranslations {
   const factory ArbLocaleTranslations({
     required String locale,
-    required List<ArbResource> translations,
+    required Map<String, ArbResource> translations,
   }) = _ArbLocaleTranslations;
 }

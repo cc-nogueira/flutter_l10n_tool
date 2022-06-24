@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+enum X { a }
+
 abstract class NavigationDrawerOption {
   int get index;
   IconData get icon;
+  String get label;
   Color color(ColorScheme colors);
 }
 
@@ -14,7 +17,8 @@ abstract class NavigationDrawerOption {
 enum NavigationDrawerTopOption implements NavigationDrawerOption {
   projectSelector(Icons.source_outlined),
   configuration(Icons.webhook_outlined),
-  preferences(Icons.settings_outlined);
+  preferences(Icons.settings_outlined),
+  resources(Icons.list);
 
   /// Const constructor
   const NavigationDrawerTopOption(this.icon);
@@ -23,9 +27,15 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
   @override
   final IconData icon;
 
+  @override
+  String get label => name;
+
   /// Option color from the project color scheme.
   @override
   Color color(ColorScheme colors) {
+    if (this == NavigationDrawerTopOption.resources) {
+      return colors.surface;
+    }
     if (this == NavigationDrawerTopOption.projectSelector) {
       return colors.primaryContainer;
     }
@@ -53,6 +63,9 @@ enum NavigationDrawerBottomOption implements NavigationDrawerOption {
   /// Option icon
   @override
   final IconData icon;
+
+  @override
+  String get label => name;
 
   /// Option color from the project color scheme.
   @override
