@@ -8,6 +8,7 @@ import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';
 import '../usecase/preferences_usecase.dart';
 import '../usecase/project_usecase.dart';
+import '../usecase/resource_usecase.dart';
 
 /// Domain Layer provider
 final domainLayerProvider = Provider((ref) => DomainLayer(read: ref.read));
@@ -58,5 +59,24 @@ final recentProjectsProvider = StateProvider<List<Project>>(
   ],
 );
 
+// -- Resources
+
+/// EditResourceUsecase singleton provider
+final resourceUsecaseProvider = Provider<ResourceUsecase>((ref) => ResourceUsecase(ref.read));
+
 /// Selected resource provider
-final selectedResourceProvider = StateProvider<ArbResourceDefinition?>((_) => null);
+final selectedResourceProvider =
+    StateNotifierProvider<SelectedResourceNotifier, ArbResourceDefinition?>(
+        (_) => SelectedResourceNotifier());
+
+final beingEditedResourcesProvider = StateNotifierProvider<BeingEditedResourcesNotifier,
+    Map<ArbResourceDefinition, List<ArbResource>>>((_) => BeingEditedResourcesNotifier());
+
+final beingEditedResourceDefinitionsProvider = StateNotifierProvider<
+        BeingEditedResourceDefinitionsNotifier, Map<ArbResourceDefinition, ArbResourceDefinition>>(
+    (_) => BeingEditedResourceDefinitionsNotifier());
+
+final beingEditedTranslationsProvider = StateNotifierProvider.family<
+    BeingEditedTranslationsNotifier,
+    Map<ArbResource, ArbResource>,
+    String>((_, locale) => BeingEditedTranslationsNotifier(locale));
