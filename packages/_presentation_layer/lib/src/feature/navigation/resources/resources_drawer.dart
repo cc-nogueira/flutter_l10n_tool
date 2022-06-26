@@ -17,6 +17,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);
     final resources = project.template.resourceDefinitions;
+    final beingEdited = ref.watch(beingEditedResourcesProvider);
     final selected = ref.watch(selectedResourceProvider);
     return [
       Expanded(
@@ -27,7 +28,14 @@ class ResourcesDrawer extends NavigationDrawer {
               itemCount: resources.length,
               itemBuilder: (ctx, index) {
                 final resource = resources[index];
-                return _itemBuilder(ctx, ref.read, colors, resource, resource == selected);
+                return _itemBuilder(
+                  ctx,
+                  ref.read,
+                  colors,
+                  resource,
+                  isBeingEdited: beingEdited.containsKey(resource),
+                  isSelected: resource == selected,
+                );
               },
             ),
           ),
@@ -40,21 +48,24 @@ class ResourcesDrawer extends NavigationDrawer {
     BuildContext context,
     Reader read,
     ColorScheme colors,
-    ArbResourceDefinition resource,
-    bool isSelected,
-  ) {
+    ArbResourceDefinition resource, {
+    required bool isSelected,
+    required bool isBeingEdited,
+  }) {
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
       selectedTileColor: colors.secondaryContainer,
       selectedColor: colors.onSecondaryContainer,
+      minLeadingWidth: 14,
+      leading: isBeingEdited ? const Icon(Icons.edit, size: 14) : const SizedBox(width: 12),
       trailing: isSelected ? const Icon(Icons.keyboard_double_arrow_right) : null,
       selected: isSelected,
       title: Text(
         resource.key,
         style: isSelected ? const TextStyle(fontWeight: FontWeight.w600) : null,
       ),
-      onTap: () => read(selectedResourceProvider.notifier).state = resource,
+      onTap: () => read(resourceUsecaseProvider).select(resource),
     );
   }
 }
