@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'lib_color_schemes-clear.g.dart';
+import 'color_schemes.dart';
 
 /// ThemeBuilder for Material3.
 ///
