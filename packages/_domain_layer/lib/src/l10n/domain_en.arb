@@ -55,36 +55,36 @@
     }
   },
 
-  "error_arb_resource_global_format": "Global resource \"{id}\" should have a string value.",
-  "@error_arb_resource_global_format": {
+  "error_arb_global_resource_format": "Global resource \"{id}\" should have a string value.",
+  "@error_arb_global_resource_format": {
     "placeholders": {
       "id": {}
     }
   },
 
-  "error_arb_resource_format": "Resource \"{id}\" should have a string value.",
-  "@error_arb_resource_format": {
+  "error_arb_translation_format": "Resource \"{id}\" should have a string value.",
+  "@error_arb_translation_format": {
     "placeholders": {
       "id": {}
     }
   },
   
-  "error_arb_resource_attribute_format": "Ensure that resource \"{id}\" value is a map with string valued keys.",
-  "@error_arb_resource_attribute_format": {
+  "error_arb_definition_format": "Ensure that resource \"{id}\" value is a map with string valued keys.",
+  "@error_arb_definition_format": {
     "placeholders": {
       "id": {}
     }
   },
 
-  "error_arb_missing_a_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that each resource has a corresponding @resource.",
-  "@error_arb_missing_a_resource_attribute": {
+  "error_arb_missing_a_definition": "Resource attribute \"{id}\" was not found. Please ensure that each resource has a corresponding @resource.",
+  "@error_arb_missing_a_definition": {
     "placeholders": {
       "id": {}
     }
   },
 
-  "error_arb_missing_resource_attribute": "Resource attribute \"{id}\" was not found. Please ensure that {type} resources have a corresponding @resource.",
-  "@error_arb_missing_resource_attribute": {
+  "error_arb_missing_definition": "Resource attribute \"{id}\" was not found. Please ensure that {type} resources have a corresponding @resource.",
+  "@error_arb_missing_definition": {
     "placeholders": {
       "id": {},
       "type": {}

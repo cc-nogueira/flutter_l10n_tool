@@ -1,13 +1,14 @@
 export 'src/entity/entity.dart';
 export 'src/entity/preferences/preference.dart';
+export 'src/entity/project/arb_definition.dart';
 export 'src/entity/project/arb_locale_translations.dart';
 export 'src/entity/project/arb_placeholder.dart';
-export 'src/entity/project/arb_resource.dart';
 export 'src/entity/project/arb_template.dart';
+export 'src/entity/project/arb_translation.dart';
 export 'src/entity/project/l10n_configuration.dart';
 export 'src/entity/project/project.dart';
 export 'src/exception/entity_not_found_exception.dart';
-export 'src/exception/l10n_arb_resource_definition_exception.dart';
+export 'src/exception/l10n_arb_exception.dart';
 export 'src/exception/l10n_exception.dart';
 export 'src/exception/l10n_pubspec_exception.dart';
 export 'src/exception/service_exception.dart';

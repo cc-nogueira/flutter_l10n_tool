@@ -51,7 +51,7 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
       case LoadStage.doneDefiningConfiguration:
         _readTemplateFile();
         break;
-      case LoadStage.doneReadingResourceDefinitions:
+      case LoadStage.doneReadingDefinitions:
         _readTranslationFiles();
         break;
       default:
@@ -91,10 +91,10 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
 
   void _readTemplateFile() async {
     await Future.delayed(_progressWait);
-    _setStage(LoadStage.readingResourceDefinitions);
+    _setStage(LoadStage.readingDefinitions);
     try {
       await _projectUsecase.readTemplateFile();
-      _setStage(LoadStage.doneReadingResourceDefinitions);
+      _setStage(LoadStage.doneReadingDefinitions);
     } on L10nException catch (e) {
       _handleL10nException(e);
     } catch (e) {

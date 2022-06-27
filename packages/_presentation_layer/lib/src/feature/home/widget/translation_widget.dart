@@ -2,64 +2,60 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ResourceTranslationWidget extends StatelessWidget {
-  const ResourceTranslationWidget(this.project, this.resource, this.localeTranslations,
-      {super.key});
+class TranslationWidget extends StatelessWidget {
+  const TranslationWidget(this.project, this.definition, this.localeTranslations, {super.key});
 
   final Project project;
-  final ArbResourceDefinition resource;
+  final ArbDefinition definition;
   final ArbLocaleTranslations localeTranslations;
 
   @override
   Widget build(BuildContext context) {
-    switch (resource.type) {
-      case ArbResourceType.plural:
-        return _PluralResourceTranslationWidget(project, resource, localeTranslations);
-      case ArbResourceType.select:
-        return _SelectResourceTranslationWidget(project, resource, localeTranslations);
+    switch (definition.type) {
+      case ArbDefinitionType.plural:
+        return _PluralTranslationWidget(project, definition, localeTranslations);
+      case ArbDefinitionType.select:
+        return _SelectTranslationWidget(project, definition, localeTranslations);
       default:
-        return _TextResourceTranslationWidget(project, resource, localeTranslations);
+        return _TextTranslationWidget(project, definition, localeTranslations);
     }
   }
 }
 
-abstract class _ResourceTranslationWidget extends ConsumerStatefulWidget {
-  const _ResourceTranslationWidget(this.project, this.resource, this.localeTranslations);
+abstract class _TranslationWidget extends ConsumerStatefulWidget {
+  const _TranslationWidget(this.project, this.definition, this.localeTranslations);
 
   final Project project;
-  final ArbResourceDefinition resource;
+  final ArbDefinition definition;
   final ArbLocaleTranslations localeTranslations;
 
-  ArbResource? get translation => localeTranslations.translations[resource.key];
+  ArbTranslation? get translation => localeTranslations.translations[definition.key];
   String get locale => localeTranslations.locale;
 }
 
-class _TextResourceTranslationWidget extends _ResourceTranslationWidget {
-  const _TextResourceTranslationWidget(super.project, super.resource, super.localeTranslations);
+class _TextTranslationWidget extends _TranslationWidget {
+  const _TextTranslationWidget(super.project, super.resource, super.localeTranslations);
 
   @override
-  ConsumerState<_TextResourceTranslationWidget> createState() => _TextResourceTranslationState();
+  ConsumerState<_TextTranslationWidget> createState() => _TextResourceTranslationState();
 }
 
-class _SelectResourceTranslationWidget extends _ResourceTranslationWidget {
-  const _SelectResourceTranslationWidget(super.project, super.resource, super.localeTranslations);
+class _SelectTranslationWidget extends _TranslationWidget {
+  const _SelectTranslationWidget(super.project, super.resource, super.localeTranslations);
 
   @override
-  ConsumerState<_SelectResourceTranslationWidget> createState() =>
-      _SelectResourceTranslationState();
+  ConsumerState<_SelectTranslationWidget> createState() => _SelectTranslationState();
 }
 
-class _PluralResourceTranslationWidget extends _ResourceTranslationWidget {
-  const _PluralResourceTranslationWidget(super.project, super.resource, super.localeTranslations);
+class _PluralTranslationWidget extends _TranslationWidget {
+  const _PluralTranslationWidget(super.project, super.resource, super.localeTranslations);
 
   @override
-  ConsumerState<_PluralResourceTranslationWidget> createState() =>
-      _PluralResourceTranslationState();
+  ConsumerState<_PluralTranslationWidget> createState() => _PluralTranslationState();
 }
 
-abstract class _ResourceTranslationState<T extends _ResourceTranslationWidget>
-    extends ConsumerState<T> {
-  late ArbResource? beingEdited;
+abstract class _ResourceTranslationState<T extends _TranslationWidget> extends ConsumerState<T> {
+  late ArbTranslation? beingEdited;
 
   @override
   void initState() {
@@ -86,7 +82,8 @@ abstract class _ResourceTranslationState<T extends _ResourceTranslationWidget>
     beingEdited = translation == null
         ? null
         : ref.watch(
-            beingEditedTranslationsProvider(widget.locale).select((value) => value[translation]),
+            beingEditedTranslationsForLanguageProvider(widget.locale)
+                .select((value) => value[translation]),
           );
     return tile(colors);
   }
@@ -124,9 +121,7 @@ abstract class _ResourceTranslationState<T extends _ResourceTranslationWidget>
   void _editTranslation() {
     final translation = widget.translation;
     if (translation != null) {
-      ref
-          .read(resourceUsecaseProvider)
-          .editTranslation(widget.locale, widget.resource, translation);
+      ref.read(arbUsecaseProvider).editTranslation(widget.locale, widget.definition, translation);
     }
   }
 
@@ -134,28 +129,25 @@ abstract class _ResourceTranslationState<T extends _ResourceTranslationWidget>
     final translation = widget.translation;
     if (translation != null) {
       ref
-          .read(resourceUsecaseProvider)
-          .discardTranslationChanges(widget.locale, widget.resource, translation);
+          .read(arbUsecaseProvider)
+          .discardTranslationChanges(widget.locale, widget.definition, translation);
     }
   }
 
   Widget? translationDetails(String? value);
 }
 
-class _TextResourceTranslationState
-    extends _ResourceTranslationState<_TextResourceTranslationWidget> {
+class _TextResourceTranslationState extends _ResourceTranslationState<_TextTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }
 
-class _SelectResourceTranslationState
-    extends _ResourceTranslationState<_SelectResourceTranslationWidget> {
+class _SelectTranslationState extends _ResourceTranslationState<_SelectTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }
 
-class _PluralResourceTranslationState
-    extends _ResourceTranslationState<_PluralResourceTranslationWidget> {
+class _PluralTranslationState extends _ResourceTranslationState<_PluralTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }

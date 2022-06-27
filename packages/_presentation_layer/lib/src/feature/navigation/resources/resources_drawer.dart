@@ -16,25 +16,28 @@ class ResourcesDrawer extends NavigationDrawer {
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);
-    final resources = project.template.resourceDefinitions;
-    final beingEdited = ref.watch(beingEditedResourcesProvider);
-    final selected = ref.watch(selectedResourceProvider);
+    final definitions = project.template.definitions;
+    final beingEditedTranslations = ref.watch(beingEditedTranslationsProvider);
+    final beingEditedDefinitions = ref.watch(beingEditedDefinitionsProvider);
+    final selected = ref.watch(selectedDefinitionProvider);
     return [
       Expanded(
         child: ListTileTheme(
           style: ListTileStyle.drawer,
           child: FocusTraversalGroup(
             child: ListView.builder(
-              itemCount: resources.length,
+              itemCount: definitions.length,
               itemBuilder: (ctx, index) {
-                final resource = resources[index];
+                final definition = definitions[index];
+                final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
+                    beingEditedDefinitions.containsKey(definition);
                 return _itemBuilder(
                   ctx,
                   ref.read,
                   colors,
-                  resource,
-                  isBeingEdited: beingEdited.containsKey(resource),
-                  isSelected: resource == selected,
+                  definition,
+                  isBeingEdited: isBeingEdited,
+                  isSelected: definition == selected,
                 );
               },
             ),
@@ -48,7 +51,7 @@ class ResourcesDrawer extends NavigationDrawer {
     BuildContext context,
     Reader read,
     ColorScheme colors,
-    ArbResourceDefinition resource, {
+    ArbDefinition definition, {
     required bool isSelected,
     required bool isBeingEdited,
   }) {
@@ -62,10 +65,10 @@ class ResourcesDrawer extends NavigationDrawer {
       trailing: isSelected ? const Icon(Icons.keyboard_double_arrow_right) : null,
       selected: isSelected,
       title: Text(
-        resource.key,
+        definition.key,
         style: isSelected ? const TextStyle(fontWeight: FontWeight.w600) : null,
       ),
-      onTap: () => read(resourceUsecaseProvider).select(resource),
+      onTap: () => read(arbUsecaseProvider).select(definition),
     );
   }
 }

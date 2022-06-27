@@ -6,13 +6,14 @@ import 'package:riverpod/riverpod.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_writer/yaml_writer.dart';
 
+import '../entity/project/arb_definition.dart';
 import '../entity/project/arb_locale_translations.dart';
 import '../entity/project/arb_placeholder.dart';
-import '../entity/project/arb_resource.dart';
 import '../entity/project/arb_template.dart';
+import '../entity/project/arb_translation.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
-import '../exception/l10n_arb_resource_definition_exception.dart';
+import '../exception/l10n_arb_exception.dart';
 import '../exception/l10n_exception.dart';
 import '../exception/l10n_pubspec_exception.dart';
 import '../provider/providers.dart';
@@ -195,8 +196,8 @@ class ProjectUsecase {
 
   void _readTemplateFile(String fileName, String content) {
     final global = <String, String>{};
-    final resources = <String, String>{};
-    final meta = <String, dynamic>{};
+    final translations = <String, String>{};
+    final definitions = <String, dynamic>{};
     final arb = jsonDecode(content);
     if (arb is Map<String, dynamic>) {
       for (final entry in arb.entries) {
@@ -204,15 +205,15 @@ class ProjectUsecase {
           if (entry.value is String) {
             global[entry.key] = entry.value;
           } else {
-            throw L10nArbGlobalResourceDefinitionException(entry.key);
+            throw L10nArbGlobalDefinitionException(entry.key);
           }
         } else if (entry.key.startsWith('@')) {
-          meta[entry.key] = entry.value;
+          definitions[entry.key] = entry.value;
         } else {
           if (entry.value is String) {
-            resources[entry.key] = entry.value;
+            translations[entry.key] = entry.value;
           } else {
-            throw L10nArbResourceDefinitionException(entry.key);
+            throw L10nArbDefinitionException(entry.key);
           }
         }
       }
@@ -220,37 +221,39 @@ class ProjectUsecase {
       throw L10nArbFileFormatException(fileName);
     }
 
-    final validator = ArbValidator(_project.configuration, resources: resources, meta: meta);
+    final validator =
+        ArbValidator(_project.configuration, translations: translations, definitions: definitions);
     validator.validate();
 
     final String locale = _locale(fileName, arb);
-    _projectNotifier._template(_arbTemplate(global: global, resources: resources, meta: meta));
-    _projectNotifier._localeTranslations(_localeTranslations(locale, resources));
+    _projectNotifier
+        ._template(_arbTemplate(global: global, translations: translations, meta: definitions));
+    _projectNotifier._localeTranslations(_localeTranslations(locale, translations));
   }
 
   ArbTemplate _arbTemplate({
     required Map<String, String> global,
-    required Map<String, String> resources,
+    required Map<String, String> translations,
     required Map<String, dynamic> meta,
   }) {
-    final globalResources = global.entries.map((e) => ArbResource(key: e.key, value: e.value));
-    final resourceDefinitions = resources.entries
-        .map((keyValue) => _resourceDefinition(keyValue.key, keyValue.value, meta));
+    final globalResources = global.entries.map((e) => ArbTranslation(key: e.key, value: e.value));
+    final definitions =
+        translations.entries.map((keyValue) => _definition(keyValue.key, keyValue.value, meta));
     return ArbTemplate(
       globalResources: globalResources.toList(growable: false),
-      resourceDefinitions: resourceDefinitions.toList(growable: false),
+      definitions: definitions.toList(growable: false),
     );
   }
 
-  ArbResourceDefinition _resourceDefinition(String key, String value, Map<String, dynamic> meta) {
-    final attributeKey = '@$key';
-    final attributes = meta[attributeKey];
-    return ArbResourceDefinition(
-      type: ArbResourceDefinition.typeForValue(value),
+  ArbDefinition _definition(String key, String value, Map<String, dynamic> meta) {
+    final definitionKey = '@$key';
+    final definitionMap = meta[definitionKey];
+    return ArbDefinition(
+      type: ArbDefinition.typeForValue(value),
       key: key,
-      context: attributes?['context'] as String?,
-      description: attributes?['description'] as String?,
-      placeholders: _placeholders(attributes?['placeholders'] as Map<String, dynamic>?),
+      context: definitionMap?['context'] as String?,
+      description: definitionMap?['description'] as String?,
+      placeholders: _placeholders(definitionMap?['placeholders'] as Map<String, dynamic>?),
     );
   }
 
@@ -261,7 +264,7 @@ class ProjectUsecase {
     final arbPlaceholders = <ArbPlaceholderBase>[];
     for (final entry in placeholders.entries) {
       if (entry.value is! Map<String, dynamic>) {
-        throw L10nArbResourcePlaceholdersFormatException(entry.key);
+        throw L10nArbPlaceholdersFormatException(entry.key);
       }
       final key = entry.key;
       final type = entry.value['type'] as String?;
@@ -314,12 +317,12 @@ class ProjectUsecase {
     return arbPlaceholders;
   }
 
-  ArbLocaleTranslations _localeTranslations(String locale, Map<String, String> resources) {
-    final arbResources = <String, ArbResource>{};
-    for (final entry in resources.entries) {
-      arbResources[entry.key] = ArbResource(key: entry.key, value: entry.value);
+  ArbLocaleTranslations _localeTranslations(String locale, Map<String, String> translationsMap) {
+    final translations = <String, ArbTranslation>{};
+    for (final entry in translationsMap.entries) {
+      translations[entry.key] = ArbTranslation(key: entry.key, value: entry.value);
     }
-    return ArbLocaleTranslations(locale: locale, translations: arbResources);
+    return ArbLocaleTranslations(locale: locale, translations: translations);
   }
 
   Future<void> _readTranslationFile(File file) async {
@@ -328,17 +331,17 @@ class ProjectUsecase {
     final arb = json.decode(content);
     if (arb is Map<String, dynamic>) {
       final locale = _locale(name, arb);
-      final resources = <String, String>{};
+      final translationsMap = <String, String>{};
       for (final entry in arb.entries) {
         if (!entry.key.startsWith('@')) {
           if (entry.value is String) {
-            resources[entry.key] = entry.value;
+            translationsMap[entry.key] = entry.value;
           } else {
-            throw L10nArbResourceDefinitionException(entry.key);
+            throw L10nArbDefinitionException(entry.key);
           }
         }
       }
-      _projectNotifier._localeTranslations(_localeTranslations(locale, resources));
+      _projectNotifier._localeTranslations(_localeTranslations(locale, translationsMap));
     } else {
       throw L10nArbFileFormatException(name);
     }

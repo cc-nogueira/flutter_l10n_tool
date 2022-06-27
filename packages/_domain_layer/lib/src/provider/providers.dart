@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../entity/preferences/language_option.dart';
-import '../entity/project/arb_resource.dart';
+import '../entity/project/arb_definition.dart';
+import '../entity/project/arb_translation.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';
+import '../usecase/arb_usecase.dart';
 import '../usecase/preferences_usecase.dart';
 import '../usecase/project_usecase.dart';
-import '../usecase/resource_usecase.dart';
 
 /// Domain Layer provider
 final domainLayerProvider = Provider((ref) => DomainLayer(read: ref.read));
@@ -73,24 +74,24 @@ final recentProjectsProvider = StateProvider<List<Project>>(
   ],
 );
 
-// -- Resources
+// -- Arb
 
-/// EditResourceUsecase singleton provider
-final resourceUsecaseProvider = Provider<ResourceUsecase>((ref) => ResourceUsecase(ref.read));
+/// ArbUsecase singleton provider
+final arbUsecaseProvider = Provider<ArbUsecase>((ref) => ArbUsecase(ref.read));
 
-/// Selected resource provider
-final selectedResourceProvider =
-    StateNotifierProvider<SelectedResourceNotifier, ArbResourceDefinition?>(
-        (_) => SelectedResourceNotifier());
+/// Selected definitions provider
+final selectedDefinitionProvider =
+    StateNotifierProvider<SelectedDefinitionNotifier, ArbDefinition?>(
+        (_) => SelectedDefinitionNotifier());
 
-final beingEditedResourcesProvider = StateNotifierProvider<BeingEditedResourcesNotifier,
-    Map<ArbResourceDefinition, List<ArbResource>>>((_) => BeingEditedResourcesNotifier());
+final beingEditedDefinitionsProvider =
+    StateNotifierProvider<BeingEditedDefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
+        (_) => BeingEditedDefinitionsNotifier());
 
-final beingEditedResourceDefinitionsProvider = StateNotifierProvider<
-        BeingEditedResourceDefinitionsNotifier, Map<ArbResourceDefinition, ArbResourceDefinition>>(
-    (_) => BeingEditedResourceDefinitionsNotifier());
+final beingEditedTranslationsProvider = StateNotifierProvider<BeingEditedTranslationsNotifier,
+    Map<ArbDefinition, List<ArbTranslation>>>((_) => BeingEditedTranslationsNotifier());
 
-final beingEditedTranslationsProvider = StateNotifierProvider.family<
-    BeingEditedTranslationsNotifier,
-    Map<ArbResource, ArbResource>,
-    String>((_, locale) => BeingEditedTranslationsNotifier(locale));
+final beingEditedTranslationsForLanguageProvider = StateNotifierProvider.family<
+    BeingEditedTranslationsForLanguageNotifier,
+    Map<ArbTranslation, ArbTranslation>,
+    String>((_, locale) => BeingEditedTranslationsForLanguageNotifier(locale));

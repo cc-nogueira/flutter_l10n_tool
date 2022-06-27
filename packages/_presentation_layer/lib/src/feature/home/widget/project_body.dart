@@ -17,12 +17,14 @@ class ProjectBody extends ConsumerWidget {
     if (project.isNotReady) {
       return _notReadyBody();
     }
-    final selectedResource = ref.watch(selectedResourceProvider);
-    return _resourceBody(selectedResource);
+    final selectedDefinition = ref.watch(selectedDefinitionProvider);
+    return _resourceBody(selectedDefinition);
   }
 
-  Widget _resourceBody(ArbResourceDefinition? resource) {
-    return resource == null ? const MessageWidget('Localization App') : ResourceWidget(resource);
+  Widget _resourceBody(ArbDefinition? definition) {
+    return definition == null
+        ? const MessageWidget('Localization App')
+        : ResourceWidget(definition);
   }
 
   Widget _notReadyBody() => const MessageWidget('Localization App');
