@@ -57,7 +57,7 @@ class _PluralResourceTranslationWidget extends _ResourceTranslationWidget {
       _PluralResourceTranslationState();
 }
 
-abstract class _ResourceTranslationWidgetState<T extends _ResourceTranslationWidget>
+abstract class _ResourceTranslationState<T extends _ResourceTranslationWidget>
     extends ConsumerState<T> {
   late ArbResource? beingEdited;
 
@@ -86,11 +86,13 @@ abstract class _ResourceTranslationWidgetState<T extends _ResourceTranslationWid
     beingEdited = translation == null
         ? null
         : ref.watch(
-            beingEditedTranslationsProvider(widget.locale).select((value) => value[translation]));
-    return tile(colors, beingEdited ?? translation);
+            beingEditedTranslationsProvider(widget.locale).select((value) => value[translation]),
+          );
+    return tile(colors);
   }
 
-  Widget tile(ColorScheme colors, ArbResource? translation) {
+  Widget tile(ColorScheme colors) {
+    final displayTranslation = beingEdited ?? widget.translation;
     const leading = Icon(Icons.translate);
     return Container(
       margin: const EdgeInsets.only(top: 12.0),
@@ -98,14 +100,14 @@ abstract class _ResourceTranslationWidgetState<T extends _ResourceTranslationWid
       child: ListTile(
         contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         title: Text(widget.locale),
-        subtitle: translationDetails(translation?.value),
+        subtitle: translationDetails(displayTranslation?.value),
         leading: leading,
-        trailing: trailling(beingEdited),
+        trailing: trailing(),
       ),
     );
   }
 
-  Widget trailling(ArbResource? beingEdited) {
+  Widget trailing() {
     return beingEdited == null
         ? IconButton(
             icon: const Icon(Icons.edit),
@@ -141,19 +143,19 @@ abstract class _ResourceTranslationWidgetState<T extends _ResourceTranslationWid
 }
 
 class _TextResourceTranslationState
-    extends _ResourceTranslationWidgetState<_TextResourceTranslationWidget> {
+    extends _ResourceTranslationState<_TextResourceTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }
 
 class _SelectResourceTranslationState
-    extends _ResourceTranslationWidgetState<_SelectResourceTranslationWidget> {
+    extends _ResourceTranslationState<_SelectResourceTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }
 
 class _PluralResourceTranslationState
-    extends _ResourceTranslationWidgetState<_PluralResourceTranslationWidget> {
+    extends _ResourceTranslationState<_PluralResourceTranslationWidget> {
   @override
   Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
 }
