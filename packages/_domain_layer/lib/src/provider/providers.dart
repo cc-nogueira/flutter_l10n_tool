@@ -1,7 +1,7 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../entity/preferences/language_option.dart';
 import '../entity/project/arb_resource.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
@@ -20,14 +20,28 @@ final domainConfigurationProvider = Provider<DomainConfiguration>(
 /// System locales obtained on main()
 final systemLocalesProvider = StateProvider<List<Locale>>((ref) => []);
 
+// -- Preferences:
+
 /// PreferencesUsecase singleton provider
 final preferencesUsecaseProvider =
     Provider<PreferencesUsecase>((ref) => ref.watch(domainLayerProvider).preferencesUsecase);
 
-/// ProjectUsecase singleton provider
-final projectUsecaseProvider = Provider<ProjectUsecase>((ref) => ProjectUsecase(ref.read));
+/// LanguageOption preference provider
+final languageOptionProvider = StateNotifierProvider<LanguageOptionNotifier, LanguageOption>((ref) {
+  final usecase = ref.read(preferencesUsecaseProvider);
+  return LanguageOptionNotifier(usecase);
+});
+
+/// ThemeMode preference provider
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  final usecase = ref.read(preferencesUsecaseProvider);
+  return ThemeModeNotifier(usecase);
+});
 
 // -- Project
+
+/// ProjectUsecase singleton provider
+final projectUsecaseProvider = Provider<ProjectUsecase>((ref) => ProjectUsecase(ref.read));
 
 /// Current project provider
 final projectProvider = StateNotifierProvider<ProjectNotifier, Project>((_) => ProjectNotifier());

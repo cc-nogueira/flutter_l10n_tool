@@ -11,30 +11,50 @@ class ResourceUsecase {
 
   final Reader read;
 
-  void select(ArbResourceDefinition? resourceDefinition) =>
-      read(selectedResourceProvider.notifier)._select(resourceDefinition);
+  void select(ArbResourceDefinition? resourceDefinition) {
+    _selectedResourceNotifier()._select(resourceDefinition);
+  }
 
-  void clearSelection() => read(selectedResourceProvider.notifier)._clearSelection();
+  void clearSelection() {
+    _selectedResourceNotifier()._clearSelection();
+  }
 
   void editResource(ArbResourceDefinition resourceDefinition) {
-    read(beingEditedResourceDefinitionsProvider.notifier)._edit(resourceDefinition);
+    _beindEditedResourceDefinitionsNotifier()._edit(resourceDefinition);
   }
 
   void discardResourceDefinitionChanges(ArbResourceDefinition resourceDefinition) {
-    read(beingEditedResourceDefinitionsProvider.notifier)._discardChanges(resourceDefinition);
+    _beindEditedResourceDefinitionsNotifier()._discardChanges(resourceDefinition);
   }
 
   void changeResource(ArbResource resource) {}
 
   void editTranslation(
-      String locale, ArbResourceDefinition resourceDefinition, ArbResource translation) {
-    read(beingEditedTranslationsProvider(locale).notifier)._edit(translation);
-    read(beingEditedResourcesProvider.notifier)._add(resourceDefinition, translation);
+    String locale,
+    ArbResourceDefinition resourceDefinition,
+    ArbResource translation,
+  ) {
+    _beingEditedTranslationsNotifier(locale)._edit(translation);
+    _beingEditedResourcesNotifier()._add(resourceDefinition, translation);
   }
 
   void discardTranslationChanges(
-      String locale, ArbResourceDefinition resourceDefinition, ArbResource translation) {
-    read(beingEditedTranslationsProvider(locale).notifier)._discardChanges(translation);
-    read(beingEditedResourcesProvider.notifier)._remove(resourceDefinition, translation);
+    String locale,
+    ArbResourceDefinition resourceDefinition,
+    ArbResource translation,
+  ) {
+    _beingEditedTranslationsNotifier(locale)._discardChanges(translation);
+    _beingEditedResourcesNotifier()._remove(resourceDefinition, translation);
   }
+
+  SelectedResourceNotifier _selectedResourceNotifier() => read(selectedResourceProvider.notifier);
+
+  BeingEditedResourcesNotifier _beingEditedResourcesNotifier() =>
+      read(beingEditedResourcesProvider.notifier);
+
+  BeingEditedResourceDefinitionsNotifier _beindEditedResourceDefinitionsNotifier() =>
+      read(beingEditedResourceDefinitionsProvider.notifier);
+
+  BeingEditedTranslationsNotifier _beingEditedTranslationsNotifier(String locale) =>
+      read(beingEditedTranslationsProvider(locale).notifier);
 }

@@ -7,17 +7,8 @@ import '../entity/preferences/preference.dart';
 import '../provider/providers.dart';
 import '../repository/preferences_repository.dart';
 
-/// LanguageOption preference provider
-final languageOptionProvider = Provider<LanguageOption>((ref) {
-  final usecase = ref.watch(preferencesUsecaseProvider);
-  return ref.watch(usecase._languageOptionProvider);
-});
-
-/// ThemeMode preference provider
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  final usecase = ref.watch(preferencesUsecaseProvider);
-  return ref.watch(usecase._themeProvider);
-});
+part 'notifier/language_option_notifier.dart';
+part 'notifier/theme_mode_notifier.dart';
 
 /// PreferencesUsecase manages a well defined domain of preferences.
 ///
@@ -27,12 +18,8 @@ final themeModeProvider = Provider<ThemeMode>((ref) {
 ///
 /// Preferences keys and initial values are private to the class.
 ///
-/// All setter methods do save the preference to storage and updates the corresponding StateProvider,
+/// All setter methods do save the preference to storage and updates the corresponding StateNotifiers,
 /// making it very convenient to rely on providers and stay up to date with preferences state.
-/// This strategy works combined with those public read only Providers available above in this file.
-///
-/// These providers are late initialized retrieving the storage state on first access with default
-/// initial values.
 ///
 /// Preferences allowed values are available through this usecase singleton instance API.
 class PreferencesUsecase {
@@ -60,17 +47,13 @@ class PreferencesUsecase {
   /// Available themes.
   final themes = const [ThemeMode.dark, ThemeMode.light];
 
-  // Private prividers:
-  late final _languageOptionProvider = StateProvider((_) => _languageOption);
-  late final _themeProvider = StateProvider((_) => _theme);
-
   /// Setter to change the [LanguageOption] preference.
   ///
   /// This setter will trigger this preference change notification through the correpondent provider.
   set languageOption(LanguageOption languageOption) {
     final optionStr = '${languageOption.languageCode}_${languageOption.countryCode ?? ''}';
     repository.saveByKey(Preference(key: _languageOptionKey, value: optionStr));
-    read(_languageOptionProvider.notifier).state = languageOption;
+    _languageOptionNotifier()._languageOption = languageOption;
   }
 
   /// Internal getter for [LanguageOption] preference.
@@ -89,19 +72,25 @@ class PreferencesUsecase {
   /// Setter to change the [ThemeMode] preference.
   ///
   /// This setter will trigger this preference change notification through the correpondent provider.
-  set theme(ThemeMode theme) {
-    repository.saveByKey(Preference(key: _themeKey, value: theme.name));
-    read(_themeProvider.notifier).state = theme;
+  set themeMode(ThemeMode themeMode) {
+    repository.saveByKey(Preference(key: _themeKey, value: themeMode.name));
+    _themeModeNotifier()._themeMode = themeMode;
   }
 
   /// Internal getter for [ThemeMode] preference.
   ///
   /// This method reads the preference from the [PreferencesRepository] with a default initialValue.
   /// Use the correspondent public provider instead.
-  ThemeMode get _theme {
+  ThemeMode get _themeMode {
     final pref = repository.getByKey(_themeKey);
     if (pref?.value == ThemeMode.light.name) return ThemeMode.light;
     if (pref?.value == ThemeMode.dark.name) return ThemeMode.dark;
     return _initialTheme;
   }
+
+  /// Internal getter for this usecase [LanguageOptionNotifier]
+  LanguageOptionNotifier _languageOptionNotifier() => read(languageOptionProvider.notifier);
+
+  /// Internal getter for this usecase [ThemeModeNotifier]
+  ThemeModeNotifier _themeModeNotifier() => read(themeModeProvider.notifier);
 }
