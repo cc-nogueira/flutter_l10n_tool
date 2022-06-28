@@ -2,61 +2,246 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TranslationWidget extends StatelessWidget {
-  const TranslationWidget(this.project, this.definition, this.localeTranslations, {super.key});
+class TranslationWidget extends ConsumerWidget {
+  const TranslationWidget(this.locale, this.definition, this.translation, {super.key});
 
-  final Project project;
+  final String locale;
   final ArbDefinition definition;
-  final ArbLocaleTranslations localeTranslations;
+  final ArbTranslation? translation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
+    final beingEdited = translation == null
+        ? null
+        : ref.watch(beingEditedTranslationsForLanguageProvider(locale)
+            .select((value) => value[translation]));
+
+    final isBeingEdited = beingEdited != null;
+    return Container(
+      margin: const EdgeInsets.only(top: 12.0),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(border: Border.all(color: colors.onBackground)),
+      child: isBeingEdited ? _form(ref.read) : _tile(ref.read),
+    );
+  }
+
+  Widget _tile(Reader read) {
     switch (definition.type) {
       case ArbDefinitionType.plural:
-        return _PluralTranslationWidget(project, definition, localeTranslations);
+        return _PluralTranslationTile(
+          locale: locale,
+          translation: translation,
+          onEdit: () => _editTranslation(read),
+        );
       case ArbDefinitionType.select:
-        return _SelectTranslationWidget(project, definition, localeTranslations);
+        return _SelectTranslationTile(
+          locale: locale,
+          translation: translation,
+          onEdit: () => _editTranslation(read),
+        );
       default:
-        return _TextTranslationWidget(project, definition, localeTranslations);
+        return _TextTranslationTile(
+          locale: locale,
+          translation: translation,
+          onEdit: () => _editTranslation(read),
+        );
     }
+  }
+
+  Widget _form(Reader read) {
+    switch (definition.type) {
+      case ArbDefinitionType.plural:
+        return _PluralTranslationForm(
+          locale: locale,
+          translation: translation,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+      case ArbDefinitionType.select:
+        return _SelectTranslationForm(
+          locale: locale,
+          translation: translation,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+      default:
+        return _TextTranslationForm(
+          locale: locale,
+          translation: translation,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+    }
+  }
+
+  void _editTranslation(Reader read) {
+    if (translation != null) {
+      read(arbUsecaseProvider).editTranslation(locale, definition, translation!);
+    }
+  }
+
+  void _discardChanges(Reader read) {
+    if (translation != null) {
+      read(arbUsecaseProvider).discardTranslationChanges(locale, definition, translation!);
+    }
+  }
+
+  void _saveChanges(Reader read) {}
+}
+
+mixin _TranslationTileMixin {
+  static const leadingIcon = Icon(Icons.translate);
+  static const leadingSize = 48.0;
+  static const leadingSeparation = 8.0;
+  static const leadingSeparator = SizedBox(width: leadingSeparation);
+
+  Widget tileTitle(TextTheme theme, String locale, {required Widget trailing}) {
+    return Row(
+      children: [
+        const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon)),
+        leadingSeparator,
+        Expanded(child: Text(locale, style: theme.titleMedium)),
+        trailing,
+      ],
+    );
   }
 }
 
-abstract class _TranslationWidget extends ConsumerStatefulWidget {
-  const _TranslationWidget(this.project, this.definition, this.localeTranslations);
+mixin _TranslationFormMixin {
+  Widget textField({
+    required ColorScheme colors,
+    required String label,
+    String? hintText,
+    required String originalText,
+    required TextEditingController textController,
+    required ValueChanged<String> onChanged,
+    int? maxLines,
+  }) {
+    final hasChanges = textController.text != originalText;
+    return TextFormField(
+      controller: textController,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
+        border: const OutlineInputBorder(),
+        enabledBorder: _enabledBorder(colors, hasChanges),
+        focusedBorder: _focusedBorder(colors, hasChanges),
+        labelText: label,
+        hintText: hintText,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        counterText: '',
+      ),
+      onChanged: onChanged,
+      maxLines: maxLines,
+    );
+  }
 
-  final Project project;
-  final ArbDefinition definition;
-  final ArbLocaleTranslations localeTranslations;
+  InputBorder? _enabledBorder(ColorScheme colors, bool modified) => modified
+      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 1.2))
+      : null;
 
-  ArbTranslation? get translation => localeTranslations.translations[definition.key];
-  String get locale => localeTranslations.locale;
+  InputBorder? _focusedBorder(ColorScheme colors, bool modified) => modified
+      ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 2.0))
+      : null;
 }
 
-class _TextTranslationWidget extends _TranslationWidget {
-  const _TextTranslationWidget(super.project, super.resource, super.localeTranslations);
+abstract class _TranslationTile extends StatelessWidget with _TranslationTileMixin {
+  const _TranslationTile({
+    required this.locale,
+    required this.translation,
+    required this.onEdit,
+  });
+
+  final String locale;
+  final ArbTranslation? translation;
+  final VoidCallback? onEdit;
 
   @override
-  ConsumerState<_TextTranslationWidget> createState() => _TextResourceTranslationState();
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return tileTitle(textTheme, locale, trailing: _trailing);
+  }
+
+  Widget get _trailing => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
 }
 
-class _SelectTranslationWidget extends _TranslationWidget {
-  const _SelectTranslationWidget(super.project, super.resource, super.localeTranslations);
+class _TextTranslationTile extends _TranslationTile {
+  const _TextTranslationTile({
+    required super.locale,
+    required super.translation,
+    required super.onEdit,
+  });
+}
+
+class _PluralTranslationTile extends _TranslationTile {
+  const _PluralTranslationTile({
+    required super.locale,
+    required super.translation,
+    required super.onEdit,
+  });
+}
+
+class _SelectTranslationTile extends _TranslationTile {
+  const _SelectTranslationTile({
+    required super.locale,
+    required super.translation,
+    required super.onEdit,
+  });
+}
+
+abstract class _TranslationForm extends StatefulWidget {
+  const _TranslationForm({
+    required this.locale,
+    required this.translation,
+    required this.onDiscardChanges,
+    required this.onSaveChanges,
+  });
+
+  final String locale;
+  final ArbTranslation? translation;
+  final VoidCallback? onDiscardChanges;
+  final VoidCallback? onSaveChanges;
+}
+
+class _TextTranslationForm extends _TranslationForm {
+  const _TextTranslationForm({
+    required super.locale,
+    required super.translation,
+    required super.onDiscardChanges,
+    required super.onSaveChanges,
+  });
 
   @override
-  ConsumerState<_SelectTranslationWidget> createState() => _SelectTranslationState();
+  State<_TextTranslationForm> createState() => _TextTranslationFormState();
 }
 
-class _PluralTranslationWidget extends _TranslationWidget {
-  const _PluralTranslationWidget(super.project, super.resource, super.localeTranslations);
+class _PluralTranslationForm extends _TranslationForm {
+  const _PluralTranslationForm({
+    required super.locale,
+    required super.translation,
+    required super.onDiscardChanges,
+    required super.onSaveChanges,
+  });
 
   @override
-  ConsumerState<_PluralTranslationWidget> createState() => _PluralTranslationState();
+  State<_PluralTranslationForm> createState() => _PluralTranslationFormState();
 }
 
-abstract class _ResourceTranslationState<T extends _TranslationWidget> extends ConsumerState<T> {
-  late ArbTranslation? beingEdited;
+class _SelectTranslationForm extends _TranslationForm {
+  const _SelectTranslationForm({
+    required super.locale,
+    required super.translation,
+    required super.onDiscardChanges,
+    required super.onSaveChanges,
+  });
 
+  @override
+  State<_SelectTranslationForm> createState() => _SelectTranslationFormState();
+}
+
+abstract class _TranslationFormState<T extends _TranslationForm> extends State<T>
+    with _TranslationTileMixin, _TranslationFormMixin {
   @override
   void initState() {
     super.initState();
@@ -71,83 +256,96 @@ abstract class _ResourceTranslationState<T extends _TranslationWidget> extends C
     }
   }
 
-  void resetState() {
-    beingEdited = null;
-  }
+  void resetState();
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final translation = widget.translation;
-    beingEdited = translation == null
-        ? null
-        : ref.watch(
-            beingEditedTranslationsForLanguageProvider(widget.locale)
-                .select((value) => value[translation]),
-          );
-    return tile(colors);
-  }
-
-  Widget tile(ColorScheme colors) {
-    final displayTranslation = beingEdited ?? widget.translation;
-    const leading = Icon(Icons.translate);
-    return Container(
-      margin: const EdgeInsets.only(top: 12.0),
-      decoration: BoxDecoration(border: Border.all(color: colors.onBackground)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        title: Text(widget.locale),
-        subtitle: translationDetails(displayTranslation?.value),
-        leading: leading,
-        trailing: trailing(),
-      ),
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      children: [
+        title(theme.textTheme),
+        const SizedBox(height: 4.0),
+        form(theme.colorScheme),
+      ],
     );
   }
 
-  Widget trailing() {
-    return beingEdited == null
-        ? IconButton(
-            icon: const Icon(Icons.edit),
-            iconSize: 20,
-            onPressed: _editTranslation,
-          )
-        : beingEdited == widget.translation
-            ? IconButton(icon: const Icon(Icons.close), onPressed: _discardChanges)
-            : IconButton(icon: const Icon(Icons.check), onPressed: () {});
+  Widget title(TextTheme theme) {
+    return tileTitle(
+      theme,
+      widget.locale,
+      trailing: Row(children: [
+        IconButton(
+            icon: const Icon(Icons.check), onPressed: hasChanges ? widget.onSaveChanges : null),
+        IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
+      ]),
+    );
   }
 
-  bool get isModified => false;
+  bool get hasChanges;
 
-  void _editTranslation() {
-    final translation = widget.translation;
-    if (translation != null) {
-      ref.read(arbUsecaseProvider).editTranslation(widget.locale, widget.definition, translation);
-    }
+  Widget form(ColorScheme colors);
+}
+
+class _TextTranslationFormState extends _TranslationFormState<_TextTranslationForm> {
+  TextEditingController translationTextController = TextEditingController();
+
+  @override
+  void dispose() {
+    translationTextController.dispose();
+    super.dispose();
   }
 
-  void _discardChanges() {
-    final translation = widget.translation;
-    if (translation != null) {
-      ref
-          .read(arbUsecaseProvider)
-          .discardTranslationChanges(widget.locale, widget.definition, translation);
-    }
+  @override
+  void resetState() {
+    translationTextController.text = widget.translation?.value ?? '';
   }
 
-  Widget? translationDetails(String? value);
+  @override
+  bool get hasChanges => translationTextController.text != (widget.translation?.value ?? '');
+
+  @override
+  Widget form(ColorScheme colors) {
+    return Form(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: _TranslationTileMixin.leadingSize + _TranslationTileMixin.leadingSeparation,
+          right: _TranslationTileMixin.leadingSize,
+        ),
+        child: textField(
+          colors: colors,
+          label: 'Translation',
+          textController: translationTextController,
+          originalText: widget.translation?.value ?? '',
+          onChanged: (_) => setState(() {}),
+        ),
+      ),
+    );
+  }
 }
 
-class _TextResourceTranslationState extends _ResourceTranslationState<_TextTranslationWidget> {
+class _PluralTranslationFormState extends _TranslationFormState<_PluralTranslationForm> {
   @override
-  Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
+  Widget form(ColorScheme colors) {
+    return Container();
+  }
+
+  @override
+  bool get hasChanges => false;
+
+  @override
+  void resetState() {}
 }
 
-class _SelectTranslationState extends _ResourceTranslationState<_SelectTranslationWidget> {
+class _SelectTranslationFormState extends _TranslationFormState<_SelectTranslationForm> {
   @override
-  Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
-}
+  Widget form(ColorScheme colors) {
+    return Container();
+  }
 
-class _PluralTranslationState extends _ResourceTranslationState<_PluralTranslationWidget> {
   @override
-  Widget? translationDetails(String? value) => value == null ? null : SelectableText(value);
+  bool get hasChanges => false;
+
+  @override
+  void resetState() {}
 }

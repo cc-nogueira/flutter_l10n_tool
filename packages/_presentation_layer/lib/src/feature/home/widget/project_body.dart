@@ -24,7 +24,10 @@ class ProjectBody extends ConsumerWidget {
   Widget _resourceBody(ArbDefinition? definition) {
     return definition == null
         ? const MessageWidget('Localization App')
-        : ResourceWidget(definition);
+        : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ResourceWidget(definition),
+          );
   }
 
   Widget _notReadyBody() => const MessageWidget('Localization App');

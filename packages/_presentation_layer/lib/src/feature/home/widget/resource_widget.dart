@@ -17,7 +17,11 @@ class ResourceWidget extends ConsumerWidget {
       children: [
         DefinitionWidget(definition),
         for (final localeTranslations in project.translations.values)
-          TranslationWidget(project, definition, localeTranslations)
+          TranslationWidget(
+            localeTranslations.locale,
+            definition,
+            localeTranslations.translations[definition.key],
+          )
       ],
     );
   }
