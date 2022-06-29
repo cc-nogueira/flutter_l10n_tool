@@ -4,6 +4,7 @@ ButtonStyle segmentedButtonStyle(
   ColorScheme colors,
   MainAxisAlignment align, {
   bool selected = false,
+  Size? minimumSize,
 }) {
   final isLeft = align == MainAxisAlignment.start;
   final isRight = align == MainAxisAlignment.end;
@@ -18,6 +19,7 @@ ButtonStyle segmentedButtonStyle(
     ),
     backgroundColor: selected ? colors.secondaryContainer : null,
     primary: selected ? colors.onSecondaryContainer : colors.onSurface,
+    minimumSize: minimumSize,
   );
 }
 
@@ -46,6 +48,9 @@ OutlinedButton segmentedButton({
   required ColorScheme colors,
   required MainAxisAlignment align,
   required String text,
+  TextStyle? style,
+  double checkSize = 16.0,
+  Size? minimumSize,
   required VoidCallback? onPressed,
   bool selected = false,
 }) {
@@ -54,15 +59,15 @@ OutlinedButton segmentedButton({
       align == MainAxisAlignment.end);
   return selected
       ? OutlinedButton.icon(
-          style: segmentedButtonStyle(colors, align, selected: selected),
+          style: segmentedButtonStyle(colors, align, selected: selected, minimumSize: minimumSize),
           onPressed: onPressed,
-          icon: const Icon(Icons.check, size: 16),
-          label: Text(text),
+          icon: Icon(Icons.check, size: checkSize),
+          label: Text(text, style: style),
         )
       : OutlinedButton(
-          style: segmentedButtonStyle(colors, align, selected: selected),
+          style: segmentedButtonStyle(colors, align, selected: selected, minimumSize: minimumSize),
           onPressed: onPressed,
-          child: Text(text),
+          child: Text(text, style: style),
         );
 }
 

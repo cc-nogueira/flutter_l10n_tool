@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'definition_widget.dart';
+import 'resource_bar.dart';
 import 'translation_widget.dart';
 
 class ResourceWidget extends ConsumerWidget {
@@ -15,6 +16,7 @@ class ResourceWidget extends ConsumerWidget {
     final project = ref.watch(projectProvider);
     return Column(
       children: [
+        const ResourceBar(),
         DefinitionWidget(definition),
         for (final localeTranslations in project.translations.values)
           TranslationWidget(
