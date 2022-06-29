@@ -1,6 +1,21 @@
 {
   "@@locale": "en",
 
+  "label_display_option": "{option, select, compact{Compact} expanded{Expanded}}",
+  "@label_display_option": {
+    "placeholders": {
+      "option": {}
+    }
+  },
+
+  "testing": "A {t} {option, select, compact{Compact} expanded{Expanded}} message",
+  "@testing": {
+    "placeholders": {
+      "option": {},
+      "t": {}
+    }
+  },
+
   "error_l10n": "L10n error",
 
   "error_invalid_configuration_file": "Invalid localization configuration file: l10n.yaml",

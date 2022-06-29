@@ -1,0 +1,124 @@
+{
+  "@@locale": "pt",
+
+  "label_display_option": "{option, select, compact{Compacto} expanded{Expandido} other{X}}",
+  "@label_display_option": {
+    "placeholders": {
+      "option": {}
+    }
+  },
+
+  "error_l10n": "Erro L10n",
+
+  "error_invalid_configuration_file": "Arquivo de configuração de localização inválido: l10n.yaml",
+
+  "error_missing_pubspec": "Não foi possível encontrar o arquivo pubspec.yaml nesta pasta.",
+
+  "error_missing_pubspec_dependency": "Não foi possível encontrar a dependência obrigatória \"{name}\" no pubspec.yaml",
+  "@error_missing_pubspec_dependency": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_missing_arb_folder": "Pasta ARB não encontrada: {path}",
+  "@error_missing_arb_folder": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+
+  "error_missing_arb_template_file": "Arquivo template ARB não encontrado: {path}",
+  "@error_missing_arb_template_file": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+
+  "error_invalid_arb_file_format": "Conteúdo inválido no aquivo ARB: {name}",
+  "@error_invalid_arb_file_format": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_incomplete_pubspec_dependency": "Dependência incompleta na declaração de \"{name}\"",
+  "@error_incomplete_pubspec_dependency": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_locale_specification": "Tenha certeza de especificar a locale na propriedade '@@locale' ou como parte do nome do arquivo (e.g. file_pt.arb) for: {name}",
+  "@error_locale_specification": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "error_multiple_files_with_same_locale": "Detectado multiplos arquivos ARB para a mesma locale \"{locale}\".",
+  "@error_multiple_files_with_same_locale": {
+    "placeholders": {
+      "locale": {}
+    }
+  },
+
+  "error_arb_global_resource_format": "O elemento global \"{id}\" precisa ter um valor string.",
+  "@error_arb_global_resource_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_translation_format": "O elemento \"{id}\" deveria ter um valor do tipo string.",
+  "@error_arb_translation_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  
+  "error_arb_definition_format": "Tenha certeza que valor do elemento \"{id}\" é um mapa com chaves do tipo string.",
+  "@error_arb_definition_format": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_missing_a_definition": "Não foi encontrado attributo para o elemento \"{id}\". Por favor garanta que cada elemento tenha um elemento @resource correspondente.",
+  "@error_arb_missing_a_definition": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+
+  "error_arb_missing_definition": "Não foi encontrado atributo para o elemento \"{id}\". Por favor garanta que elementos do tipo {type} tenham um elemento @resource correspondente.",
+  "@error_arb_missing_definition": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholders": "Não foi encontrado placeholders para a mensagem do tipo {type} em: {id}.",
+  "@error_arb_missing_placeholders": {
+    "placeholders": {
+      "id": {},
+      "type": {}
+    }
+  },
+
+  "error_arb_missing_placeholder": "Não foi encontrado o placeholder \"{name}\" para a mensagem do tipo {type} em: {id}",
+  "@error_arb_missing_placeholder": {
+    "placeholders": {
+      "id": {},
+      "type": {},
+      "name": {}
+    }
+  },
+  
+  "error_arb_placeholders_format": "O atributo \"placeholders\" para o elemento \"{id}\" não está formatado corretamente. Garanta que seja um mapa com chaves do tipo string.",
+  "@error_arb_placeholders_format": {
+    "placeholders": {
+      "id": {}
+    }
+  }
+}

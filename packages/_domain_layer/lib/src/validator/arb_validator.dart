@@ -1,6 +1,6 @@
-import '../entity/project/arb_definition.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../exception/l10n_arb_exception.dart';
+import '../util/arb_util.dart';
 
 class ArbValidator {
   const ArbValidator(this.configuration, {required this.translations, required this.definitions});
@@ -97,12 +97,12 @@ class ArbValidator {
   }
 
   String? pluralKey(String value) {
-    final match = ArbDefinition.pluralRegExp.firstMatch(value);
+    final match = ArbUtil.pluralRegExp.firstMatch(value);
     return match?.group(1);
   }
 
   String? selectKey(String value) {
-    final match = ArbDefinition.selectRegExp.firstMatch(value);
+    final match = ArbUtil.selectRegExp.firstMatch(value);
     return match?.group(1);
   }
 }
