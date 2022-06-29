@@ -6,7 +6,7 @@ import 'package:riverpod/riverpod.dart';
 
 import '../provider/providers.dart';
 import '../repository/preferences_repository.dart';
-import '../usecase/preferences_usecase.dart';
+import '../usecase/preferences/preferences_usecase.dart';
 
 /// Function definition for Domain Layer dependencies
 typedef DomainConfiguration = void Function({

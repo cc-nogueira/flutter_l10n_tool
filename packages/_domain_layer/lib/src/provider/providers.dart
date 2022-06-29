@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../entity/preferences/display_option.dart';
 import '../entity/preferences/language_option.dart';
 import '../entity/project/arb_definition.dart';
 import '../entity/project/arb_translation.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';
-import '../usecase/arb_usecase.dart';
-import '../usecase/preferences_usecase.dart';
-import '../usecase/project_usecase.dart';
+import '../usecase/arb/arb_usecase.dart';
+import '../usecase/preferences/preferences_usecase.dart';
+import '../usecase/project/project_usecase.dart';
 
 /// Domain Layer provider
 final domainLayerProvider = Provider((ref) => DomainLayer(read: ref.read));
@@ -37,6 +38,12 @@ final languageOptionProvider = StateNotifierProvider<LanguageOptionNotifier, Lan
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   final usecase = ref.read(preferencesUsecaseProvider);
   return ThemeModeNotifier(usecase);
+});
+
+/// DisplayOption provider
+final displayOptionProvider = StateNotifierProvider<DisplayOptionNotifier, DisplayOption>((ref) {
+  final usecase = ref.read(preferencesUsecaseProvider);
+  return DisplayOptionNotifier(usecase);
 });
 
 // -- Project

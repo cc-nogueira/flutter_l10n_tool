@@ -6,18 +6,18 @@ import 'package:riverpod/riverpod.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_writer/yaml_writer.dart';
 
-import '../entity/project/arb_definition.dart';
-import '../entity/project/arb_locale_translations.dart';
-import '../entity/project/arb_placeholder.dart';
-import '../entity/project/arb_template.dart';
-import '../entity/project/arb_translation.dart';
-import '../entity/project/l10n_configuration.dart';
-import '../entity/project/project.dart';
-import '../exception/l10n_arb_exception.dart';
-import '../exception/l10n_exception.dart';
-import '../exception/l10n_pubspec_exception.dart';
-import '../provider/providers.dart';
-import '../validator/arb_validator.dart';
+import '../../entity/project/arb_definition.dart';
+import '../../entity/project/arb_locale_translations.dart';
+import '../../entity/project/arb_placeholder.dart';
+import '../../entity/project/arb_template.dart';
+import '../../entity/project/arb_translation.dart';
+import '../../entity/project/l10n_configuration.dart';
+import '../../entity/project/project.dart';
+import '../../exception/l10n_arb_exception.dart';
+import '../../exception/l10n_exception.dart';
+import '../../exception/l10n_pubspec_exception.dart';
+import '../../provider/providers.dart';
+import '../../validator/arb_validator.dart';
 
 part 'notifier/project_notifier.dart';
 
@@ -249,8 +249,8 @@ class ProjectUsecase {
     final definitionKey = '@$key';
     final definitionMap = meta[definitionKey];
     return ArbDefinition(
-      type: ArbDefinition.typeForValue(value),
       key: key,
+      value: value,
       context: definitionMap?['context'] as String?,
       description: definitionMap?['description'] as String?,
       placeholders: _placeholders(definitionMap?['placeholders'] as Map<String, dynamic>?),

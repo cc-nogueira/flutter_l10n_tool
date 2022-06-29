@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod/riverpod.dart';
 
-import '../entity/preferences/language_option.dart';
-import '../entity/preferences/preference.dart';
-import '../provider/providers.dart';
-import '../repository/preferences_repository.dart';
+import '../../entity/preferences/display_option.dart';
+import '../../entity/preferences/language_option.dart';
+import '../../entity/preferences/preference.dart';
+import '../../provider/providers.dart';
+import '../../repository/preferences_repository.dart';
 
+part 'notifier/display_option_notifier.dart';
 part 'notifier/language_option_notifier.dart';
 part 'notifier/theme_mode_notifier.dart';
 
@@ -31,9 +33,11 @@ class PreferencesUsecase {
   /// preferences.
   PreferencesUsecase({required this.read, required this.repository});
 
+  static const _displayOptionKey = 'display';
   static const _languageOptionKey = 'language';
   static const _themeKey = 'theme';
 
+  static const _initialDisplayOption = DisplayOption.compact;
   static const _initialTheme = ThemeMode.dark;
 
   /// Internal Riverpod [Reader].
@@ -46,6 +50,25 @@ class PreferencesUsecase {
 
   /// Available themes.
   final themes = const [ThemeMode.dark, ThemeMode.light];
+
+  /// Setter to change the [DisplayOption] preference.
+  ///
+  /// This setter will trigger this preference change notification through the correpondent provider.
+  set displayOption(DisplayOption displayOption) {
+    repository.saveByKey(Preference(key: _displayOptionKey, value: displayOption.name));
+    _displayOptionNotifier()._displayOption = displayOption;
+  }
+
+  /// Internal getter for [DisplayOption] preference.
+  ///
+  /// This method reads the preference from the [PreferencesRepository] with a default initialValue.
+  /// Use the correspondent public provider instead.
+  DisplayOption get _displayOption {
+    final pref = repository.getByKey(_displayOptionKey);
+    if (pref?.value == DisplayOption.compact.name) return DisplayOption.compact;
+    if (pref?.value == DisplayOption.expanded.name) return DisplayOption.expanded;
+    return _initialDisplayOption;
+  }
 
   /// Setter to change the [LanguageOption] preference.
   ///
@@ -87,6 +110,9 @@ class PreferencesUsecase {
     if (pref?.value == ThemeMode.dark.name) return ThemeMode.dark;
     return _initialTheme;
   }
+
+  /// Internal getter for this usecase [DisplayOptionNotifier]
+  DisplayOptionNotifier _displayOptionNotifier() => read(displayOptionProvider.notifier);
 
   /// Internal getter for this usecase [LanguageOptionNotifier]
   LanguageOptionNotifier _languageOptionNotifier() => read(languageOptionProvider.notifier);
