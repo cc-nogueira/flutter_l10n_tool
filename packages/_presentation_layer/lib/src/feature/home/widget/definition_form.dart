@@ -79,26 +79,31 @@ abstract class DefinitionFormState<T extends DefinitionForm> extends State<T>
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    return Column(
-      children: [
-        title(theme.textTheme),
-        const SizedBox(height: 4.0),
-        form(theme.colorScheme),
-      ],
+    final colors = theme.colorScheme;
+    return Form(
+      child: Container(
+        decoration: BoxDecoration(color: colors.primaryContainer),
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            tileIcon(),
+            DefinitionFormMixin.leadingSeparator,
+            Expanded(child: form(theme.colorScheme)),
+            trailing(),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget title(TextTheme theme) {
-    return tileTitle(
-      theme,
-      title: widget.current.key,
-      trailing: Row(children: [
+  Widget trailing() => Row(children: [
         IconButton(
-            icon: const Icon(Icons.check), onPressed: hasChanges ? widget.onSaveChanges : null),
+          icon: const Icon(Icons.check),
+          onPressed: hasChanges ? widget.onSaveChanges : null,
+        ),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
-      ]),
-    );
-  }
+      ]);
 
   bool get hasChanges;
 
@@ -106,38 +111,47 @@ abstract class DefinitionFormState<T extends DefinitionForm> extends State<T>
 }
 
 class TextDefinitionFormState extends DefinitionFormState<TextDefinitionForm> {
-  TextEditingController translationTextController = TextEditingController();
+  TextEditingController keyTextController = TextEditingController();
+  TextEditingController descTextController = TextEditingController();
 
   @override
   void dispose() {
-    translationTextController.dispose();
+    keyTextController.dispose();
+    descTextController.dispose();
     super.dispose();
   }
 
   @override
   void resetState() {
-    translationTextController.text = widget.current.key;
+    keyTextController.text = widget.current.key;
+    descTextController.text = widget.current.description ?? '';
   }
 
   @override
-  bool get hasChanges => translationTextController.text != (widget.current.key);
+  bool get hasChanges =>
+      keyTextController.text != widget.current.key ||
+      descTextController.text != (widget.current.description ?? '');
 
   @override
   Widget form(ColorScheme colors) {
-    return Form(
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: DefinitionTileMixin.leadingSize + DefinitionTileMixin.leadingSeparation,
-          right: DefinitionTileMixin.leadingSize,
-        ),
-        child: textField(
+    return Column(
+      children: [
+        textField(
           colors: colors,
           label: 'Key',
           originalText: widget.original.key,
-          textController: translationTextController,
+          textController: keyTextController,
           onChanged: (_) => setState(() {}),
         ),
-      ),
+        DefinitionFormMixin.verticalSeparator,
+        textField(
+          colors: colors,
+          label: 'Description',
+          originalText: widget.original.description ?? '',
+          textController: descTextController,
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
     );
   }
 }
