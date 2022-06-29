@@ -2,130 +2,81 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DefinitionWidget extends StatelessWidget {
-  const DefinitionWidget(this.rdefinition, {super.key});
+import 'definition_form.dart';
+import 'definition_tile.dart';
 
-  final ArbDefinition rdefinition;
-
-  @override
-  Widget build(BuildContext context) {
-    switch (rdefinition.type) {
-      case ArbDefinitionType.plural:
-        return _PluralDefinitionWidget(rdefinition);
-      case ArbDefinitionType.select:
-        return _SelectDefinitionWidget(rdefinition);
-      default:
-        return _TextDefinitionWidget(rdefinition);
-    }
-  }
-}
-
-abstract class _DefinitionWidget extends ConsumerStatefulWidget {
-  const _DefinitionWidget(this.definition);
+class DefinitionWidget extends ConsumerWidget {
+  DefinitionWidget(this.definition, {super.key});
 
   final ArbDefinition definition;
-}
-
-class _TextDefinitionWidget extends _DefinitionWidget {
-  const _TextDefinitionWidget(super.resourceDefinition);
+  late final definitionController = StateController<ArbDefinition>(definition);
 
   @override
-  ConsumerState<_TextDefinitionWidget> createState() => _TextDefinitionState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final beingEdited =
+        ref.watch(beingEditedDefinitionsProvider.select((value) => value[definition]));
 
-class _SelectDefinitionWidget extends _DefinitionWidget {
-  const _SelectDefinitionWidget(super.resourceDefinition);
-
-  @override
-  ConsumerState<_SelectDefinitionWidget> createState() => _SelectDefinitionState();
-}
-
-class _PluralDefinitionWidget extends _DefinitionWidget {
-  const _PluralDefinitionWidget(super.resourceDefinition);
-
-  @override
-  ConsumerState<_PluralDefinitionWidget> createState() => _PluralDefinitionState();
-}
-
-abstract class _DefinitionState<T extends _DefinitionWidget> extends ConsumerState<T> {
-  late ArbDefinition? beingEdited;
-
-  @override
-  void initState() {
-    super.initState();
-    resetState();
+    if (beingEdited == null) {
+      return _tile(ref.read);
+    }
+    definitionController.state = beingEdited;
+    return _form(ref.read);
   }
 
-  @override
-  void didUpdateWidget(covariant T oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget != widget) {
-      resetState();
+  Widget _tile(Reader read) {
+    if (definition is ArbTextDefinition) {
+      return TextDefinitionTile(
+        definition: definition as ArbTextDefinition,
+        onEdit: () => _edit(read),
+      );
+    } else if (definition is ArbSelectDefinition) {
+      return SelectDefinitionTile(
+        definition: definition as ArbSelectDefinition,
+        onEdit: () => _edit(read),
+      );
+    } else if (definition is ArbPluralDefinition) {
+      return PluralDefinitionTile(
+        definition: definition as ArbPluralDefinition,
+        onEdit: () => _edit(read),
+      );
+    } else {
+      throw StateError('Illegal ArbDefinition type');
     }
   }
 
-  void resetState() {
-    beingEdited = null;
+  Widget _form(Reader read) {
+    switch (definition.type) {
+      case ArbDefinitionType.plural:
+        return PluralDefinitionForm(
+          original: definition,
+          current: definitionController.state,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+      case ArbDefinitionType.select:
+        return SelectDefinitionForm(
+          original: definition,
+          current: definitionController.state,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+      default:
+        return TextDefinitionForm(
+          original: definition,
+          current: definitionController.state,
+          onDiscardChanges: () => _discardChanges(read),
+          onSaveChanges: () => _saveChanges(read),
+        );
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final resourceDefinition = widget.definition;
-    beingEdited =
-        ref.watch(beingEditedDefinitionsProvider.select((value) => value[resourceDefinition]));
-
-    return tile(colors);
+  void _edit(Reader read) {
+    read(arbUsecaseProvider).editDefinition(definition);
   }
 
-  Widget tile(ColorScheme colors) {
-    final displayDefinition = beingEdited ?? widget.definition;
-    final title = SelectableText(displayDefinition.key);
-    final subtitle = SelectableText(displayDefinition.description ?? '');
-    const leading = Icon(Icons.key);
-    return ListTile(
-      title: title,
-      subtitle: subtitle,
-      leading: leading,
-      trailing: trailing(),
-      tileColor: colors.primaryContainer,
-    );
+  void _discardChanges(Reader read) {
+    read(arbUsecaseProvider).discardDefinitionChanges(definition);
   }
 
-  Widget trailing() {
-    return beingEdited == null
-        ? IconButton(
-            icon: const Icon(Icons.edit),
-            iconSize: 20,
-            onPressed: _editDefinition,
-          )
-        : beingEdited == widget.definition
-            ? IconButton(icon: const Icon(Icons.close), onPressed: _discardChanges)
-            : IconButton(icon: const Icon(Icons.check), onPressed: () {});
-  }
-
-  void _editDefinition() {
-    ref.read(arbUsecaseProvider).editDefinition(widget.definition);
-  }
-
-  void _discardChanges() {
-    ref.read(arbUsecaseProvider).discardDefinitionChanges(widget.definition);
-  }
-
-  Widget? definitionDetails(String? value);
-}
-
-class _TextDefinitionState extends _DefinitionState<_TextDefinitionWidget> {
-  @override
-  Widget? definitionDetails(String? value) => value == null ? null : SelectableText(value);
-}
-
-class _SelectDefinitionState extends _DefinitionState<_SelectDefinitionWidget> {
-  @override
-  Widget? definitionDetails(String? value) => value == null ? null : SelectableText(value);
-}
-
-class _PluralDefinitionState extends _DefinitionState<_PluralDefinitionWidget> {
-  @override
-  Widget? definitionDetails(String? value) => value == null ? null : SelectableText(value);
+  void _saveChanges(Reader read) {}
 }
