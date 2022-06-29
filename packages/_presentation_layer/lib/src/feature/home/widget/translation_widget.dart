@@ -11,25 +11,29 @@ class TranslationWidget extends ConsumerWidget {
   final String locale;
   final ArbDefinition definition;
   final ArbTranslation? translation;
-  final translationController = StateController<ArbTranslation?>(null);
+  late final translationController = StateController<ArbTranslation>(
+      translation ?? ArbTranslation(key: definition.key, value: ''));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final displayOption = ref.watch(displayOptionProvider);
-    final beingEdited = translation == null
-        ? null
-        : ref.watch(beingEditedTranslationsForLanguageProvider(locale)
-            .select((value) => value[translation]));
+    final beingEdited = ref.watch(beingEditedTranslationsForLanguageProvider(locale)
+        .select((value) => value[_currentTranslation]));
 
-    translationController.state = beingEdited;
+    late final Widget child;
+    if (beingEdited == null) {
+      child = _tile(ref.read, displayOption);
+    } else {
+      _currentTranslation = beingEdited;
+      child = _form(ref.read, displayOption);
+    }
 
-    final isBeingEdited = beingEdited != null;
     return Container(
       margin: const EdgeInsets.only(top: 12.0),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(border: Border.all(color: colors.onBackground)),
-      child: isBeingEdited ? _form(ref.read, displayOption) : _tile(ref.read, displayOption),
+      child: child,
     );
   }
 
@@ -38,7 +42,7 @@ class TranslationWidget extends ConsumerWidget {
       return TextTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: translationController.state ?? translation,
+        translation: _currentTranslation,
         definition: definition as ArbTextDefinition,
         onEdit: () => _edit(read),
       );
@@ -46,7 +50,7 @@ class TranslationWidget extends ConsumerWidget {
       return SelectTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: translationController.state ?? translation,
+        translation: _currentTranslation,
         definition: definition as ArbSelectDefinition,
         onEdit: () => _edit(read),
       );
@@ -54,7 +58,7 @@ class TranslationWidget extends ConsumerWidget {
       return PluralTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: translationController.state ?? translation,
+        translation: _currentTranslation,
         definition: definition as ArbPluralDefinition,
         onEdit: () => _edit(read),
       );
@@ -69,7 +73,7 @@ class TranslationWidget extends ConsumerWidget {
         return PluralTranslationForm(
           locale: locale,
           original: translation,
-          current: translationController.state,
+          current: _currentTranslation,
           onDiscardChanges: () => _discardChanges(read),
           onSaveChanges: () => _saveChanges(read),
         );
@@ -77,7 +81,7 @@ class TranslationWidget extends ConsumerWidget {
         return SelectTranslationForm(
           locale: locale,
           original: translation,
-          current: translationController.state,
+          current: _currentTranslation,
           onDiscardChanges: () => _discardChanges(read),
           onSaveChanges: () => _saveChanges(read),
         );
@@ -85,22 +89,25 @@ class TranslationWidget extends ConsumerWidget {
         return TextTranslationForm(
           locale: locale,
           original: translation,
-          current: translationController.state,
+          current: _currentTranslation,
           onDiscardChanges: () => _discardChanges(read),
           onSaveChanges: () => _saveChanges(read),
         );
     }
   }
 
+  ArbTranslation get _currentTranslation => translationController.state;
+
+  set _currentTranslation(ArbTranslation translation) => translationController.state = translation;
+
   void _edit(Reader read) {
-    read(arbUsecaseProvider).editTranslation(
-        locale, definition, translation ?? ArbTranslation(key: definition.key, value: ''));
+    read(arbUsecaseProvider).editTranslation(locale, definition, _currentTranslation);
   }
 
   void _discardChanges(Reader read) {
-    if (translation != null) {
-      read(arbUsecaseProvider).discardTranslationChanges(locale, definition, translation!);
-    }
+    final current = _currentTranslation;
+    _currentTranslation = translation ?? ArbTranslation(key: definition.key, value: '');
+    read(arbUsecaseProvider).discardTranslationChanges(locale, definition, current);
   }
 
   void _saveChanges(Reader read) {}

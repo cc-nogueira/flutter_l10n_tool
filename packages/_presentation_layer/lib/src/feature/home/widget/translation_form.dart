@@ -16,11 +16,11 @@ abstract class TranslationForm extends StatefulWidget {
 
   final String locale;
   final ArbTranslation? original;
-  final ArbTranslation? current;
+  final ArbTranslation current;
   final VoidCallback? onDiscardChanges;
   final VoidCallback? onSaveChanges;
 
-  String get translationValue => current?.value ?? original?.value ?? '';
+  String get translationValue => current.value;
   String get originalValue => original?.value ?? '';
 }
 
