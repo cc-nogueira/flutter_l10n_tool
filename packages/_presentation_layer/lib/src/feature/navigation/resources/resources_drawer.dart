@@ -26,6 +26,7 @@ class ResourcesDrawer extends NavigationDrawer {
           style: ListTileStyle.drawer,
           child: FocusTraversalGroup(
             child: ListView.builder(
+              primary: false,
               itemCount: definitions.length,
               itemBuilder: (ctx, index) {
                 final definition = definitions[index];

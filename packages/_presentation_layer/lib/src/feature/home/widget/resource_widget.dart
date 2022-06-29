@@ -14,17 +14,25 @@ class ResourceWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final project = ref.watch(projectProvider);
+    final translations = project.translations.values.toList();
     return Column(
       children: [
         const ResourceBar(),
         DefinitionWidget(definition),
-        for (final localeTranslations in project.translations.values)
-          TranslationWidget(
-            localeTranslations.locale,
-            definition,
-            localeTranslations.translations[definition.key],
-          )
+        Expanded(
+          child: ListView.builder(
+            shrinkWrap: false,
+            itemBuilder: (_, idx) => _itemBuilder(translations[idx]),
+            itemCount: translations.length,
+          ),
+        ),
       ],
     );
   }
+
+  Widget _itemBuilder(ArbLocaleTranslations localeTranslations) => TranslationWidget(
+        localeTranslations.locale,
+        definition,
+        localeTranslations.translations[definition.key],
+      );
 }
