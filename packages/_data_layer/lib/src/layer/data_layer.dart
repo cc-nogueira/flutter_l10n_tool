@@ -7,7 +7,9 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../objectbox.g.dart';
 import '../model/preference_model.dart';
+import '../model/recent_project_model.dart';
 import '../repository/objectbox_preferences_repository.dart';
+import '../repository/objectbox_recent_projects_repository.dart';
 
 /// DataLayer has the responsibility to provide repository implementaions.
 ///
@@ -21,6 +23,10 @@ class DataLayer extends AppLayer {
   /// Getter for PreferencesRepository implementation with ObjectBox.
   PreferencesRepository get preferencesRepository =>
       ObjectboxPreferencesRepository(box: _store.box<PreferenceModel>());
+
+  /// Getter for PreferencesRepository implementation with ObjectBox.
+  RecentProjectsRepository get recentProjectsRepository =>
+      ObjectboxRecentProjectsRepository(box: _store.box<RecentProjectModel>());
 
   /// Initilize this layer object.
   ///

@@ -26,9 +26,33 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "2:6024860618978199226",
+      "lastPropertyId": "3:8332803230767936208",
+      "name": "RecentProjectModel",
+      "properties": [
+        {
+          "id": "1:5697505811747812894",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1201005226249395131",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:8332803230767936208",
+          "name": "path",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "1:4254823517436390389",
+  "lastEntityId": "2:6024860618978199226",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

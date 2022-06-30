@@ -8,3 +8,7 @@ final dataLayerProvider = Provider((_) => DataLayer());
 /// PreferencesRepositoy implementation provider
 final preferencesRepositoryProvider =
     Provider((ref) => ref.watch(dataLayerProvider).preferencesRepository);
+
+/// PreferencesRepositoy implementation provider
+final recentProjectsRepositoryProvider =
+    Provider((ref) => ref.watch(dataLayerProvider).recentProjectsRepository);
