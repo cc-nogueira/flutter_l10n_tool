@@ -3,11 +3,11 @@ part of '../arb_usecase.dart';
 /// Arb usecase notifier for translations modified or being edited.
 ///
 /// This is a public notifier acessible through corresponding providers:
-///  - [beingEditedTranslationsProvider] and
+///  - [beingEditedTranslationLocalesProvider] and
 ///  - [currentTranslationsProvider].
 ///
 /// Changes are only possible through the [ArbUsecase] (private methods).
-class TranslationsNotifier extends MapOneToManyNotifier<ArbDefinition, ArbTranslation> {}
+class TranslationLocalesNotifier extends MapOneToManyNotifier<ArbDefinition, String> {}
 
 /// Arb usecase notifier for translations being edited for a language.
 ///
@@ -16,7 +16,7 @@ class TranslationsNotifier extends MapOneToManyNotifier<ArbDefinition, ArbTransl
 /// each language.
 ///
 /// Changes are only possible through the [ArbUsecase] (private methods).
-class TranslationsForLanguageNotifier extends MapNotifier<ArbTranslation, ArbTranslation> {
+class TranslationsForLanguageNotifier extends MapNotifier<ArbDefinition, ArbTranslation> {
   TranslationsForLanguageNotifier(this.locale);
 
   /// The locale of each provider in this family.

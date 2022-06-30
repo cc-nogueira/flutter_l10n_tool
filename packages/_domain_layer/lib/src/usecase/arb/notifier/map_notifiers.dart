@@ -28,12 +28,12 @@ abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
   bool updateShouldNotify(old, current) => true;
 }
 
-abstract class MapOneToManyNotifier<T, U> extends StateNotifier<Map<T, List<U>>> {
+abstract class MapOneToManyNotifier<T, U> extends StateNotifier<Map<T, Set<U>>> {
   /// Constructor that initialized the state to an empty map.
   MapOneToManyNotifier() : super({});
 
   void _add(T key, U value) {
-    final values = state[key] ?? <U>[];
+    final values = state[key] ?? <U>{};
     values.add(value);
     state[key] = values;
     _updateState();

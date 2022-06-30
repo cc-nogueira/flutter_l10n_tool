@@ -99,10 +99,16 @@ final beingEditedDefinitionsProvider =
     StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
         (_) => DefinitionsNotifier());
 
-final beingEditedTranslationsProvider = StateNotifierProvider<BeingEditedTranslationsNotifier,
-    Map<ArbDefinition, List<ArbTranslation>>>((_) => BeingEditedTranslationsNotifier());
+final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
+    TranslationsForLanguageNotifier,
+    Map<ArbDefinition, ArbTranslation>,
+    String>((_, locale) => TranslationsForLanguageNotifier(locale));
+
+final beingEditedTranslationLocalesProvider =
+    StateNotifierProvider<TranslationLocalesNotifier, Map<ArbDefinition, Set<String>>>(
+        (_) => TranslationLocalesNotifier());
 
 final beingEditedTranslationsForLanguageProvider = StateNotifierProvider.family<
-    BeingEditedTranslationsForLanguageNotifier,
-    Map<ArbTranslation, ArbTranslation>,
-    String>((_, locale) => BeingEditedTranslationsForLanguageNotifier(locale));
+    TranslationsForLanguageNotifier,
+    Map<ArbDefinition, ArbTranslation>,
+    String>((_, locale) => TranslationsForLanguageNotifier(locale));

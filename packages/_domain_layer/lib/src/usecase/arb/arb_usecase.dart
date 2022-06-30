@@ -4,7 +4,6 @@ import '../../entity/project/arb_definition.dart';
 import '../../entity/project/arb_translation.dart';
 import '../../provider/providers.dart';
 
-part 'notifier/being_edited_notifiers.dart';
 part 'notifier/definitions_notifier.dart';
 part 'notifier/map_notifiers.dart';
 part 'notifier/selected_definition_notifier.dart';
@@ -33,24 +32,37 @@ class ArbUsecase {
 
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
     _currentDefinitionsNotifier()._edit(original, value);
-    _beingEditedDefinitionsNotifier()._discardChanges(original);
+    discardDefinitionChanges(original: original);
   }
 
   void rollbackDefinition({required ArbDefinition original}) {
     _currentDefinitionsNotifier()._discardChanges(original);
   }
 
-  void changeTranslation(ArbTranslation translation) {}
-
-  void editTranslation(String locale, ArbDefinition definition, ArbTranslation translation) {
-    _beingEditedTranslationsForLanguageNotifier(locale)._edit(translation);
-    _beingEditedTranslationsNotifier()._add(definition, translation);
+  void editTranslation({
+    required String locale,
+    required ArbDefinition definition,
+    required ArbTranslation current,
+  }) {
+    _beingEditedTranslationsForLanguageNotifier(locale)._edit(definition, current);
+    _beingEditedTranslationLocalesNotifier()._add(definition, locale);
   }
 
-  void discardTranslationChanges(
-      String locale, ArbDefinition definition, ArbTranslation translation) {
-    _beingEditedTranslationsForLanguageNotifier(locale)._discardChanges(translation);
-    _beingEditedTranslationsNotifier()._remove(definition, translation);
+  void discardTranslationChanges({
+    required String locale,
+    required ArbDefinition definition,
+  }) {
+    _beingEditedTranslationsForLanguageNotifier(locale)._discardChanges(definition);
+    _beingEditedTranslationLocalesNotifier()._remove(definition, locale);
+  }
+
+  void saveTranslation({
+    required String locale,
+    required ArbDefinition definition,
+    required ArbTranslation value,
+  }) {
+    _currentTranslationsForLanguageNotifier(locale)._edit(definition, value);
+    discardTranslationChanges(locale: locale, definition: definition);
   }
 
   SelectedDefinitionNotifier _selectedDefinitionNotifier() =>
@@ -61,10 +73,12 @@ class ArbUsecase {
 
   DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
 
-  BeingEditedTranslationsNotifier _beingEditedTranslationsNotifier() =>
-      read(beingEditedTranslationsProvider.notifier);
+  TranslationLocalesNotifier _beingEditedTranslationLocalesNotifier() =>
+      read(beingEditedTranslationLocalesProvider.notifier);
 
-  BeingEditedTranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(
-          String locale) =>
+  TranslationsForLanguageNotifier _currentTranslationsForLanguageNotifier(String locale) =>
+      read(currentTranslationsForLanguageProvider(locale).notifier);
+
+  TranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(String locale) =>
       read(beingEditedTranslationsForLanguageProvider(locale).notifier);
 }
