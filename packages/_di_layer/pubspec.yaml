@@ -16,8 +16,6 @@ dependencies:
     path: ../_domain_layer
   _presentation_layer:
     path: ../_presentation_layer
-  _service_layer:
-    path: ../_service_layer
     
   flutter:
     sdk: flutter

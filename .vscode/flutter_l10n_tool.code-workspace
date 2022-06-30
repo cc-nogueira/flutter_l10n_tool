@@ -20,10 +20,6 @@
 			"name": "Domain Layer"
 		},
 		{
-			"path": "../packages/_service_layer",
-			"name": "Service Layer"
-		},
-		{
 			"path": "../packages/_presentation_layer",
 			"name": "Presentation Layer"
 		}

@@ -2,7 +2,6 @@ import 'package:_core_layer/core_layer.dart';
 import 'package:_data_layer/data_layer.dart';
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:_presentation_layer/presentation_layer.dart';
-import 'package:_service_layer/service_layer.dart';
 
 import 'package:riverpod/riverpod.dart';
 
@@ -51,7 +50,6 @@ class DiLayer extends AppLayer {
     coreLayerProvider,
     domainLayerProvider,
     dataLayerProvider,
-    serviceLayerProvider,
     presentationLayerProvider,
   ];
 
