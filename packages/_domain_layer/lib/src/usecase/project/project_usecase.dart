@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:meta/meta.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:yaml/yaml.dart';
@@ -17,16 +18,21 @@ import '../../exception/l10n_arb_exception.dart';
 import '../../exception/l10n_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
 import '../../provider/providers.dart';
+import '../../repository/recent_projects_repository.dart';
 import '../../validator/arb_validator.dart';
 
 part 'notifier/project_notifier.dart';
 
 class ProjectUsecase {
-  const ProjectUsecase(this.read);
+  const ProjectUsecase({required this.read, required this.recentProjectsRepository});
+
+  static final _localeFromFileNameRegExp = RegExp(r'^\w+_(\w\w).arb$');
 
   final Reader read;
 
-  static final _localeFromFileNameRegExp = RegExp(r'^\w+_(\w\w).arb$');
+  /// Internal [RecentProjectsRepository] implementation.
+  @internal
+  final RecentProjectsRepository recentProjectsRepository;
 
   void initProject({required String projectPath}) => _projectNotifier._init(projectPath);
 

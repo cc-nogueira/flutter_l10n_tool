@@ -75,6 +75,7 @@ class DiLayer extends AppLayer {
     final domainConfiguration = _read(domainConfigurationProvider);
     domainConfiguration(
       preferencesRepository: _read(preferencesRepositoryProvider),
+      recentProjectsRepository: _read(recentProjectsRepositoryProvider),
     );
   }
 }

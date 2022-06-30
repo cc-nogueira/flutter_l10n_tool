@@ -6,11 +6,14 @@ import 'package:riverpod/riverpod.dart';
 
 import '../provider/providers.dart';
 import '../repository/preferences_repository.dart';
+import '../repository/recent_projects_repository.dart';
 import '../usecase/preferences/preferences_usecase.dart';
+import '../usecase/project/project_usecase.dart';
 
 /// Function definition for Domain Layer dependencies
 typedef DomainConfiguration = void Function({
   required PreferencesRepository preferencesRepository,
+  required RecentProjectsRepository recentProjectsRepository,
 });
 
 /// DomainLayer has the responsibility to provide domain usecases.
@@ -34,6 +37,9 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
 
   /// Configured [PreferencesUsecase] singleton.
   late final PreferencesUsecase preferencesUsecase;
+
+  /// Configured [ProjectUsecase] singleton.
+  late final ProjectUsecase projectUsecase;
 
   /// Initialize the DomainLayer.
   ///
@@ -59,7 +65,11 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
     }
   }
 
-  void configure({required PreferencesRepository preferencesRepository}) {
+  void configure({
+    required PreferencesRepository preferencesRepository,
+    required RecentProjectsRepository recentProjectsRepository,
+  }) {
     preferencesUsecase = PreferencesUsecase(read: read, repository: preferencesRepository);
+    projectUsecase = ProjectUsecase(read: read, recentProjectsRepository: recentProjectsRepository);
   }
 }

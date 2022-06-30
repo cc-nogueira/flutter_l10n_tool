@@ -49,7 +49,8 @@ final displayOptionProvider = StateNotifierProvider<DisplayOptionNotifier, Displ
 // -- Project
 
 /// ProjectUsecase singleton provider
-final projectUsecaseProvider = Provider<ProjectUsecase>((ref) => ProjectUsecase(ref.read));
+final projectUsecaseProvider =
+    Provider<ProjectUsecase>((ref) => ref.watch(domainLayerProvider).projectUsecase);
 
 /// Current project provider
 final projectProvider = StateNotifierProvider<ProjectNotifier, Project>((_) => ProjectNotifier());
