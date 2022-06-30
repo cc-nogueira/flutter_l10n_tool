@@ -6,77 +6,95 @@ import 'definition_form.dart';
 import 'definition_tile.dart';
 
 class DefinitionWidget extends ConsumerWidget {
-  DefinitionWidget(this.definition, {super.key});
+  DefinitionWidget(this.original, {super.key});
 
-  final ArbDefinition definition;
-  late final definitionController = StateController<ArbDefinition>(definition);
+  final ArbDefinition original;
+  final _rebuildProvider = StateProvider<bool>((ref) => false);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final beingEdited =
-        ref.watch(beingEditedDefinitionsProvider.select((value) => value[definition]));
+    ref.watch(_rebuildProvider);
 
-    if (beingEdited == null) {
-      return _tile(ref.read);
-    }
-    definitionController.state = beingEdited;
-    return _form(ref.read);
+    final current = ref.watch(currentDefinitionsProvider.select((value) => value[original]));
+    final currentOrOriginal = current ?? original;
+    final beingEdited = ref.read(beingEditedDefinitionsProvider)[original];
+
+    return beingEdited == null
+        ? _tile(ref.read, current: currentOrOriginal)
+        : _form(ref.read, current: currentOrOriginal, beingEdited: beingEdited);
   }
 
-  Widget _tile(Reader read) {
-    if (definition is ArbTextDefinition) {
+  Widget _tile(Reader read, {required ArbDefinition current}) {
+    if (current is ArbTextDefinition) {
       return TextDefinitionTile(
-        definition: definition as ArbTextDefinition,
-        onEdit: () => _edit(read),
+        definition: current,
+        onEdit: () => _edit(read, current),
       );
-    } else if (definition is ArbSelectDefinition) {
+    }
+    if (current is ArbSelectDefinition) {
       return SelectDefinitionTile(
-        definition: definition as ArbSelectDefinition,
-        onEdit: () => _edit(read),
+        definition: current,
+        onEdit: () => _edit(read, current),
       );
-    } else if (definition is ArbPluralDefinition) {
+    }
+    if (current is ArbPluralDefinition) {
       return PluralDefinitionTile(
-        definition: definition as ArbPluralDefinition,
-        onEdit: () => _edit(read),
+        definition: current,
+        onEdit: () => _edit(read, current),
       );
-    } else {
-      throw StateError('Illegal ArbDefinition type');
     }
+    throw StateError('Illegal ArbDefinition type');
   }
 
-  Widget _form(Reader read) {
-    switch (definition.type) {
-      case ArbDefinitionType.plural:
-        return PluralDefinitionForm(
-          original: definition,
-          current: definitionController.state,
-          onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
-        );
-      case ArbDefinitionType.select:
-        return SelectDefinitionForm(
-          original: definition,
-          current: definitionController.state,
-          onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
-        );
-      default:
-        return TextDefinitionForm(
-          original: definition,
-          current: definitionController.state,
-          onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
-        );
+  Widget _form(Reader read, {required ArbDefinition current, required ArbDefinition beingEdited}) {
+    if (current is ArbTextDefinition && beingEdited is ArbTextDefinition) {
+      return TextDefinitionForm(
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+        onSaveChanges: (value) => _saveChanges(read, value),
+      );
     }
+    if (current is ArbPluralDefinition && beingEdited is ArbPluralDefinition) {
+      return PluralDefinitionForm(
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+        onSaveChanges: (value) => _saveChanges(read, value),
+      );
+    }
+    if (current is ArbSelectDefinition && beingEdited is ArbSelectDefinition) {
+      return SelectDefinitionForm(
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+        onSaveChanges: (value) => _saveChanges(read, value),
+      );
+    }
+    throw StateError('Illegal ArbDefinition type');
   }
 
-  void _edit(Reader read) {
-    read(arbUsecaseProvider).editDefinition(definition);
+  void _edit(Reader read, ArbDefinition current) {
+    read(arbUsecaseProvider).editDefinition(original: original, current: current);
+    _rebuild(read);
+  }
+
+  void _updateBeingEdited(Reader read, ArbDefinition beingEdited) {
+    read(arbUsecaseProvider).editDefinition(original: original, current: beingEdited);
   }
 
   void _discardChanges(Reader read) {
-    read(arbUsecaseProvider).discardDefinitionChanges(definition);
+    read(arbUsecaseProvider).discardDefinitionChanges(original: original);
+    _rebuild(read);
   }
 
-  void _saveChanges(Reader read) {}
+  void _saveChanges(Reader read, ArbDefinition value) {
+    read(arbUsecaseProvider).saveDefinition(original: original, value: value);
+    _rebuild(read);
+  }
+
+  void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
 }

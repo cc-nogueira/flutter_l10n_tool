@@ -4,62 +4,69 @@ import 'package:flutter/material.dart';
 import 'definition_form_mixin.dart';
 import 'definition_tile_mixin.dart';
 
-abstract class DefinitionForm extends StatefulWidget {
+abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
     super.key,
-    required this.original,
     required this.current,
+    required this.beingEdited,
+    required this.onUpdate,
     required this.onDiscardChanges,
     required this.onSaveChanges,
   });
 
-  final ArbDefinition original;
-  final ArbDefinition current;
-  final VoidCallback? onDiscardChanges;
-  final VoidCallback? onSaveChanges;
+  final T current;
+  final T beingEdited;
+  final VoidCallback onDiscardChanges;
+  final ValueChanged<ArbDefinition> onUpdate;
+  final ValueChanged<ArbDefinition> onSaveChanges;
 }
 
-class TextDefinitionForm extends DefinitionForm {
+class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
   const TextDefinitionForm({
     super.key,
-    required super.original,
     required super.current,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onDiscardChanges,
     required super.onSaveChanges,
   });
 
   @override
-  State<TextDefinitionForm> createState() => TextDefinitionFormState();
+  State<DefinitionForm<ArbTextDefinition>> createState() => TextDefinitionFormState();
 }
 
-class PluralDefinitionForm extends DefinitionForm {
+class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   const PluralDefinitionForm({
     super.key,
-    required super.original,
     required super.current,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onDiscardChanges,
     required super.onSaveChanges,
   });
 
   @override
-  State<PluralDefinitionForm> createState() => PluralDefinitionFormState();
+  State<DefinitionForm<ArbPluralDefinition>> createState() => PluralDefinitionFormState();
 }
 
-class SelectDefinitionForm extends DefinitionForm {
+class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   const SelectDefinitionForm({
     super.key,
-    required super.original,
     required super.current,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onDiscardChanges,
     required super.onSaveChanges,
   });
 
   @override
-  State<SelectDefinitionForm> createState() => SelectDefinitionFormState();
+  State<DefinitionForm<ArbSelectDefinition>> createState() => SelectDefinitionFormState();
 }
 
-abstract class DefinitionFormState<T extends DefinitionForm> extends State<T>
+abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
     with DefinitionTileMixin, DefinitionFormMixin {
+  late T formDefinition;
+
   @override
   void initState() {
     super.initState();
@@ -67,14 +74,17 @@ abstract class DefinitionFormState<T extends DefinitionForm> extends State<T>
   }
 
   @override
-  void didUpdateWidget(covariant T oldWidget) {
+  void didUpdateWidget(covariant DefinitionForm<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget != widget) {
       resetState();
     }
   }
 
-  void resetState();
+  @mustCallSuper
+  void resetState() {
+    formDefinition = widget.beingEdited;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,17 +110,19 @@ abstract class DefinitionFormState<T extends DefinitionForm> extends State<T>
   Widget trailing() => Row(children: [
         IconButton(
           icon: const Icon(Icons.check),
-          onPressed: hasChanges ? widget.onSaveChanges : null,
+          onPressed: hasChanges ? _saveChanges : null,
         ),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
       ]);
+
+  void _saveChanges() => widget.onSaveChanges(formDefinition);
 
   bool get hasChanges;
 
   Widget form(ColorScheme colors);
 }
 
-class TextDefinitionFormState extends DefinitionFormState<TextDefinitionForm> {
+class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
 
@@ -123,14 +135,15 @@ class TextDefinitionFormState extends DefinitionFormState<TextDefinitionForm> {
 
   @override
   void resetState() {
-    keyTextController.text = widget.current.key;
-    descTextController.text = widget.current.description ?? '';
+    super.resetState();
+    keyTextController.text = formDefinition.key;
+    descTextController.text = formDefinition.description ?? '';
   }
 
   @override
   bool get hasChanges =>
-      keyTextController.text != widget.current.key ||
-      descTextController.text != (widget.current.description ?? '');
+      formDefinition.key != widget.current.key ||
+      (formDefinition.description ?? '') != (widget.current.description ?? '');
 
   @override
   Widget form(ColorScheme colors) {
@@ -139,24 +152,30 @@ class TextDefinitionFormState extends DefinitionFormState<TextDefinitionForm> {
         textField(
           colors: colors,
           label: 'Key',
-          originalText: widget.original.key,
+          originalText: widget.beingEdited.key,
           textController: keyTextController,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) => setState(() {
+            formDefinition = formDefinition.copyWith(key: value);
+            widget.onUpdate(formDefinition);
+          }),
         ),
         DefinitionFormMixin.verticalSeparator,
         textField(
           colors: colors,
           label: 'Description',
-          originalText: widget.original.description ?? '',
+          originalText: widget.beingEdited.description ?? '',
           textController: descTextController,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) => setState(() {
+            formDefinition = formDefinition.copyWith(description: value);
+            widget.onUpdate(formDefinition);
+          }),
         ),
       ],
     );
   }
 }
 
-class PluralDefinitionFormState extends DefinitionFormState<PluralDefinitionForm> {
+class PluralDefinitionFormState extends DefinitionFormState<ArbPluralDefinition> {
   @override
   Widget form(ColorScheme colors) {
     return Container();
@@ -166,10 +185,12 @@ class PluralDefinitionFormState extends DefinitionFormState<PluralDefinitionForm
   bool get hasChanges => false;
 
   @override
-  void resetState() {}
+  void resetState() {
+    super.resetState();
+  }
 }
 
-class SelectDefinitionFormState extends DefinitionFormState<SelectDefinitionForm> {
+class SelectDefinitionFormState extends DefinitionFormState<ArbSelectDefinition> {
   @override
   Widget form(ColorScheme colors) {
     return Container();
@@ -179,5 +200,7 @@ class SelectDefinitionFormState extends DefinitionFormState<SelectDefinitionForm
   bool get hasChanges => false;
 
   @override
-  void resetState() {}
+  void resetState() {
+    super.resetState();
+  }
 }
