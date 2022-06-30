@@ -52,8 +52,8 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
-        onDiscardChanges: () => _discardChanges(read),
         onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
       );
     }
     if (current is ArbPluralDefinition && beingEdited is ArbPluralDefinition) {
@@ -61,8 +61,8 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
-        onDiscardChanges: () => _discardChanges(read),
         onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
       );
     }
     if (current is ArbSelectDefinition && beingEdited is ArbSelectDefinition) {
@@ -70,15 +70,15 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
-        onDiscardChanges: () => _discardChanges(read),
         onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
       );
     }
     throw StateError('Illegal ArbDefinition type');
   }
 
   void _edit(Reader read, ArbDefinition current) {
-    read(arbUsecaseProvider).editDefinition(original: original, current: current);
+    _updateBeingEdited(read, current);
     _rebuild(read);
   }
 

@@ -10,15 +10,15 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
     required this.current,
     required this.beingEdited,
     required this.onUpdate,
-    required this.onDiscardChanges,
     required this.onSaveChanges,
+    required this.onDiscardChanges,
   });
 
   final T current;
   final T beingEdited;
-  final VoidCallback onDiscardChanges;
   final ValueChanged<ArbDefinition> onUpdate;
   final ValueChanged<ArbDefinition> onSaveChanges;
+  final VoidCallback onDiscardChanges;
 }
 
 class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
@@ -27,8 +27,8 @@ class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
-    required super.onDiscardChanges,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -41,8 +41,8 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
-    required super.onDiscardChanges,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -55,8 +55,8 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
-    required super.onDiscardChanges,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -108,10 +108,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
   }
 
   Widget trailing() => Row(children: [
-        IconButton(
-          icon: const Icon(Icons.check),
-          onPressed: hasChanges ? _saveChanges : null,
-        ),
+        IconButton(icon: const Icon(Icons.check), onPressed: hasChanges ? _saveChanges : null),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
       ]);
 
@@ -152,7 +149,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
         textField(
           colors: colors,
           label: 'Key',
-          originalText: widget.beingEdited.key,
+          originalText: formDefinition.key,
           textController: keyTextController,
           onChanged: (value) => setState(() {
             formDefinition = formDefinition.copyWith(key: value);
@@ -163,7 +160,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
         textField(
           colors: colors,
           label: 'Description',
-          originalText: widget.beingEdited.description ?? '',
+          originalText: formDefinition.description ?? '',
           textController: descTextController,
           onChanged: (value) => setState(() {
             formDefinition = formDefinition.copyWith(description: value);

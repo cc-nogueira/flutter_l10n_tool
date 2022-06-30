@@ -6,109 +6,130 @@ import 'translation_form.dart';
 import 'translation_tile.dart';
 
 class TranslationWidget extends ConsumerWidget {
-  TranslationWidget(this.locale, this.definition, this.translation, {super.key});
+  TranslationWidget(this.locale, this.definition, this.original, {super.key});
 
   final String locale;
   final ArbDefinition definition;
-  final ArbTranslation? translation;
-  late final translationController = StateController<ArbTranslation>(
-      translation ?? ArbTranslation(key: definition.key, value: ''));
+  final ArbTranslation? original;
+  final _rebuildProvider = StateProvider<bool>((ref) => false);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(_rebuildProvider);
+
     final colors = Theme.of(context).colorScheme;
     final displayOption = ref.watch(displayOptionProvider);
-    final beingEdited = ref.watch(beingEditedTranslationsForLanguageProvider(locale)
-        .select((value) => value[_currentTranslation]));
 
-    late final Widget child;
-    if (beingEdited == null) {
-      child = _tile(ref.read, displayOption);
-    } else {
-      _currentTranslation = beingEdited;
-      child = _form(ref.read, displayOption);
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 12.0),
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(border: Border.all(color: colors.onBackground)),
-      child: child,
+    final current = ref.watch(
+      currentTranslationsForLanguageProvider(locale).select((value) => value[definition]),
     );
+    final currentOrOriginal = current ?? original;
+    final beingEdited = ref.read(beingEditedTranslationsForLanguageProvider(locale))[definition];
+
+    return beingEdited == null
+        ? _withBorder(colors, _tile(ref.read, displayOption, current: currentOrOriginal))
+        : _withBorder(
+            colors,
+            _form(ref.read, displayOption, current: currentOrOriginal, beingEdited: beingEdited),
+          );
   }
 
-  Widget _tile(Reader read, DisplayOption displayOption) {
+  Widget _tile(Reader read, DisplayOption displayOption, {required ArbTranslation? current}) {
     if (definition is ArbTextDefinition) {
       return TextTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: _currentTranslation,
+        translation: current,
         definition: definition as ArbTextDefinition,
-        onEdit: () => _edit(read),
+        onEdit: () => _edit(read, current),
       );
     } else if (definition is ArbSelectDefinition) {
       return SelectTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: _currentTranslation,
+        translation: current,
         definition: definition as ArbSelectDefinition,
-        onEdit: () => _edit(read),
+        onEdit: () => _edit(read, current),
       );
     } else if (definition is ArbPluralDefinition) {
       return PluralTranslationTile(
         displayOption: displayOption,
         locale: locale,
-        translation: _currentTranslation,
+        translation: current,
         definition: definition as ArbPluralDefinition,
-        onEdit: () => _edit(read),
+        onEdit: () => _edit(read, current),
       );
     } else {
       throw StateError('Illegal ArbDefinition type');
     }
   }
 
-  Widget _form(Reader read, DisplayOption displayOption) {
+  Widget _form(
+    Reader read,
+    DisplayOption displayOption, {
+    required ArbTranslation? current,
+    required ArbTranslation beingEdited,
+  }) {
     switch (definition.type) {
       case ArbDefinitionType.plural:
         return PluralTranslationForm(
           locale: locale,
-          original: translation,
-          current: _currentTranslation,
+          current: current,
+          beingEdited: beingEdited,
+          onUpdate: (value) => _updateBeingEdited(read, value),
+          onSaveChanges: (value) => _saveChanges(read, value),
           onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
         );
       case ArbDefinitionType.select:
         return SelectTranslationForm(
           locale: locale,
-          original: translation,
-          current: _currentTranslation,
+          current: current,
+          beingEdited: beingEdited,
+          onUpdate: (value) => _updateBeingEdited(read, value),
+          onSaveChanges: (value) => _saveChanges(read, value),
           onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
         );
       default:
         return TextTranslationForm(
           locale: locale,
-          original: translation,
-          current: _currentTranslation,
+          current: current,
+          beingEdited: beingEdited,
+          onUpdate: (value) => _updateBeingEdited(read, value),
+          onSaveChanges: (value) => _saveChanges(read, value),
           onDiscardChanges: () => _discardChanges(read),
-          onSaveChanges: () => _saveChanges(read),
         );
     }
   }
 
-  ArbTranslation get _currentTranslation => translationController.state;
+  Widget _withBorder(ColorScheme colors, Widget child) => Container(
+        margin: const EdgeInsets.only(top: 12.0),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(border: Border.all(color: colors.onBackground)),
+        child: child,
+      );
 
-  set _currentTranslation(ArbTranslation translation) => translationController.state = translation;
+  void _edit(Reader read, ArbTranslation? current) {
+    _updateBeingEdited(read, current ?? ArbTranslation(key: definition.key, value: ''));
+    _rebuild(read);
+  }
 
-  void _edit(Reader read) {
-    read(arbUsecaseProvider).editTranslation(locale, definition, _currentTranslation);
+  void _updateBeingEdited(Reader read, ArbTranslation beingEdited) {
+    read(arbUsecaseProvider).editTranslation(
+      locale: locale,
+      definition: definition,
+      current: beingEdited,
+    );
   }
 
   void _discardChanges(Reader read) {
-    final current = _currentTranslation;
-    _currentTranslation = translation ?? ArbTranslation(key: definition.key, value: '');
-    read(arbUsecaseProvider).discardTranslationChanges(locale, definition, current);
+    read(arbUsecaseProvider).discardTranslationChanges(locale: locale, definition: definition);
+    _rebuild(read);
   }
 
-  void _saveChanges(Reader read) {}
+  void _saveChanges(Reader read, ArbTranslation value) {
+    read(arbUsecaseProvider).saveTranslation(locale: locale, definition: definition, value: value);
+    _rebuild(read);
+  }
+
+  void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
 }

@@ -8,30 +8,30 @@ abstract class TranslationForm extends StatefulWidget {
   const TranslationForm({
     super.key,
     required this.locale,
-    required this.original,
     required this.current,
-    required this.onDiscardChanges,
+    required this.beingEdited,
+    required this.onUpdate,
     required this.onSaveChanges,
+    required this.onDiscardChanges,
   });
 
   final String locale;
-  final ArbTranslation? original;
-  final ArbTranslation current;
-  final VoidCallback? onDiscardChanges;
-  final VoidCallback? onSaveChanges;
-
-  String get translationValue => current.value;
-  String get originalValue => original?.value ?? '';
+  final ArbTranslation? current;
+  final ArbTranslation beingEdited;
+  final ValueChanged<ArbTranslation> onUpdate;
+  final ValueChanged<ArbTranslation> onSaveChanges;
+  final VoidCallback onDiscardChanges;
 }
 
 class TextTranslationForm extends TranslationForm {
   const TextTranslationForm({
     super.key,
     required super.locale,
-    required super.original,
     required super.current,
-    required super.onDiscardChanges,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -42,10 +42,11 @@ class PluralTranslationForm extends TranslationForm {
   const PluralTranslationForm({
     super.key,
     required super.locale,
-    required super.original,
     required super.current,
-    required super.onDiscardChanges,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -56,10 +57,11 @@ class SelectTranslationForm extends TranslationForm {
   const SelectTranslationForm({
     super.key,
     required super.locale,
-    required super.original,
     required super.current,
-    required super.onDiscardChanges,
+    required super.beingEdited,
+    required super.onUpdate,
     required super.onSaveChanges,
+    required super.onDiscardChanges,
   });
 
   @override
@@ -68,6 +70,8 @@ class SelectTranslationForm extends TranslationForm {
 
 abstract class TranslationFormState<T extends TranslationForm> extends State<T>
     with TranslationTileMixin, TranslationFormMixin {
+  late ArbTranslation formTranslation;
+
   @override
   void initState() {
     super.initState();
@@ -82,7 +86,10 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
     }
   }
 
-  void resetState();
+  @mustCallSuper
+  void resetState() {
+    formTranslation = widget.beingEdited;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +108,13 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
       theme,
       title: widget.locale,
       trailing: Row(children: [
-        IconButton(
-            icon: const Icon(Icons.check), onPressed: hasChanges ? widget.onSaveChanges : null),
+        IconButton(icon: const Icon(Icons.check), onPressed: hasChanges ? _saveChanges : null),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
       ]),
     );
   }
+
+  void _saveChanges() => widget.onSaveChanges(formTranslation);
 
   bool get hasChanges;
 
@@ -124,11 +132,12 @@ class TextTranslationFormState extends TranslationFormState<TextTranslationForm>
 
   @override
   void resetState() {
-    translationTextController.text = widget.translationValue;
+    super.resetState();
+    translationTextController.text = formTranslation.value;
   }
 
   @override
-  bool get hasChanges => translationTextController.text != (widget.translationValue);
+  bool get hasChanges => formTranslation.value != (widget.current?.value ?? '');
 
   @override
   Widget form(ColorScheme colors) {
@@ -141,9 +150,12 @@ class TextTranslationFormState extends TranslationFormState<TextTranslationForm>
         child: textField(
           colors: colors,
           label: 'Translation',
-          originalText: widget.originalValue,
+          originalText: formTranslation.value,
           textController: translationTextController,
-          onChanged: (_) => setState(() {}),
+          onChanged: (value) => setState(() {
+            formTranslation = formTranslation.copyWith(value: value);
+            widget.onUpdate(formTranslation);
+          }),
         ),
       ),
     );
@@ -160,7 +172,9 @@ class PluralTranslationFormState extends TranslationFormState<PluralTranslationF
   bool get hasChanges => false;
 
   @override
-  void resetState() {}
+  void resetState() {
+    super.resetState();
+  }
 }
 
 class SelectTranslationFormState extends TranslationFormState<SelectTranslationForm> {
@@ -173,5 +187,7 @@ class SelectTranslationFormState extends TranslationFormState<SelectTranslationF
   bool get hasChanges => false;
 
   @override
-  void resetState() {}
+  void resetState() {
+    super.resetState();
+  }
 }
