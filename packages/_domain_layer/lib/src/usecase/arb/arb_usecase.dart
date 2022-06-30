@@ -5,7 +5,10 @@ import '../../entity/project/arb_translation.dart';
 import '../../provider/providers.dart';
 
 part 'notifier/being_edited_notifiers.dart';
+part 'notifier/definitions_notifier.dart';
+part 'notifier/map_notifiers.dart';
 part 'notifier/selected_definition_notifier.dart';
+part 'notifier/translations_notifier.dart';
 
 class ArbUsecase {
   ArbUsecase(this.read);
@@ -20,12 +23,21 @@ class ArbUsecase {
     _selectedDefinitionNotifier()._clearSelection();
   }
 
-  void editDefinition(ArbDefinition definition) {
-    _beindEditedDefinitionsNotifier()._edit(definition);
+  void editDefinition({required ArbDefinition original, required ArbDefinition current}) {
+    _beingEditedDefinitionsNotifier()._edit(original, current);
   }
 
-  void discardDefinitionChanges(ArbDefinition definition) {
-    _beindEditedDefinitionsNotifier()._discardChanges(definition);
+  void discardDefinitionChanges({required ArbDefinition original}) {
+    _beingEditedDefinitionsNotifier()._discardChanges(original);
+  }
+
+  void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
+    _currentDefinitionsNotifier()._edit(original, value);
+    _beingEditedDefinitionsNotifier()._discardChanges(original);
+  }
+
+  void rollbackDefinition({required ArbDefinition original}) {
+    _currentDefinitionsNotifier()._discardChanges(original);
   }
 
   void changeTranslation(ArbTranslation translation) {}
@@ -44,11 +56,13 @@ class ArbUsecase {
   SelectedDefinitionNotifier _selectedDefinitionNotifier() =>
       read(selectedDefinitionProvider.notifier);
 
+  DefinitionsNotifier _beingEditedDefinitionsNotifier() =>
+      read(beingEditedDefinitionsProvider.notifier);
+
+  DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
+
   BeingEditedTranslationsNotifier _beingEditedTranslationsNotifier() =>
       read(beingEditedTranslationsProvider.notifier);
-
-  BeingEditedDefinitionsNotifier _beindEditedDefinitionsNotifier() =>
-      read(beingEditedDefinitionsProvider.notifier);
 
   BeingEditedTranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(
           String locale) =>

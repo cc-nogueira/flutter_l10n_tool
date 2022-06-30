@@ -91,9 +91,13 @@ final selectedDefinitionProvider =
     StateNotifierProvider<SelectedDefinitionNotifier, ArbDefinition?>(
         (_) => SelectedDefinitionNotifier());
 
+final currentDefinitionsProvider =
+    StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
+        (_) => DefinitionsNotifier());
+
 final beingEditedDefinitionsProvider =
-    StateNotifierProvider<BeingEditedDefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
-        (_) => BeingEditedDefinitionsNotifier());
+    StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
+        (_) => DefinitionsNotifier());
 
 final beingEditedTranslationsProvider = StateNotifierProvider<BeingEditedTranslationsNotifier,
     Map<ArbDefinition, List<ArbTranslation>>>((_) => BeingEditedTranslationsNotifier());
