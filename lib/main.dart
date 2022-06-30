@@ -12,7 +12,7 @@ void main() {
 
   if (Platform.isWindows) {
     doWhenWindowReady(() {
-      const min = Size(640, 400);
+      const min = Size(800, 560);
       const initial = Size(1280, 720);
       final win = appWindow;
       win.minSize = min;
