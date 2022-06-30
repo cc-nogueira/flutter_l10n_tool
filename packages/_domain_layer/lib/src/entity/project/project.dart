@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../exception/l10n_exception.dart';
-import 'arb_locale_translations.dart';
-import 'arb_template.dart';
+import '../arb/arb_locale_translations.dart';
+import '../arb/arb_template.dart';
 import 'l10n_configuration.dart';
 
 part 'project.freezed.dart';

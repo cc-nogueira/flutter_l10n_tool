@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
+import '../entity/arb/arb_definition.dart';
+import '../entity/arb/arb_translation.dart';
 import '../entity/preferences/display_option.dart';
 import '../entity/preferences/language_option.dart';
-import '../entity/project/arb_definition.dart';
-import '../entity/project/arb_translation.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
 import '../layer/domain_layer.dart';

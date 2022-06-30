@@ -1,7 +1,7 @@
 import 'package:riverpod/riverpod.dart';
 
-import '../../entity/project/arb_definition.dart';
-import '../../entity/project/arb_translation.dart';
+import '../../entity/arb/arb_definition.dart';
+import '../../entity/arb/arb_translation.dart';
 import '../../provider/providers.dart';
 
 part 'notifier/definitions_notifier.dart';
