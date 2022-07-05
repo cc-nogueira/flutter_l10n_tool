@@ -9,6 +9,7 @@ import '../repository/preferences_repository.dart';
 import '../repository/recent_projects_repository.dart';
 import '../usecase/preferences/preferences_usecase.dart';
 import '../usecase/project/project_usecase.dart';
+import '../usecase/project/recent_projects_usecase.dart';
 
 /// Function definition for Domain Layer dependencies
 typedef DomainConfiguration = void Function({
@@ -41,6 +42,9 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
   /// Configured [ProjectUsecase] singleton.
   late final ProjectUsecase projectUsecase;
 
+  /// Configured [RecentProjectsUsecase] singleton.
+  late final RecentProjectsUsecase recentProjectsUsecase;
+
   /// Initialize the DomainLayer.
   ///
   /// Intializes the systemLocalesProvider state and register this layer object as a
@@ -70,6 +74,8 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
     required RecentProjectsRepository recentProjectsRepository,
   }) {
     preferencesUsecase = PreferencesUsecase(read: read, repository: preferencesRepository);
-    projectUsecase = ProjectUsecase(read: read, recentProjectsRepository: recentProjectsRepository);
+    projectUsecase = ProjectUsecase(read: read);
+    recentProjectsUsecase =
+        RecentProjectsUsecase(read: read, recentProjectsRepository: recentProjectsRepository);
   }
 }

@@ -24,4 +24,5 @@ export 'src/repository/preferences_repository.dart';
 export 'src/repository/recent_projects_repository.dart';
 export 'src/usecase/preferences/preferences_usecase.dart';
 export 'src/usecase/project/project_usecase.dart';
+export 'src/usecase/project/recent_projects_usecase.dart';
 export 'src/util/arb_util.dart';

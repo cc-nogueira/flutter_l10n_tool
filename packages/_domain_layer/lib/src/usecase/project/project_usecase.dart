@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:yaml/yaml.dart';
@@ -18,23 +17,20 @@ import '../../exception/l10n_arb_exception.dart';
 import '../../exception/l10n_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
 import '../../provider/providers.dart';
-import '../../repository/recent_projects_repository.dart';
 import '../../validator/arb_validator.dart';
 
 part 'notifier/project_notifier.dart';
 
 class ProjectUsecase {
-  const ProjectUsecase({required this.read, required this.recentProjectsRepository});
+  const ProjectUsecase({required this.read});
 
   static final _localeFromFileNameRegExp = RegExp(r'^\w+_(\w\w).arb$');
 
   final Reader read;
 
-  /// Internal [RecentProjectsRepository] implementation.
-  @internal
-  final RecentProjectsRepository recentProjectsRepository;
-
   void initProject({required String projectPath}) => _projectNotifier._init(projectPath);
+
+  void finishedLoading() => _projectNotifier._finishedLoading();
 
   void closeProject() => _projectNotifier._close();
 
@@ -103,7 +99,7 @@ class ProjectUsecase {
     final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
     try {
       if (!dir.existsSync()) {
-        throw L10nMissingArbFolderException(configuration.effectiveArbDir);
+        throwMissingArbFolder(configuration);
       }
       final file = File(
           '${project.path}/${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
@@ -121,6 +117,16 @@ class ProjectUsecase {
       _projectNotifier._error(e);
       rethrow;
     }
+  }
+
+  void throwMissingArbFolder(L10nConfiguration configuration) {
+    throw L10nMissingArbFolderException(
+      configuration.effectiveArbDir,
+      fixActionLabel: 'Create Folder',
+      fixActionDescription: 'Create ARB folder.',
+      fixActionInfo: 'Create missing folder in this project structure.',
+      fixActionCallback: () async {},
+    );
   }
 
   Future<void> readTranslationFiles() async {
@@ -145,7 +151,7 @@ class ProjectUsecase {
           await _readTranslationFile(file);
         }
       } else {
-        throw L10nMissingArbFolderException(configuration.effectiveArbDir);
+        throwMissingArbFolder(configuration);
       }
     } on L10nException catch (e) {
       _projectNotifier._l10nException(e);
@@ -166,7 +172,13 @@ class ProjectUsecase {
     const localizationsDepName = 'flutter_localizations';
     var dep = pubspec.dependencies[localizationsDepName];
     if (dep == null) {
-      throw const L10nMissingDependencyException(localizationsDepName);
+      throw L10nMissingDependencyException(
+        localizationsDepName,
+        fixActionLabel: 'Add Dependency',
+        fixActionDescription: 'Add "$localizationsDepName" dependecy.',
+        fixActionInfo: 'Add required dependecy to pubspec.yaml and reload this project.',
+        fixActionCallback: () => _addDependency(localizationsDepName, isSDK: true),
+      );
     }
     if (dep is! SdkDependency) {
       throw const L10nIncompleteDependencyException(localizationsDepName);
@@ -175,7 +187,13 @@ class ProjectUsecase {
     const intlDepName = 'intl';
     dep = pubspec.dependencies[intlDepName];
     if (dep == null) {
-      throw const L10nMissingDependencyException(intlDepName);
+      throw L10nMissingDependencyException(
+        intlDepName,
+        fixActionLabel: 'Add Dependency',
+        fixActionDescription: 'Add "$intlDepName" dependecy.',
+        fixActionInfo: 'Add required dependency to pubspec.yaml and reload this project.',
+        fixActionCallback: () => _addDependency(intlDepName),
+      );
     }
   }
 
@@ -362,5 +380,29 @@ class ProjectUsecase {
       throw L10nFileMissingLocaleException(name);
     }
     return match.group(1)!;
+  }
+
+  Future<void> _addDependency(
+    String depName, {
+    bool isSDK = false,
+    bool isDev = false,
+  }) async {
+    final result = await Process.run(
+      'flutter',
+      [
+        'pub',
+        'add',
+        if (isDev) '--dev',
+        depName,
+        if (isSDK) '--sdk=flutter',
+      ],
+      workingDirectory: _project.path,
+      runInShell: true,
+    );
+    if (result.exitCode != 0) {
+      final exception = L10nAddDependencyError(depName);
+      _projectNotifier._l10nException(exception);
+      throw exception;
+    }
   }
 }

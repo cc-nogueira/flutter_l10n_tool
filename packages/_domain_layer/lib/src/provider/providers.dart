@@ -7,10 +7,12 @@ import '../entity/preferences/display_option.dart';
 import '../entity/preferences/language_option.dart';
 import '../entity/project/l10n_configuration.dart';
 import '../entity/project/project.dart';
+import '../entity/project/recent_project.dart';
 import '../layer/domain_layer.dart';
 import '../usecase/arb/arb_usecase.dart';
 import '../usecase/preferences/preferences_usecase.dart';
 import '../usecase/project/project_usecase.dart';
+import '../usecase/project/recent_projects_usecase.dart';
 
 /// Domain Layer provider
 final domainLayerProvider = Provider((ref) => DomainLayer(read: ref.read));
@@ -73,13 +75,16 @@ final formConfigurationProvider = StateProvider<L10nConfiguration>((ref) {
 
 final resetConfigurationProvider = StateProvider<bool>((_) => false);
 
+/// RecentProjectsUsecase singleton provider
+final recentProjectsUsecaseProvider =
+    Provider<RecentProjectsUsecase>((ref) => ref.watch(domainLayerProvider).recentProjectsUsecase);
+
 /// Recent projects provider
-final recentProjectsProvider = StateProvider<List<Project>>(
-  (_) => const [
-    Project(id: 1, name: 'one', path: '/dev/flutter/cc.nogueira/one'),
-    Project(id: 2, name: 'l10n', path: '/dev/flutter/cc.nogueira/l10n'),
-    Project(id: 2, name: 'three', path: '/dev/flutter/cc.nogueira/test/prov/project/three-flutter'),
-  ],
+final recentProjectsProvider = StateNotifierProvider<RecentProjectsNotifier, List<RecentProject>>(
+  (ref) {
+    final usecase = ref.read(recentProjectsUsecaseProvider);
+    return RecentProjectsNotifier(usecase);
+  },
 );
 
 // -- Arb
