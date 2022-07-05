@@ -29,7 +29,7 @@
     },
     {
       "id": "2:6024860618978199226",
-      "lastPropertyId": "3:8332803230767936208",
+      "lastPropertyId": "4:8648232430132160120",
       "name": "RecentProjectModel",
       "properties": [
         {
@@ -47,6 +47,11 @@
           "id": "3:8332803230767936208",
           "name": "path",
           "type": 9
+        },
+        {
+          "id": "4:8648232430132160120",
+          "name": "order",
+          "type": 6
         }
       ],
       "relations": []

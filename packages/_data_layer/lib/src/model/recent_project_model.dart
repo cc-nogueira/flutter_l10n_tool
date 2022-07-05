@@ -12,6 +12,7 @@ class RecentProjectModel implements Model {
   /// Constructor with all default value.
   RecentProjectModel({
     this.id = 0,
+    this.order = 0,
     this.name = '',
     this.path = '',
   });
@@ -19,6 +20,9 @@ class RecentProjectModel implements Model {
   /// ObjectBox key field.
   @override
   int id;
+
+  /// Recent list ordering index
+  int order;
 
   /// Project name set in pubspec.yaml
   String name;
@@ -29,11 +33,15 @@ class RecentProjectModel implements Model {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RecentProjectModel && other.id == id && other.name == name && other.path == path;
+      other is RecentProjectModel &&
+          other.id == id &&
+          other.order == order &&
+          other.name == name &&
+          other.path == path;
 
   @override
-  int get hashCode => Object.hash(id, name, path);
+  int get hashCode => Object.hash(id, order, name, path);
 
   @override
-  String toString() => 'RecenProject(id: $id, name: "$name", path: "$path")';
+  String toString() => 'RecenProject(id: $id, order: $order, name: "$name", path: "$path")';
 }

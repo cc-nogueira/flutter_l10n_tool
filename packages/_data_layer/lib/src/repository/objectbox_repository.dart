@@ -135,10 +135,10 @@ abstract class ObjectboxRepository<E extends Entity, M extends Model>
   @override
   List<E> saveAll(List<E> entities) {
     final updatePairs = <MapEntry<M, M>>[];
-    for (final entity in entities) {
-      final model = mapper.mapModel(entity);
+    final models = mapper.mapModels(entities);
+    for (final model in models) {
       if (model.id > 0) {
-        final boxModel = box.get(entity.id);
+        final boxModel = box.get(model.id);
         if (boxModel == null) {
           throw const EntityNotFoundException();
         }
@@ -149,7 +149,6 @@ abstract class ObjectboxRepository<E extends Entity, M extends Model>
       updateDependents(toSaveModel: pair.key, boxModel: pair.value);
     }
 
-    final models = mapper.mapModels(entities);
     try {
       box.putMany(models);
     } on ArgumentError catch (e) {
