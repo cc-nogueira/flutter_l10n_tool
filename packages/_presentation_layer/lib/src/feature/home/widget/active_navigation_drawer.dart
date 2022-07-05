@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../provider/presentation_providers.dart';
-import '../../navigation/common/navigation_drawer_option.dart';
-import '../../navigation/configuration/drawer/project_configuration_drawer.dart';
-import '../../navigation/help/help_drawer.dart';
-import '../../navigation/preferences/preferences_drawer.dart';
-import '../../navigation/project_selector/drawer/project_selector_drawer.dart';
-import '../../navigation/resources/resources_drawer.dart';
+import '../../configuration/page/project_configuration_drawer.dart';
+import '../../help/help_drawer.dart';
+import '../../preferences/preferences_drawer.dart';
+import '../../project_selector/drawer/project_selector_drawer.dart';
+import '../../resources/resources_drawer.dart';
 
 /// Convenient widget to show the active navigation drawer or an empty container.
 ///

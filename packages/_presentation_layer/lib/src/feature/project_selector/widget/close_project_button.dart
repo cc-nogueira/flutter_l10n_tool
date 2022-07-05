@@ -2,7 +2,7 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CloseProjectButton extends ConsumerWidget {
   const CloseProjectButton({super.key, required this.style});

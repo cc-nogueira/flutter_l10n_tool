@@ -2,9 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n/app_localizations.dart';
-import '../common/navigation_drawer_option.dart';
-import '../widget/navigation_drawer.dart';
+import '../../common/navigation/navigation_drawer_option.dart';
+import '../../common/widget/navigation_drawer.dart';
+import '../../l10n/app_localizations.dart';
 
 class ResourcesDrawer extends NavigationDrawer {
   const ResourcesDrawer({super.key}) : super(NavigationDrawerTopOption.preferences);

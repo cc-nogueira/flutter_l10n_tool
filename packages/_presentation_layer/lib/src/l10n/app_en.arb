@@ -64,6 +64,11 @@
     "description": "Label for close button"
   },
 
+  "label_fix_action": "Fix Action",
+  "@label_fix_action": {
+    "description": "Fix action label"
+  },
+
   "message_loading": "Loading",
   "@message_loading": {
     "description": "Message loading"
@@ -84,7 +89,7 @@
     "description": "Message for project alredy selected"
   },
 
-  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} confirmingLoaded{Finishing...} loaded{Configuration loaded.} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
+  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} savingToRecentProjects{Saving recent list...} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
   "@message_loading_stage": {
     "description": "Message for loading stage",
     "placeholders": {
@@ -95,5 +100,13 @@
   "message_no_project_selected": "No project selected",
   "@message_no_project_selected": {
     "description": "Message for no project selected"
+  },
+
+  "message_fixing_stage": "{stage, select, initial{Fixing...} fixing{Fixing...} done{Done.} error{Error trying to fix project configuration.} other{Fixing...}}",
+  "@message_fixing_stage": {
+    "description": "Message for fixing stage",
+    "placeholders": {
+      "stage": {}
+    }
   }
 }

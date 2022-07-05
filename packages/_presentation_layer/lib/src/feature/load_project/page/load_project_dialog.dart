@@ -2,11 +2,20 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
-import '../../navigation/common/navigation_drawer_option.dart';
 import '../common/load_stage.dart';
+
+Future<void> showLoadProjectDialog(
+    BuildContext context, String projectPath, AppLocalizations loc) async {
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) => LoadProjectDialog(projectPath, loc),
+  );
+}
 
 class LoadProjectDialog extends ConsumerStatefulWidget {
   const LoadProjectDialog(this.projectPath, this.loc, {super.key});
@@ -24,6 +33,7 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
   static const _progressWait = Duration(milliseconds: 100);
 
   late ProjectUsecase _projectUsecase;
+  late RecentProjectsUsecase _recentProjectsUsecase;
   late LoadStage _loadStage;
   String? _error;
 
@@ -53,6 +63,9 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
         break;
       case LoadStage.doneReadingDefinitions:
         _readTranslationFiles();
+        break;
+      case LoadStage.doneReadingTranslations:
+        _finishedLoading();
         break;
       default:
     }
@@ -115,9 +128,24 @@ class _LoadProjectDialogState extends ConsumerState<LoadProjectDialog> {
     }
   }
 
+  void _finishedLoading() async {
+    await Future.delayed(_progressWait);
+    _setStage(LoadStage.savingToRecentProjects);
+    try {
+      _projectUsecase.finishedLoading();
+      final project = ref.read(projectProvider);
+      final recentProject = RecentProject(name: project.name, path: project.path);
+      _recentProjectsUsecase.setFirst(recentProject);
+      _setStage(LoadStage.doneSavingToRecentProjects);
+    } catch (e) {
+      _handleException(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _projectUsecase = ref.watch(projectUsecaseProvider);
+    _recentProjectsUsecase = ref.watch(recentProjectsUsecaseProvider);
     final colors = Theme.of(context).colorScheme;
     _keepLoading(context);
     return WillPopScope(

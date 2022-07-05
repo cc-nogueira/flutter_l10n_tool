@@ -2,9 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../common/widget/buttons.dart';
-import '../../../../l10n/app_localizations.dart';
-import '../../../load_project/page/load_project_dialog.dart';
+import '../../../common/widget/buttons.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../load_project/page/load_project_dialog.dart';
 
 class ConfigurationButtons extends ConsumerWidget {
   const ConfigurationButtons({super.key});

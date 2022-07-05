@@ -2,8 +2,8 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../common/widget/label_divider.dart';
-import '../../../../l10n/app_localizations.dart';
+import '../../../common/widget/label_divider.dart';
+import '../../../l10n/app_localizations.dart';
 import 'configuration_form_dropdown.dart';
 import 'configuration_form_text_field.dart';
 
@@ -127,7 +127,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           textController: _arbDirTextController,
           focusNode: _arbDirFocus,
           nextFocus: _templateArbFileFocus,
-          enabled: !widget.configuration.syntheticPackage,
           currentValue: () => widget.currentConfiguration.arbDir,
           setValue: (value) => setState(
             () => widget.configurationController.update((state) => state.copyWith(arbDir: value)),
