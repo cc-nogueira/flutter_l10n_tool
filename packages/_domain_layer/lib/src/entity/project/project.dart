@@ -11,6 +11,7 @@ part 'project.freezed.dart';
 class Project with _$Project {
   const factory Project({
     @Default(0) int id,
+    @Default(true) bool loading,
     @Default('') String name,
     @Default('') String path,
     @Default(L10nConfiguration()) L10nConfiguration configuration,
@@ -24,6 +25,6 @@ class Project with _$Project {
 
   bool get hasError => l10nException != null || loadError != null;
   bool get hasNoError => !hasError;
-  bool get isReady => path.isNotEmpty && hasNoError;
+  bool get isReady => !loading && path.isNotEmpty && hasNoError;
   bool get isNotReady => !isReady;
 }

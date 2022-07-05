@@ -7,6 +7,10 @@ class ProjectNotifier extends StateNotifier<Project> {
     state = Project(path: path);
   }
 
+  void _finishedLoading() {
+    state = state.copyWith(loading: false);
+  }
+
   void _close() {
     state = const Project();
   }
