@@ -18,18 +18,18 @@
 
   "error_l10n": "L10n error",
 
-  "error_invalid_configuration_file": "Invalid localization configuration file: l10n.yaml",
+  "error_invalid_configuration_file": "Invalid localization configuration file: l10n.yaml.",
 
   "error_missing_pubspec": "Could not find pubspec.yaml file in this folder.",
 
-  "error_missing_pubspec_dependency": "Could not find required dependency \"{name}\" in pubspec.yaml",
+  "error_missing_pubspec_dependency": "Could not find required dependency \"{name}\" in pubspec.yaml.",
   "@error_missing_pubspec_dependency": {
     "placeholders": {
       "name": {}
     }
   },
 
-  "error_missing_arb_folder": "Missing ARB folder: {path}",
+  "error_missing_arb_folder": "Missing ARB folder: {path}.",
   "@error_missing_arb_folder": {
     "placeholders": {
       "path": {}
@@ -128,5 +128,13 @@
     "placeholders": {
       "id": {}
     }
+  },
+
+  "error_add_dependency": "Error adding dependency {name} to pubspect.yaml.",
+  "@error_add_dependency": {
+    "placeholders": {
+      "name": {}
+    }
   }
+
 }

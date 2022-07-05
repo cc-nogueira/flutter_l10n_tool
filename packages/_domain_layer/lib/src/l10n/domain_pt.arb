@@ -10,25 +10,25 @@
 
   "error_l10n": "Erro L10n",
 
-  "error_invalid_configuration_file": "Arquivo de configuração de localização inválido: l10n.yaml",
+  "error_invalid_configuration_file": "Arquivo de configuração de localização inválido: l10n.yaml.",
 
   "error_missing_pubspec": "Não foi possível encontrar o arquivo pubspec.yaml nesta pasta.",
 
-  "error_missing_pubspec_dependency": "Não foi possível encontrar a dependência obrigatória \"{name}\" no pubspec.yaml",
+  "error_missing_pubspec_dependency": "Não foi possível encontrar a dependência obrigatória \"{name}\" no pubspec.yaml.",
   "@error_missing_pubspec_dependency": {
     "placeholders": {
       "name": {}
     }
   },
 
-  "error_missing_arb_folder": "Pasta ARB não encontrada: {path}",
+  "error_missing_arb_folder": "Pasta ARB não encontrada: {path}.",
   "@error_missing_arb_folder": {
     "placeholders": {
       "path": {}
     }
   },
 
-  "error_missing_arb_template_file": "Arquivo template ARB não encontrado: {path}",
+  "error_missing_arb_template_file": "Arquivo template ARB não encontrado: {path}.",
   "@error_missing_arb_template_file": {
     "placeholders": {
       "path": {}

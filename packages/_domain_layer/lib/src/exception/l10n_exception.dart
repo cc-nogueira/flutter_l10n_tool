@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../l10n/domain_localizations.dart';
 import '../l10n/domain_localizations_en.dart';
 
+typedef L10nExceptionCallback = Future<void> Function();
+
 class L10nException implements Exception {
   const L10nException();
 
@@ -20,9 +22,19 @@ class L10nInvalidConfigurationFileException extends L10nException {
 }
 
 class L10nMissingArbFolderException extends L10nException {
-  const L10nMissingArbFolderException(this.path);
-  final String path;
+  const L10nMissingArbFolderException(
+    this.path, {
+    required this.fixActionLabel,
+    required this.fixActionDescription,
+    required this.fixActionCallback,
+    required this.fixActionInfo,
+  });
 
+  final String path;
+  final String fixActionLabel;
+  final String fixActionDescription;
+  final String fixActionInfo;
+  final L10nExceptionCallback fixActionCallback;
   @override
   String message(BuildContext context) => loc(context).error_missing_arb_folder(path);
 }
