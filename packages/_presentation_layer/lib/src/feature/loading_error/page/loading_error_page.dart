@@ -43,7 +43,7 @@ class LoadErrorPage extends StatelessWidget {
   Widget? _errorFixActions(BuildContext context, ColorScheme colors) {
     final exception = project.l10nException;
     if (exception is L10nMissingDependencyException) {
-      return FixMissingDependencyWidget(project: project, exception: exception);
+      return FixMissingDependencyWidget(read: read, project: project, exception: exception);
     }
     if (exception is L10nMissingArbFolderException) {
       return FixMissingArbFolderWidget(read: read, project: project, exception: exception);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../load_project/page/load_project_dialog.dart';
+import '../../show_project_loading/page/show_project_loading_dialog.dart';
 
 class RecentProjectsWidget extends ConsumerWidget {
   const RecentProjectsWidget({
@@ -159,7 +159,13 @@ class RecentProjectsWidget extends ConsumerWidget {
         SnackBar(content: Text(loc.message_project_already_selected)),
       );
     } else {
-      await showLoadProjectDialog(context, project.path, loc);
+      // read(projectUsecaseProvider).closeProject();
+      read(projectUsecaseProvider).loadProject(projectPath: project.path);
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const ShowProjectLoadingDialog(),
+      );
     }
   }
 

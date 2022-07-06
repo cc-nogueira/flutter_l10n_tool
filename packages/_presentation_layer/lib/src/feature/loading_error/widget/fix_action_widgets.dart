@@ -1,13 +1,15 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../load_project/page/load_project_dialog.dart';
+import '../../show_project_loading/page/show_project_loading_dialog.dart';
 import '../page/fix_loading_error_dialog.dart';
 
 abstract class FixActionWidget extends StatelessWidget {
-  const FixActionWidget({super.key, required this.project});
+  const FixActionWidget({super.key, required this.read, required this.project});
 
+  final Reader read;
   final Project project;
 
   void showFixDialogAndReload(
@@ -30,10 +32,11 @@ abstract class FixActionWidget extends StatelessWidget {
       fixOK = false;
     }
     if (fixOK) {
+      read(projectUsecaseProvider).loadProject(projectPath: project.path);
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context) => LoadProjectDialog(project.path, loc),
+        builder: (BuildContext context) => const ShowProjectLoadingDialog(),
       );
     }
   }

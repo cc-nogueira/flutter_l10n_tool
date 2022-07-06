@@ -1,6 +1,5 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../common/widget/buttons.dart';
@@ -11,14 +10,13 @@ import 'fix_action_widgets.dart';
 class FixMissingArbTemplateFileWidget extends FixActionWidget {
   const FixMissingArbTemplateFileWidget({
     super.key,
-    required this.read,
+    required super.read,
     required super.project,
     required this.exception,
   });
 
   static const _horizontalSpace = SizedBox(width: 8.0);
 
-  final Reader read;
   final L10nMissingArbTemplateFileException exception;
 
   @override

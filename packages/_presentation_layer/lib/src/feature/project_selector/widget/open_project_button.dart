@@ -1,9 +1,10 @@
+import 'package:_domain_layer/domain_layer.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../load_project/page/load_project_dialog.dart';
+import '../../show_project_loading/page/show_project_loading_dialog.dart';
 
 class OpenProjectButton extends ConsumerWidget {
   const OpenProjectButton({super.key, required this.style});
@@ -26,10 +27,12 @@ class OpenProjectButton extends ConsumerWidget {
     if (projectPath == null) {
       return;
     }
+
+    read(projectUsecaseProvider).loadProject(projectPath: projectPath);
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => LoadProjectDialog(projectPath, loc),
+      builder: (_) => const ShowProjectLoadingDialog(),
     );
   }
 }

@@ -74,8 +74,8 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
     required RecentProjectsRepository recentProjectsRepository,
   }) {
     preferencesUsecase = PreferencesUsecase(read: read, repository: preferencesRepository);
-    projectUsecase = ProjectUsecase(read: read);
     recentProjectsUsecase =
         RecentProjectsUsecase(read: read, recentProjectsRepository: recentProjectsRepository);
+    projectUsecase = ProjectUsecase(read: read, recentProjectsUsecase: recentProjectsUsecase);
   }
 }

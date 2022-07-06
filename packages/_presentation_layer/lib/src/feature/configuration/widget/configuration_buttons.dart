@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../load_project/page/load_project_dialog.dart';
+import '../../show_project_loading/page/show_project_loading_dialog.dart';
 
 class ConfigurationButtons extends ConsumerWidget {
   const ConfigurationButtons({super.key});
@@ -55,17 +55,19 @@ class _ConfigurationButtons extends StatelessWidget {
           : null);
 
   Widget _confirmButton(BuildContext context, AppLocalizations loc, bool isModified) => textButton(
-      text: 'Confirm',
-      onPressed: isModified
-          ? () async {
-              final usecase = read(projectUsecaseProvider);
-              await usecase.saveConfiguration(formConfiguration);
-              showDialog<void>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) =>
-                    LoadProjectDialog(read(projectProvider).path, loc),
-              );
-            }
-          : null);
+      text: 'Confirm', onPressed: isModified ? () async => await _confirm(context) : null);
+
+  Future<void> _confirm(BuildContext context) async {
+    final usecase = read(projectUsecaseProvider);
+    final project = read(projectProvider);
+
+    await usecase.saveConfiguration(formConfiguration);
+
+    await usecase.loadProject(projectPath: project.path);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => const ShowProjectLoadingDialog(),
+    );
+  }
 }

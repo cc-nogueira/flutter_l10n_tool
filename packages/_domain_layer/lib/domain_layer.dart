@@ -7,6 +7,7 @@ export 'src/entity/entity.dart';
 export 'src/entity/preferences/display_option.dart';
 export 'src/entity/preferences/preference.dart';
 export 'src/entity/project/l10n_configuration.dart';
+export 'src/entity/project/load_stage.dart';
 export 'src/entity/project/project.dart';
 export 'src/entity/project/recent_project.dart';
 export 'src/exception/entity_not_found_exception.dart';

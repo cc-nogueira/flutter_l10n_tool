@@ -8,6 +8,7 @@ import 'fix_action_widgets.dart';
 class FixMissingDependencyWidget extends FixActionWidget {
   const FixMissingDependencyWidget({
     super.key,
+    required super.read,
     required super.project,
     required this.exception,
   });
