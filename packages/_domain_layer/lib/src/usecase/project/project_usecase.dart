@@ -29,7 +29,10 @@ class ProjectUsecase {
 
   final Reader read;
 
-  void initProject({required String projectPath}) => _projectNotifier._init(projectPath);
+  void initProject({required String projectPath}) {
+    read(arbUsecaseProvider).clearSelection();
+    _projectNotifier._init(projectPath);
+  }
 
   void finishedLoading() => _projectNotifier._finishedLoading();
 
