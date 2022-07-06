@@ -1,5 +1,6 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../common/navigation/navigation_drawer_option.dart';
@@ -69,7 +70,18 @@ class ResourcesDrawer extends NavigationDrawer {
         definition.key,
         style: isSelected ? const TextStyle(fontWeight: FontWeight.w600) : null,
       ),
-      onTap: () => read(arbUsecaseProvider).select(definition),
+      onTap: () => _onResourceTap(read, definition),
     );
+  }
+
+  void _onResourceTap(Reader read, ArbDefinition definition) {
+    final isCtrlPressed =
+        RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+            RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
+    if (isCtrlPressed) {
+      read(arbUsecaseProvider).toggle(definition);
+    } else {
+      read(arbUsecaseProvider).select(definition);
+    }
   }
 }

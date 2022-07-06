@@ -18,6 +18,10 @@ class ArbUsecase {
     _selectedDefinitionNotifier()._select(definition);
   }
 
+  void toggle(ArbDefinition? definition) {
+    _selectedDefinitionNotifier()._toggle(definition);
+  }
+
   void clearSelection() {
     _selectedDefinitionNotifier()._clearSelection();
   }
