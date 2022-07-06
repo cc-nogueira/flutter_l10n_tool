@@ -27,15 +27,15 @@ class ObjectboxRecentProjectsRepository implements RecentProjectsRepository {
   @override
   List<RecentProject> synchronizeAll(List<RecentProject> all) {
     final toPut = <RecentProjectModel>[];
-    final toRemove = <RecentProjectModel>[];
+    final toRemove = <int>[];
 
     final boxModels = box.getAll();
     final inBoxMap = {for (final model in boxModels) model.id: model};
 
     final toSaveModels = mapper.mapModels(all);
-    final toSaveMap = {
+    final toSaveIds = {
       for (final model in toSaveModels)
-        if (model.id != 0) model.id: model
+        if (model.id != 0) model.id
     };
 
     for (final toSaveModel in toSaveModels) {
@@ -52,12 +52,13 @@ class ObjectboxRecentProjectsRepository implements RecentProjectsRepository {
     }
 
     for (final boxModel in boxModels) {
-      if (!toSaveMap.containsKey(boxModel.id)) {
-        toRemove.add(boxModel);
+      if (!toSaveIds.contains(boxModel.id)) {
+        toRemove.add(boxModel.id);
       }
     }
 
     toPut.sort((a, b) => a.order.compareTo(b.order));
+    box.removeMany(toRemove);
     box.putMany(toPut);
     return mapper.mapEntities(toPut);
   }
