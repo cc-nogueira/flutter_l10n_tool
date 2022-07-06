@@ -14,6 +14,15 @@ class L10nException implements Exception {
   String message(BuildContext context) => loc(context).error_l10n;
 }
 
+class L10nGenericError extends L10nException {
+  L10nGenericError(this.error);
+
+  final Object error;
+
+  @override
+  String message(BuildContext context) => error.toString();
+}
+
 class L10nInvalidConfigurationFileException extends L10nException {
   const L10nInvalidConfigurationFileException();
 
@@ -35,13 +44,25 @@ class L10nMissingArbFolderException extends L10nException {
   final String fixActionDescription;
   final String fixActionInfo;
   final L10nExceptionCallback fixActionCallback;
+
   @override
   String message(BuildContext context) => loc(context).error_missing_arb_folder(path);
 }
 
 class L10nMissingArbTemplateFileException extends L10nException {
-  const L10nMissingArbTemplateFileException(this.path);
+  const L10nMissingArbTemplateFileException(
+    this.path, {
+    required this.fixActionLabel,
+    required this.fixActionDescription,
+    required this.fixActionCallback,
+    required this.fixActionInfo,
+  });
+
   final String path;
+  final String fixActionLabel;
+  final String fixActionDescription;
+  final String fixActionInfo;
+  final L10nExceptionCallback fixActionCallback;
 
   @override
   String message(BuildContext context) => loc(context).error_missing_arb_template_file(path);

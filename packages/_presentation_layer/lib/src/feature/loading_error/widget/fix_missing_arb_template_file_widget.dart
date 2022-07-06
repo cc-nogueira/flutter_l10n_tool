@@ -8,8 +8,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
 import 'fix_action_widgets.dart';
 
-class FixMissingArbFolderWidget extends FixActionWidget {
-  const FixMissingArbFolderWidget({
+class FixMissingArbTemplateFileWidget extends FixActionWidget {
+  const FixMissingArbTemplateFileWidget({
     super.key,
     required this.read,
     required super.project,
@@ -19,7 +19,7 @@ class FixMissingArbFolderWidget extends FixActionWidget {
   static const _horizontalSpace = SizedBox(width: 8.0);
 
   final Reader read;
-  final L10nMissingArbFolderException exception;
+  final L10nMissingArbTemplateFileException exception;
 
   @override
   Widget build(BuildContext context) {

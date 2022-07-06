@@ -40,12 +40,3 @@ class L10nIncompleteDependencyException extends L10nPubspecException {
   @override
   String message(BuildContext context) => loc(context).error_incomplete_pubspec_dependency(name);
 }
-
-class L10nAddDependencyError extends L10nPubspecException {
-  L10nAddDependencyError(this.name);
-
-  final String name;
-
-  @override
-  String message(BuildContext context) => loc(context).error_add_dependency(name);
-}

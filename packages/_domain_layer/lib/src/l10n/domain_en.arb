@@ -135,6 +135,26 @@
     "placeholders": {
       "name": {}
     }
-  }
+  },
 
+  "error_create_folder": "Error creating folder {name}.",
+  "@error_create_folder": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_create_template_file": "Error creating template file {name}.",
+  "@error_create_template_file": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "error_create_template_file_without_locale_sufix": "Error creating template file {name} that does not specify it's locale in the filename (ex. app_en.arb).",
+  "@error_create_template_file_without_locale_sufix": {
+    "placeholders": {
+      "name": {}
+    }
+  }
 }

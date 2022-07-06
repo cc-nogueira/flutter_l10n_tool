@@ -17,17 +17,24 @@ abstract class FixActionWidget extends StatelessWidget {
     required String fixDescription,
     required L10nExceptionCallback fixCallback,
   }) async {
-    await showFixLoadingErrorDialog(
-      context,
-      loc,
-      title: title,
-      fixDescription: fixDescription,
-      fixCallback: fixCallback,
-    );
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => LoadProjectDialog(project.path, loc),
-    );
+    late final bool fixOK;
+    try {
+      fixOK = await showFixLoadingErrorDialog(
+        context,
+        loc,
+        title: title,
+        fixDescription: fixDescription,
+        fixCallback: fixCallback,
+      );
+    } catch (e) {
+      fixOK = false;
+    }
+    if (fixOK) {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => LoadProjectDialog(project.path, loc),
+      );
+    }
   }
 }

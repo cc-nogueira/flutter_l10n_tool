@@ -19,6 +19,10 @@ class ProjectNotifier extends StateNotifier<Project> {
     state = state.copyWith(name: name);
   }
 
+  void _generateFlag(bool value) {
+    state = state.copyWith(generateFlag: value);
+  }
+
   void _configuration(L10nConfiguration configuration) {
     state = state.copyWith(configuration: configuration);
   }
@@ -39,9 +43,5 @@ class ProjectNotifier extends StateNotifier<Project> {
 
   void _l10nException(L10nException exception) {
     state = state.copyWith(l10nException: exception);
-  }
-
-  void _error(Object error) {
-    state = state.copyWith(loadError: error);
   }
 }

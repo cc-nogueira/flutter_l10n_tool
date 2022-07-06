@@ -14,17 +14,19 @@ class Project with _$Project {
     @Default(true) bool loading,
     @Default('') String name,
     @Default('') String path,
+    @Default(false) bool generateFlag,
     @Default(L10nConfiguration()) L10nConfiguration configuration,
     @Default(ArbTemplate()) ArbTemplate template,
     @Default({}) Map<String, ArbLocaleTranslations> translations,
     L10nException? l10nException,
-    Object? loadError,
   }) = _Project;
 
   const Project._();
 
-  bool get hasError => l10nException != null || loadError != null;
+  bool get hasError => l10nException != null;
   bool get hasNoError => !hasError;
   bool get isReady => !loading && path.isNotEmpty && hasNoError;
   bool get isNotReady => !isReady;
+  bool get generateWarning => !generateFlag && configuration.syntheticPackage;
+  bool get noGenerateWarning => !generateWarning;
 }

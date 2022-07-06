@@ -15,6 +15,7 @@ import '../../entity/project/l10n_configuration.dart';
 import '../../entity/project/project.dart';
 import '../../exception/l10n_arb_exception.dart';
 import '../../exception/l10n_exception.dart';
+import '../../exception/l10n_fix_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
 import '../../provider/providers.dart';
 import '../../validator/arb_validator.dart';
@@ -68,7 +69,7 @@ class ProjectUsecase {
       _projectNotifier._l10nException(e);
       rethrow;
     } catch (e) {
-      _projectNotifier._error(e);
+      _projectNotifier._l10nException(L10nGenericError(e));
       rethrow;
     }
   }
@@ -84,7 +85,7 @@ class ProjectUsecase {
         _projectNotifier._l10nException(e);
         rethrow;
       } catch (e) {
-        _projectNotifier._error(e);
+        _projectNotifier._l10nException(L10nGenericError(e));
         rethrow;
       }
     } else {
@@ -107,26 +108,15 @@ class ProjectUsecase {
         final content = await file.readAsString();
         _readTemplateFile(configuration.effectiveTemplateArbFile, content);
       } else {
-        throw L10nMissingArbTemplateFileException(
-            '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}');
+        throwMissingTemplateFile(configuration);
       }
     } on L10nException catch (e) {
       _projectNotifier._l10nException(e);
       rethrow;
     } catch (e) {
-      _projectNotifier._error(e);
+      _projectNotifier._l10nException(L10nGenericError(e));
       rethrow;
     }
-  }
-
-  void throwMissingArbFolder(L10nConfiguration configuration) {
-    throw L10nMissingArbFolderException(
-      configuration.effectiveArbDir,
-      fixActionLabel: 'Create Folder',
-      fixActionDescription: 'Create ARB folder.',
-      fixActionInfo: 'Create missing folder in this project structure.',
-      fixActionCallback: () async {},
-    );
   }
 
   Future<void> readTranslationFiles() async {
@@ -157,7 +147,7 @@ class ProjectUsecase {
       _projectNotifier._l10nException(e);
       rethrow;
     } catch (e) {
-      _projectNotifier._error(e);
+      _projectNotifier._l10nException(L10nGenericError(e));
       rethrow;
     }
   }
@@ -172,13 +162,7 @@ class ProjectUsecase {
     const localizationsDepName = 'flutter_localizations';
     var dep = pubspec.dependencies[localizationsDepName];
     if (dep == null) {
-      throw L10nMissingDependencyException(
-        localizationsDepName,
-        fixActionLabel: 'Add Dependency',
-        fixActionDescription: 'Add "$localizationsDepName" dependecy.',
-        fixActionInfo: 'Add required dependecy to pubspec.yaml and reload this project.',
-        fixActionCallback: () => _addDependency(localizationsDepName, isSDK: true),
-      );
+      throwMissingDependency(localizationsDepName, isSDK: true);
     }
     if (dep is! SdkDependency) {
       throw const L10nIncompleteDependencyException(localizationsDepName);
@@ -187,14 +171,11 @@ class ProjectUsecase {
     const intlDepName = 'intl';
     dep = pubspec.dependencies[intlDepName];
     if (dep == null) {
-      throw L10nMissingDependencyException(
-        intlDepName,
-        fixActionLabel: 'Add Dependency',
-        fixActionDescription: 'Add "$intlDepName" dependecy.',
-        fixActionInfo: 'Add required dependency to pubspec.yaml and reload this project.',
-        fixActionCallback: () => _addDependency(intlDepName),
-      );
+      throwMissingDependency(intlDepName);
     }
+
+    final generate = pubspec.flutter?['generate'] == true;
+    _projectNotifier._generateFlag(generate);
   }
 
   L10nConfiguration _readL10nConfiguration(String content) {
@@ -382,6 +363,16 @@ class ProjectUsecase {
     return match.group(1)!;
   }
 
+  void throwMissingDependency(String depName, {bool isSDK = false}) {
+    throw L10nMissingDependencyException(
+      depName,
+      fixActionLabel: 'Add Dependency',
+      fixActionDescription: 'Add "$depName" dependecy.',
+      fixActionInfo: 'Add required dependency to pubspec.yaml and reload this project.',
+      fixActionCallback: () => _addDependency(depName, isSDK: isSDK),
+    );
+  }
+
   Future<void> _addDependency(
     String depName, {
     bool isSDK = false,
@@ -401,6 +392,63 @@ class ProjectUsecase {
     );
     if (result.exitCode != 0) {
       final exception = L10nAddDependencyError(depName);
+      _projectNotifier._l10nException(exception);
+      throw exception;
+    }
+  }
+
+  void throwMissingArbFolder(L10nConfiguration configuration) {
+    throw L10nMissingArbFolderException(
+      configuration.effectiveArbDir,
+      fixActionLabel: 'Create Folder',
+      fixActionDescription: 'Create ARB folder.',
+      fixActionInfo: 'Create missing folder in this project structure.',
+      fixActionCallback: () => _createFolder(configuration.effectiveArbDir),
+    );
+  }
+
+  Future<void> _createFolder(String folder) async {
+    final dir = Directory(folder);
+    try {
+      await dir.create(recursive: true);
+    } catch (e) {
+      final exception = L10nCreateFolderError(folder);
+      _projectNotifier._l10nException(exception);
+      throw exception;
+    }
+  }
+
+  void throwMissingTemplateFile(L10nConfiguration configuration) {
+    final path = '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}';
+    throw L10nMissingArbTemplateFileException(
+      path,
+      fixActionLabel: 'Create Template File',
+      fixActionDescription: 'Create "${configuration.effectiveTemplateArbFile}" template file.',
+      fixActionInfo:
+          'Create missing "${configuration.effectiveTemplateArbFile}" template file inside this project ARB folder.',
+      fixActionCallback: () => _createTemplateFile(
+          configuration.effectiveArbDir, configuration.effectiveTemplateArbFile),
+    );
+  }
+
+  Future<void> _createTemplateFile(String folder, String fileName) async {
+    final dir = Directory(folder);
+    if (!dir.existsSync()) {
+      throw StateError('Could not find ARB folder');
+    }
+    final file = File('$folder/$fileName');
+    late final String locale;
+    try {
+      locale = _matchLocaleFromFileName(fileName);
+    } on L10nFileMissingLocaleException {
+      final exception = L10nCreateTemplateFileWithoutLocaleSufixError(fileName);
+      _projectNotifier._l10nException(exception);
+      throw exception;
+    }
+    try {
+      await file.writeAsString('{\n  "@@locale": "$locale"\n}\n');
+    } catch (e) {
+      final exception = L10nCreateTemplateFileError(fileName);
       _projectNotifier._l10nException(exception);
       throw exception;
     }

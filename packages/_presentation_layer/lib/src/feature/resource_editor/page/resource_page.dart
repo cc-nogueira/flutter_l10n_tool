@@ -15,25 +15,24 @@ class ResourcePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
     final definition = ref.watch(selectedDefinitionProvider);
-    if (definition == null) {
-      return MessageWidget(loc.title_home_page);
-    }
-
     final project = ref.watch(projectProvider);
     final translations = project.translations.values.toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          const ResourceBar(),
-          DefinitionWidget(definition),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: false,
-              itemBuilder: (_, idx) => _itemBuilder(definition, translations[idx]),
-              itemCount: translations.length,
+          if (definition == null) Expanded(child: _noResourceSelected(context, loc)),
+          if (definition != null) ...[
+            const ResourceBar(),
+            DefinitionWidget(definition),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: false,
+                itemBuilder: (_, idx) => _itemBuilder(definition, translations[idx]),
+                itemCount: translations.length,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -45,4 +44,8 @@ class ResourcePage extends ConsumerWidget {
         definition,
         localeTranslations.translations[definition.key],
       );
+
+  Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
+    return const MessageWidget('No resource selected');
+  }
 }

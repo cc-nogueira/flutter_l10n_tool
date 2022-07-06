@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widget/fix_missing_arb_folder_widget.dart';
+import '../widget/fix_missing_arb_template_file_widget.dart';
 import '../widget/fix_missing_dependency_widget.dart';
 
 class LoadErrorPage extends StatelessWidget {
@@ -18,7 +19,7 @@ class LoadErrorPage extends StatelessWidget {
     if (project.l10nException != null) {
       message = 'Project configuration error: ${project.l10nException!.message(context)}';
     } else {
-      message = 'Project loading error: ${project.loadError}';
+      message = 'Project loading error';
     }
     final errorActions = _errorFixActions(context, colors);
     return Column(
@@ -46,6 +47,9 @@ class LoadErrorPage extends StatelessWidget {
     }
     if (exception is L10nMissingArbFolderException) {
       return FixMissingArbFolderWidget(read: read, project: project, exception: exception);
+    }
+    if (exception is L10nMissingArbTemplateFileException) {
+      return FixMissingArbTemplateFileWidget(read: read, project: project, exception: exception);
     }
     return null;
   }

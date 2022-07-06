@@ -108,5 +108,9 @@
     "placeholders": {
       "stage": {}
     }
-  }
+  },
+
+  "message_generate_flag_for_synthetic_package": "When using synthetic package output ensure to include the flag \"generate: true\" under the \"flutter:\" element of pubspec.yaml and reload the project. Otherwise, the localizations source code will not be importable.",
+
+  "message_alternative_configure_custom_output_folder": "Alternatively define a custom output folder in"
 }

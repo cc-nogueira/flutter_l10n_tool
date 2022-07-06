@@ -6,19 +6,20 @@ import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
 import '../common/fix_stage.dart';
 
-Future<void> showFixLoadingErrorDialog(
+Future<bool> showFixLoadingErrorDialog(
   BuildContext context,
   AppLocalizations loc, {
   required String title,
   required String fixDescription,
   required L10nExceptionCallback fixCallback,
 }) async {
-  await showDialog<void>(
+  final result = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) => FixLoadingErrorDialog(loc,
         title: title, fixDescription: fixDescription, fixCallback: fixCallback),
   );
+  return result ?? false;
 }
 
 class FixLoadingErrorDialog extends ConsumerStatefulWidget {
@@ -68,6 +69,7 @@ class _FixLoadingErrorDialogState extends ConsumerState<FixLoadingErrorDialog> {
       await widget.fixCallback();
     } catch (e) {
       _setStage(FixStage.error);
+      return;
     }
     _setStage(FixStage.done);
   }
@@ -145,7 +147,10 @@ class _FixLoadingErrorDialogState extends ConsumerState<FixLoadingErrorDialog> {
   Widget _dialogButtons() {
     final List<Widget> buttons = [
       textButton(
-          text: 'Continue', onPressed: _fixStage.complete ? () => Navigator.pop(context) : null),
+        text: 'Continue',
+        onPressed:
+            _fixStage.complete ? () => Navigator.pop(context, _fixStage == FixStage.done) : null,
+      ),
     ];
 
     return Padding(
