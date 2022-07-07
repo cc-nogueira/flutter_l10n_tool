@@ -154,13 +154,13 @@ class ProjectUsecase {
     final config = project.configuration;
     final dir = Directory('${project.path}/${config.effectiveArbDir}');
     if (!await dir.exists()) {
-      throwMissingArbFolder(config);
+      throwMissingArbFolder(dir, config.effectiveArbDir);
     }
 
     final path = '${project.path}/${config.effectiveArbDir}/${config.effectiveTemplateArbFile}';
     final file = File(path);
     if (!await file.exists()) {
-      throwMissingTemplateFile(config);
+      throwMissingTemplateFile(file, config);
     }
 
     final content = await file.readAsString();
@@ -298,7 +298,7 @@ class ProjectUsecase {
     final configuration = project.configuration;
     final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
     if (!await dir.exists()) {
-      throwMissingArbFolder(configuration);
+      throwMissingArbFolder(dir, configuration.effectiveArbDir);
     }
 
     final languageFiles = <File>[];
@@ -433,28 +433,27 @@ class ProjectUsecase {
     }
   }
 
-  void throwMissingArbFolder(L10nConfiguration configuration) {
+  void throwMissingArbFolder(Directory dir, String folderName) {
     throw L10nMissingArbFolderException(
-      configuration.effectiveArbDir,
+      folderName,
       fixActionLabel: 'Create Folder',
       fixActionDescription: 'Create ARB folder.',
       fixActionInfo: 'Create missing folder in this project structure.',
-      fixActionCallback: () => _createFolder(configuration.effectiveArbDir),
+      fixActionCallback: () => _createFolder(dir, folderName),
     );
   }
 
-  Future<void> _createFolder(String folder) async {
-    final dir = Directory(folder);
+  Future<void> _createFolder(Directory dir, String folderName) async {
     try {
       await dir.create(recursive: true);
     } catch (e) {
-      final exception = L10nCreateFolderError(folder);
+      final exception = L10nCreateFolderError(folderName);
       read(projectProvider.notifier)._l10nException(exception);
       throw exception;
     }
   }
 
-  void throwMissingTemplateFile(L10nConfiguration configuration) {
+  void throwMissingTemplateFile(File file, L10nConfiguration configuration) {
     final path = '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}';
     throw L10nMissingArbTemplateFileException(
       path,
@@ -462,17 +461,11 @@ class ProjectUsecase {
       fixActionDescription: 'Create "${configuration.effectiveTemplateArbFile}" template file.',
       fixActionInfo:
           'Create missing "${configuration.effectiveTemplateArbFile}" template file inside this project ARB folder.',
-      fixActionCallback: () => _createTemplateFile(
-          configuration.effectiveArbDir, configuration.effectiveTemplateArbFile),
+      fixActionCallback: () => _createTemplateFile(file, configuration.effectiveTemplateArbFile),
     );
   }
 
-  Future<void> _createTemplateFile(String folder, String fileName) async {
-    final dir = Directory(folder);
-    if (!dir.existsSync()) {
-      throw StateError('Could not find ARB folder');
-    }
-    final file = File('$folder/$fileName');
+  Future<void> _createTemplateFile(File file, String fileName) async {
     late final String locale;
     try {
       locale = _matchLocaleFromFileName(fileName);
@@ -482,6 +475,7 @@ class ProjectUsecase {
       throw exception;
     }
     try {
+      await file.create(recursive: true);
       await file.writeAsString('{\n  "@@locale": "$locale"\n}\n');
     } catch (e) {
       final exception = L10nCreateTemplateFileError(fileName);

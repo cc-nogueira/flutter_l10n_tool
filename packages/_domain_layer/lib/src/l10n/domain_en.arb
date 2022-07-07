@@ -8,14 +8,6 @@
     }
   },
 
-  "testing": "A {t} {option, select, compact{Compact} expanded{Expanded}} message",
-  "@testing": {
-    "placeholders": {
-      "option": {},
-      "t": {}
-    }
-  },
-
   "error_l10n": "L10n error",
 
   "error_invalid_configuration_file": "Invalid localization configuration file: l10n.yaml.",
