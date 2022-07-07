@@ -5,6 +5,10 @@ ButtonStyle segmentedButtonStyle(
   MainAxisAlignment align, {
   bool selected = false,
   Size? minimumSize,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
 }) {
   final isLeft = align == MainAxisAlignment.start;
   final isRight = align == MainAxisAlignment.end;
@@ -17,8 +21,9 @@ ButtonStyle segmentedButtonStyle(
         bottomRight: isRight ? const Radius.circular(30) : Radius.zero,
       ),
     ),
-    backgroundColor: selected ? colors.secondaryContainer : null,
-    primary: selected ? colors.onSecondaryContainer : colors.onSurface,
+    backgroundColor:
+        selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
+    primary: selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurface,
     minimumSize: minimumSize,
   );
 }
@@ -53,19 +58,41 @@ OutlinedButton segmentedButton({
   Size? minimumSize,
   required VoidCallback? onPressed,
   bool selected = false,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
 }) {
   assert(align == MainAxisAlignment.start ||
       align == MainAxisAlignment.center ||
       align == MainAxisAlignment.end);
   return selected
       ? OutlinedButton.icon(
-          style: segmentedButtonStyle(colors, align, selected: selected, minimumSize: minimumSize),
+          style: segmentedButtonStyle(
+            colors,
+            align,
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+          ),
           onPressed: onPressed,
           icon: Icon(Icons.check, size: checkSize),
           label: Text(text, style: style),
         )
       : OutlinedButton(
-          style: segmentedButtonStyle(colors, align, selected: selected, minimumSize: minimumSize),
+          style: segmentedButtonStyle(
+            colors,
+            align,
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+          ),
           onPressed: onPressed,
           child: Text(text, style: style),
         );

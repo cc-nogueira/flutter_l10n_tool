@@ -69,6 +69,13 @@
     "description": "Fix action label"
   },
 
+  "label_placeholder_display_option": "{option, select, simple{Simple} detailed{Detailed}}",
+  "@label_placeholder_display_option": {
+    "placeholders": {
+      "option": {}
+    }
+  },
+
   "message_loading": "Loading",
   "@message_loading": {
     "description": "Message loading"
@@ -89,7 +96,7 @@
     "description": "Message for project alredy selected"
   },
 
-  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} readingResourceDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} savingToRecentProjects{Saving recent list...} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
+  "message_loading_stage": "{stage, select, initial{Loading...} readingPubspec{Reading pubspec.yaml} definingConfiguration{Defining configuration} readingDefinitions{Reading resource definitions...} readingTranslations{Reading translation files...} savingToRecentProjects{Saving recent list...} loaded{Loaded.} error{Error loading configuration.} canceled{Canceled loading.} other{Loading...}}",
   "@message_loading_stage": {
     "description": "Message for loading stage",
     "placeholders": {

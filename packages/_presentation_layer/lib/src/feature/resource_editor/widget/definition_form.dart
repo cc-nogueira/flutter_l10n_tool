@@ -1,8 +1,10 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
+import '../../../common/widget/buttons.dart';
 import 'definition_form_mixin.dart';
 import 'definition_tile_mixin.dart';
+import 'placeholder_definition_form.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
@@ -145,6 +147,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   @override
   Widget form(ColorScheme colors) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         textField(
           colors: colors,
@@ -167,8 +170,26 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
             widget.onUpdate(formDefinition);
           }),
         ),
+        DefinitionFormMixin.verticalSeparator,
+        placeholders(),
       ],
     );
+  }
+
+  Widget placeholders() {
+    return Column(
+      children: [
+        if (formDefinition.placeholders?.isNotEmpty ?? false)
+          Row(children: [
+            for (final each in formDefinition.placeholders!) placeholderTag(each),
+          ]),
+        const PlaceholderForm(),
+      ],
+    );
+  }
+
+  Widget placeholderTag(ArbPlaceholderBase placeholder) {
+    return Text(placeholder.key);
   }
 }
 

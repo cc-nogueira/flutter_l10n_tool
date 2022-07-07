@@ -9,14 +9,19 @@
   "title_resources_drawer": "Recursos",
   "title_help_drawer": "Sobre",
   "title_load_project": "Carregando projeto",
+  "label_close_project": "Fechar Projeto",
   "label_open_project": "Abrir Pasta",
   "label_open_recent": "Abrir Recente",
   "label_choose": "Selecionar",
   "label_close": "Fechar",
+  "label_fix_action": "Ação Corretiva",
   "message_loading": "Carregando",
   "message_loading_with_yaml_conf": "Carregando projeto usando configuração yaml",
   "message_loading_without_yaml_conf": "Carregando project sem configuração yaml",
   "message_project_already_selected": "Projeto já selecionado",
-  "message_loading_stage": "{stage, select, initial{Carregando...} readingPubspec{Lendo pubspec.yaml} definingConfiguration{Definindo configuração} readingResourceDefinitions{Lendo definições...} readingTranslations{Lendo aquivos de tradução...} savingToRecentProjects{Salvando na lista de recentes...} error{Erro carregando configuração.} canceled{Carregamento cancelado.} other{Carregando...}}",
-  "message_no_project_selected": "Nenhum projeto selecionado"
+  "message_loading_stage": "{stage, select, initial{Carregando...} readingPubspec{Lendo pubspec.yaml} definingConfiguration{Definindo configuração} readingDefinitions{Lendo definições...} readingTranslations{Lendo aquivos de tradução...} savingToRecentProjects{Salvando na lista de recentes...} loaded{Pronto.} error{Erro carregando configuração.} canceled{Carregamento cancelado.} other{Carregando...}}",
+  "message_no_project_selected": "Nenhum projeto selecionado",
+  "message_fixing_stage": "{stage, select, initial{Corrigindo...} fixing{Corrigindo...} done{Pronto.} error{Erro ao tentar corrigir configuração do projeto.} other{Corrigindo...}}",
+  "message_generate_flag_for_synthetic_package": "Ao optar por salvar em synthetic package inclua a marcador \"generate: true\" sob o elemento \"flutter:\" do pubspec.yaml e recarregue o projeto. Caso contrário os arquivos de localização gerados não estarão disponíveis para importação.",
+  "message_alternative_configure_custom_output_folder": "Como alternativa você pode definir a saida para uma pasta de sua preferência em"
 }
