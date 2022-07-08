@@ -2,9 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/widget/label_divider.dart';
-import 'definition_form_mixin.dart';
 import 'definition_tile_mixin.dart';
 import 'placeholder_form.dart';
+import 'text_form_field_mixin.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
@@ -71,7 +71,7 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
 }
 
 abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
-    with DefinitionTileMixin, DefinitionFormMixin {
+    with DefinitionTileMixin, TextFormFieldMixin {
   late T formDefinition;
 
   @override
@@ -105,7 +105,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             tileIcon(),
-            DefinitionFormMixin.leadingSeparator,
+            DefinitionTileMixin.leadingSeparator,
             Expanded(child: form(theme.colorScheme)),
             trailing(),
           ],
@@ -160,9 +160,9 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
             formDefinition = formDefinition.copyWith(key: value);
             widget.onUpdate(formDefinition);
           }),
-          inputFormatters: [keyFormatter],
+          inputFormatters: [textInputKeyFormatter],
         ),
-        DefinitionFormMixin.verticalSeparator,
+        DefinitionTileMixin.verticalSeparator,
         textField(
           colors: colors,
           label: 'Description',
@@ -173,7 +173,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
             widget.onUpdate(formDefinition);
           }),
         ),
-        DefinitionFormMixin.verticalSeparator,
+        DefinitionTileMixin.verticalSeparator,
         placeholders(colors),
       ],
     );

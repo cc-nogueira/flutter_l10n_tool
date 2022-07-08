@@ -5,6 +5,10 @@ mixin DefinitionTileMixin {
   static const leadingSize = 40.0;
   static const leadingSeparation = 12.0;
   static const leadingSeparator = SizedBox(width: leadingSeparation);
+  static const verticalSeparator = SizedBox(height: 16);
+
+  Widget tileIcon() =>
+      const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon));
 
   Widget tileTitle(
     TextTheme theme, {
@@ -15,7 +19,7 @@ mixin DefinitionTileMixin {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon)),
+        tileIcon(),
         leadingSeparator,
         Expanded(
           child: Column(

@@ -4,17 +4,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-mixin DefinitionFormMixin {
+mixin TextFormFieldMixin {
   static final keyRegExp = RegExp(r'[_a-zA-Z]\w*');
   static final wordRegExp = RegExp(r'\w+');
-  static const leadingIcon = Icon(Icons.key);
-  static const leadingSize = 40.0;
-  static const leadingSeparation = 12.0;
-  static const leadingSeparator = SizedBox(width: leadingSeparation);
-  static const verticalSeparator = SizedBox(height: 16);
-
-  Widget tileIcon() =>
-      const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon));
 
   Widget textField({
     required ColorScheme colors,
@@ -66,9 +58,10 @@ mixin DefinitionFormMixin {
       ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 2.0))
       : null;
 
-  TextInputFormatter get keyFormatter => TextInputFormatter.withFunction(keyFormatterFunction);
+  TextInputFormatter get textInputKeyFormatter =>
+      TextInputFormatter.withFunction(_keyFormatterFunction);
 
-  TextEditingValue keyFormatterFunction(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue _keyFormatterFunction(TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
     final match = ArbUtil.keyRegExp.firstMatch(text);
     if (match == null) return const TextEditingValue();

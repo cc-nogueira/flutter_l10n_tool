@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
-import 'definition_form_mixin.dart';
+import 'definition_tile_mixin.dart';
+import 'text_form_field_mixin.dart';
 
 enum _DisplayOption {
   simple,
@@ -22,7 +23,7 @@ class PlaceholderForm extends StatefulWidget {
   State<PlaceholderForm> createState() => _PlaceholderFormState();
 }
 
-class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMixin {
+class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMixin {
   late ArbPlaceholder formPlaceholder;
   _DisplayOption displayOption = _DisplayOption.simple;
   TextEditingController keyTextController = TextEditingController();
@@ -77,7 +78,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
             label: 'Placeholder',
             originalText: formPlaceholder.key,
             textController: keyTextController,
-            inputFormatters: [keyFormatter],
+            inputFormatters: [textInputKeyFormatter],
             enableCleanButton: true,
             onChanged: (value) => setState(() {
               formPlaceholder = formPlaceholder.copyWith(key: value);
@@ -94,7 +95,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
 
   Widget _details(BuildContext context, ColorScheme colors) {
     return Column(children: [
-      DefinitionFormMixin.verticalSeparator,
+      DefinitionTileMixin.verticalSeparator,
       textField(
         colors: colors,
         label: 'Description',
@@ -106,7 +107,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
           widget.onUpdate(formPlaceholder);
         }),
       ),
-      DefinitionFormMixin.verticalSeparator,
+      DefinitionTileMixin.verticalSeparator,
       textField(
         colors: colors,
         label: 'Example',
