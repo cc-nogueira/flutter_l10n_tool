@@ -2,11 +2,11 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/label_divider.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'configuration_form_dropdown.dart';
 
 class ConfigurationForm extends ConsumerWidget {
   const ConfigurationForm({super.key});
@@ -147,14 +147,14 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
           ),
         ),
         FormMixin.verticalSeparator,
-        ConfigurationFormDropdown<bool>(
+        FormDropdown<bool>(
           label: 'required attributes',
           options: const [true, false],
           optionLabel: (value) =>
               value ? 'require attribute to all resources' : 'don\'t require resource attributes',
-          currentValue: () => widget.currentConfiguration.requiredResourceAttributes,
-          formValue: () => widget.configuration.requiredResourceAttributes,
-          setValue: (value) => setState(
+          originalValue: widget.currentConfiguration.requiredResourceAttributes,
+          formValue: widget.configuration.requiredResourceAttributes,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(requiredResourceAttributes: value ?? false)),
           ),
@@ -166,13 +166,13 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
           label: const Text('Output'),
           separation: 8,
         ),
-        ConfigurationFormDropdown<bool>(
+        FormDropdown<bool>(
           label: 'synthetic package',
           options: const [true, false],
           optionLabel: (value) => value ? 'use synthetic package' : 'use output folder',
-          currentValue: () => widget.currentConfiguration.syntheticPackage,
-          formValue: () => widget.configuration.syntheticPackage,
-          setValue: (value) => setState(
+          originalValue: widget.currentConfiguration.syntheticPackage,
+          formValue: widget.configuration.syntheticPackage,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(syntheticPackage: value ?? true)),
           ),
@@ -231,14 +231,14 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
           label: const Text('Generation'),
           separation: 8,
         ),
-        ConfigurationFormDropdown<bool>(
+        FormDropdown<bool>(
           label: 'nullable getter',
           options: const [true, false],
           optionLabel: (value) =>
               value ? 'generate nullable getter' : 'generate non nullable getter',
-          currentValue: () => widget.currentConfiguration.nullableGetter,
-          formValue: () => widget.configuration.nullableGetter,
-          setValue: (value) => setState(
+          originalValue: widget.currentConfiguration.nullableGetter,
+          formValue: widget.configuration.nullableGetter,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(nullableGetter: value ?? true)),
           ),

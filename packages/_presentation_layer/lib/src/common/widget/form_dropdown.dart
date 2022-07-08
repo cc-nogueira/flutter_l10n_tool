@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 
-class ConfigurationFormDropdown<T> extends StatelessWidget {
-  const ConfigurationFormDropdown({
+class FormDropdown<T> extends StatelessWidget {
+  const FormDropdown({
     super.key,
     required this.label,
     required this.options,
     required this.optionLabel,
-    required this.currentValue,
+    required this.originalValue,
     required this.formValue,
-    required this.setValue,
+    required this.onChanged,
     this.focusNode,
   });
 
   final String label;
   final FocusNode? focusNode;
   final List<T> options;
-  final T Function() currentValue;
-  final T Function() formValue;
-  final ValueChanged<T?> setValue;
+  final T originalValue;
+  final T formValue;
+  final ValueChanged<T?> onChanged;
   final String Function(T value) optionLabel;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final value = formValue();
-    final isModified = currentValue() != value;
+    final isModified = originalValue != formValue;
     return DropdownButtonFormField<T>(
       decoration: InputDecoration(
+        contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 8.0),
         border: const OutlineInputBorder(),
         enabledBorder: _enabledBorder(colors, isModified),
         focusedBorder: _focusedBorder(colors, isModified),
@@ -37,11 +37,11 @@ class ConfigurationFormDropdown<T> extends StatelessWidget {
       alignment: AlignmentDirectional.bottomStart,
       focusColor: Colors.transparent,
       borderRadius: BorderRadius.circular(8.0),
-      value: value,
-      items: _items(value: value),
+      value: formValue,
+      items: _items(value: formValue),
       selectedItemBuilder: (_) => _selectedItems(),
       focusNode: focusNode,
-      onChanged: (value) => setValue(value),
+      onChanged: (value) => onChanged(value),
     );
   }
 

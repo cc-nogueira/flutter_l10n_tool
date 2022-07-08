@@ -61,6 +61,7 @@ class _ProjectConfigurationWidget extends ConsumerWidget {
         FormMixin.verticalSeparator,
         Expanded(
           child: ListView(
+            primary: false,
             padding: const EdgeInsets.only(left: 4.0, right: 12.0),
             children: [
               _configurationForm(),

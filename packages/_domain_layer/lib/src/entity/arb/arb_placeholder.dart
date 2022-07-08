@@ -21,53 +21,64 @@ mixin ArbHasDetailsMixin {
 abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixin {
   @With<ArbKeyMixin>()
   @With<ArbHasDetailsMixin>()
-  const factory ArbPlaceholder({
+  @Assert('type == ArbPlaceholderType.undefinedType')
+  const factory ArbPlaceholder.generic({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
-  }) = ArbBasePlaceholder;
+    @Default(ArbPlaceholderType.genericType) ArbPlaceholderType type,
+  }) = ArbGenericPlaceholder;
 
   @With<ArbKeyMixin>()
   @Assert('hasDetails')
+  @Assert('type == ArbPlaceholderType.stringType')
   const factory ArbPlaceholder.string({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
     @Default(true) bool hasDetails,
+    @Default(ArbPlaceholderType.stringType) ArbPlaceholderType type,
   }) = ArbStringPlaceholder;
 
   @With<ArbKeyMixin>()
   @Assert('hasDetails')
+  @Assert(
+      'type == ArbPlaceholderType.numType || type == ArbPlaceholderType.intType || type == ArbPlaceholderType.doubleType')
   const factory ArbPlaceholder.number({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
     @Default(true) bool hasDetails,
-    required ArbNumberPlaceholderType type,
+    required ArbPlaceholderType type,
     ArbNumberPlaceholderFormat? format,
     @Default(<String, String>{}) Map<String, String> optionalParameters,
   }) = ArbNumberPlaceholder;
 
   @With<ArbKeyMixin>()
   @Assert('hasDetails')
+  @Assert('type == ArbPlaceholderType.dateTimeType')
   const factory ArbPlaceholder.dateTime({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
     @Default(true) bool hasDetails,
+    @Default(ArbPlaceholderType.dateTimeType) ArbPlaceholderType type,
     @Default('') String format,
     @Default(false) bool isCustomDateFormat,
   }) = ArbDateTimePlaceholder;
 }
 
-enum ArbNumberPlaceholderType {
-  numType('num'),
-  intType('int'),
-  doubleType('double');
+enum ArbPlaceholderType {
+  genericType('generic'),
+  stringType('String'),
+  numType('num', true),
+  intType('int', true),
+  doubleType('double', true),
+  dateTimeType('DateTime');
 
-  const ArbNumberPlaceholderType(this.type);
+  const ArbPlaceholderType(this.type, [this.isNumberType = false]);
 
-  factory ArbNumberPlaceholderType.forType(String type) {
+  factory ArbPlaceholderType.forType(String type) {
     return values.firstWhere(
       (element) => element.name == type,
       orElse: () => throw ArgumentError('Invalid match for ArbPlaceholderType with $type'),
@@ -75,6 +86,7 @@ enum ArbNumberPlaceholderType {
   }
 
   final String type;
+  final bool isNumberType;
 }
 
 enum ArbNumberPlaceholderFormat {

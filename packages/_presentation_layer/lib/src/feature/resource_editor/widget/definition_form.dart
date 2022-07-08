@@ -125,7 +125,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
-  ArbPlaceholder placeHolderBeingEdited = const ArbPlaceholder(key: '');
+  ArbPlaceholder placeHolderBeingEdited = ArbPlaceholder.generic();
 
   @override
   void dispose() {
@@ -139,7 +139,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
     super.resetState();
     keyTextController.text = formDefinition.key;
     descTextController.text = formDefinition.description ?? '';
-    placeHolderBeingEdited = const ArbPlaceholder();
+    placeHolderBeingEdited = ArbPlaceholder.generic();
   }
 
   @override

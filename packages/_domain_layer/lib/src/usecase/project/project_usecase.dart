@@ -243,7 +243,7 @@ class ProjectUsecase {
       final desc = entry.value['description'] as String? ?? '';
       final example = entry.value['example'] as String? ?? '';
       if (type == null) {
-        arbPlaceholders.add(ArbPlaceholder(key: key, description: desc, example: example));
+        arbPlaceholders.add(ArbPlaceholder.generic(key: key, description: desc, example: example));
       } else if (type == 'String') {
         arbPlaceholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
@@ -278,7 +278,7 @@ class ProjectUsecase {
             key: key,
             description: desc,
             example: example,
-            type: ArbNumberPlaceholderType.forType(type),
+            type: ArbPlaceholderType.forType(type),
             format: format,
             optionalParameters: optionalParameters,
           ),

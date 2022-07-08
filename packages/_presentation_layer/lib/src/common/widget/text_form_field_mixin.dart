@@ -23,7 +23,7 @@ mixin TextFormFieldMixin {
     bool enableCleanButton = false,
   }) {
     final colors = Theme.of(context).colorScheme;
-    final hasChanges = textController.text != originalText;
+    final isModified = textController.text != originalText;
     return TextFormField(
       controller: textController,
       enabled: enabled,
@@ -31,8 +31,8 @@ mixin TextFormFieldMixin {
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
         border: const OutlineInputBorder(),
-        enabledBorder: _enabledBorder(colors, hasChanges),
-        focusedBorder: _focusedBorder(colors, hasChanges),
+        enabledBorder: _enabledBorder(colors, isModified),
+        focusedBorder: _focusedBorder(colors, isModified),
         labelText: label,
         hintText: hintText,
         floatingLabelBehavior: FloatingLabelBehavior.always,
