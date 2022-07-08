@@ -20,7 +20,7 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   final T current;
   final T beingEdited;
   final ValueChanged<ArbDefinition> onUpdate;
-  final ValueChanged<ArbPlaceholderBase> onUpdatePlaceholder;
+  final ValueChanged<ArbPlaceholder> onUpdatePlaceholder;
   final ValueChanged<ArbDefinition> onSaveChanges;
   final VoidCallback onDiscardChanges;
 }
@@ -129,7 +129,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
-  ArbPlaceholderBase placeHolderBeingEdited = const ArbPlaceholder(key: '');
+  ArbPlaceholder placeHolderBeingEdited = const ArbPlaceholder(key: '');
 
   @override
   void dispose() {
@@ -197,7 +197,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
     );
   }
 
-  Widget placeholderTag(ArbPlaceholderBase placeholder) {
+  Widget placeholderTag(ArbPlaceholder placeholder) {
     return Text(placeholder.key);
   }
 }

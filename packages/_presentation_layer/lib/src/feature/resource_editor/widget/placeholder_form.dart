@@ -15,15 +15,15 @@ enum _DisplayOption {
 class PlaceholderForm extends StatefulWidget {
   const PlaceholderForm({super.key, required this.placeholder, required this.onUpdate});
 
-  final ArbPlaceholderBase placeholder;
-  final ValueChanged<ArbPlaceholderBase> onUpdate;
+  final ArbPlaceholder placeholder;
+  final ValueChanged<ArbPlaceholder> onUpdate;
 
   @override
   State<PlaceholderForm> createState() => _PlaceholderFormState();
 }
 
 class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMixin {
-  late ArbPlaceholderBase formPlaceholder;
+  late ArbPlaceholder formPlaceholder;
   _DisplayOption displayOption = _DisplayOption.simple;
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
@@ -78,7 +78,11 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
             originalText: formPlaceholder.key,
             textController: keyTextController,
             inputFormatters: [keyFormatter],
-            onChanged: (value) => setState(() {}),
+            enableCleanButton: true,
+            onChanged: (value) => setState(() {
+              formPlaceholder = formPlaceholder.copyWith(key: value);
+              widget.onUpdate(formPlaceholder);
+            }),
           ),
         ),
         IconButton(
@@ -96,7 +100,11 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
         label: 'Description',
         originalText: formPlaceholder.description,
         textController: descTextController,
-        onChanged: (value) {},
+        enableCleanButton: true,
+        onChanged: (value) => setState(() {
+          formPlaceholder = formPlaceholder.copyWith(description: value);
+          widget.onUpdate(formPlaceholder);
+        }),
       ),
       DefinitionFormMixin.verticalSeparator,
       textField(
@@ -104,7 +112,11 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
         label: 'Example',
         originalText: formPlaceholder.example,
         textController: exampleTextController,
-        onChanged: (value) {},
+        enableCleanButton: true,
+        onChanged: (value) => setState(() {
+          formPlaceholder = formPlaceholder.copyWith(example: value);
+          widget.onUpdate(formPlaceholder);
+        }),
       ),
     ]);
   }

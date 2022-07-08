@@ -9,98 +9,65 @@ mixin ArbKeyMixin {
   bool get hasKey => key.isNotEmpty;
 }
 
-abstract class ArbPlaceholderBase {
-  const ArbPlaceholderBase();
-
-  String get key;
+mixin ArbHasDetailsMixin {
   String get description;
   String get example;
 
-  bool get hasKey;
-  bool get hasDetails;
-}
-
-@freezed
-class ArbPlaceholder with _$ArbPlaceholder, ArbKeyMixin implements ArbPlaceholderBase {
-  const factory ArbPlaceholder({
-    @Default('') String key,
-    @Default('') String description,
-    @Default('') String example,
-  }) = _ArbPlaceholder;
-
-  const ArbPlaceholder._();
-
   /// Test to see if any optional field is filled in.
-  @override
   bool get hasDetails => description.trim().isNotEmpty || example.trim().isNotEmpty;
 }
 
 @freezed
-class ArbStringPlaceholder with _$ArbStringPlaceholder, ArbKeyMixin implements ArbPlaceholderBase {
-  const factory ArbStringPlaceholder({
+abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixin {
+  @With<ArbKeyMixin>()
+  @With<ArbHasDetailsMixin>()
+  const factory ArbPlaceholder({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
-  }) = _ArbStringPlaceholder;
+  }) = ArbBasePlaceholder;
 
-  const ArbStringPlaceholder._();
-
-  ArbPlaceholderType get type => ArbPlaceholderType.stringType;
-
-  /// Always true since it defines its type.
-  @override
-  bool get hasDetails => true;
-}
-
-@freezed
-class ArbNumberPlaceholder with _$ArbNumberPlaceholder, ArbKeyMixin implements ArbPlaceholderBase {
-  const factory ArbNumberPlaceholder({
+  @With<ArbKeyMixin>()
+  @Assert('hasDetails')
+  const factory ArbPlaceholder.string({
     @Default('') String key,
-    required ArbPlaceholderType type,
     @Default('') String description,
     @Default('') String example,
+    @Default(true) bool hasDetails,
+  }) = ArbStringPlaceholder;
+
+  @With<ArbKeyMixin>()
+  @Assert('hasDetails')
+  const factory ArbPlaceholder.number({
+    @Default('') String key,
+    @Default('') String description,
+    @Default('') String example,
+    @Default(true) bool hasDetails,
+    required ArbNumberPlaceholderType type,
     ArbNumberPlaceholderFormat? format,
     @Default(<String, String>{}) Map<String, String> optionalParameters,
-  }) = _ArbNumberPlaceholder;
+  }) = ArbNumberPlaceholder;
 
-  const ArbNumberPlaceholder._();
-
-  /// Always true since it defines its type.
-  @override
-  bool get hasDetails => true;
-}
-
-@freezed
-class ArbDateTimePlaceholder
-    with _$ArbDateTimePlaceholder, ArbKeyMixin
-    implements ArbPlaceholderBase {
-  const factory ArbDateTimePlaceholder({
+  @With<ArbKeyMixin>()
+  @Assert('hasDetails')
+  const factory ArbPlaceholder.dateTime({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
+    @Default(true) bool hasDetails,
     @Default('') String format,
     @Default(false) bool isCustomDateFormat,
-  }) = _ArbDateTimePlaceholder;
-
-  const ArbDateTimePlaceholder._();
-
-  ArbPlaceholderType get type => ArbPlaceholderType.dateTimeType;
-
-  /// Always true since it defines its type.
-  @override
-  bool get hasDetails => true;
+  }) = ArbDateTimePlaceholder;
 }
 
-enum ArbPlaceholderType {
-  stringType('String'),
+enum ArbNumberPlaceholderType {
   numType('num'),
   intType('int'),
-  doubleType('double'),
-  dateTimeType('DateTime');
+  doubleType('double');
 
-  const ArbPlaceholderType(this.type);
+  const ArbNumberPlaceholderType(this.type);
 
-  factory ArbPlaceholderType.forType(String type) {
+  factory ArbNumberPlaceholderType.forType(String type) {
     return values.firstWhere(
       (element) => element.name == type,
       orElse: () => throw ArgumentError('Invalid match for ArbPlaceholderType with $type'),

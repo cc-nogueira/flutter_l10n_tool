@@ -229,11 +229,11 @@ class ProjectUsecase {
     );
   }
 
-  List<ArbPlaceholderBase>? _placeholders(Map<String, dynamic>? placeholders) {
+  List<ArbPlaceholder>? _placeholders(Map<String, dynamic>? placeholders) {
     if (placeholders == null) {
       return null;
     }
-    final arbPlaceholders = <ArbPlaceholderBase>[];
+    final arbPlaceholders = <ArbPlaceholder>[];
     for (final entry in placeholders.entries) {
       if (entry.value is! Map<String, dynamic>) {
         throw L10nArbPlaceholdersFormatException(entry.key);
@@ -245,10 +245,10 @@ class ProjectUsecase {
       if (type == null) {
         arbPlaceholders.add(ArbPlaceholder(key: key, description: desc, example: example));
       } else if (type == 'String') {
-        arbPlaceholders.add(ArbStringPlaceholder(key: key, description: desc, example: example));
+        arbPlaceholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
         arbPlaceholders.add(
-          ArbDateTimePlaceholder(
+          ArbPlaceholder.dateTime(
             key: key,
             description: desc,
             example: example,
@@ -274,11 +274,11 @@ class ProjectUsecase {
           }
         }
         arbPlaceholders.add(
-          ArbNumberPlaceholder(
+          ArbPlaceholder.number(
             key: key,
             description: desc,
             example: example,
-            type: ArbPlaceholderType.forType(type),
+            type: ArbNumberPlaceholderType.forType(type),
             format: format,
             optionalParameters: optionalParameters,
           ),

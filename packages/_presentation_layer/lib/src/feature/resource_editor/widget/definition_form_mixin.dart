@@ -25,6 +25,7 @@ mixin DefinitionFormMixin {
     required ValueChanged<String> onChanged,
     List<TextInputFormatter>? inputFormatters,
     int? maxLines,
+    bool enableCleanButton = false,
   }) {
     final hasChanges = textController.text != originalText;
     return TextFormField(
@@ -39,6 +40,17 @@ mixin DefinitionFormMixin {
         hintText: hintText,
         floatingLabelBehavior: FloatingLabelBehavior.always,
         counterText: '',
+        suffixIcon: !enableCleanButton || textController.text.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.clear),
+                tooltip: 'clear',
+                onPressed: () {
+                  textController.clear();
+                  onChanged('');
+                },
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+              ),
       ),
       inputFormatters: inputFormatters,
       onChanged: onChanged,
