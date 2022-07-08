@@ -1,7 +1,7 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
-import 'translation_form_mixin.dart';
+import 'text_form_field_mixin.dart';
 import 'translation_tile_mixin.dart';
 
 abstract class TranslationForm extends StatefulWidget {
@@ -69,7 +69,7 @@ class SelectTranslationForm extends TranslationForm {
 }
 
 abstract class TranslationFormState<T extends TranslationForm> extends State<T>
-    with TranslationTileMixin, TranslationFormMixin {
+    with TranslationTileMixin, TextFormFieldMixin {
   late ArbTranslation formTranslation;
 
   @override

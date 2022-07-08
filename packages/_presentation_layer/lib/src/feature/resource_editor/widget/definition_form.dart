@@ -101,14 +101,9 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
       child: Container(
         decoration: BoxDecoration(color: colors.primaryContainer),
         padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            tileIcon(),
-            DefinitionTileMixin.leadingSeparator,
-            Expanded(child: form(theme.colorScheme)),
-            trailing(),
-          ],
+        child: definitionTile(
+          content: form(theme.colorScheme),
+          trailing: trailing(),
         ),
       ),
     );

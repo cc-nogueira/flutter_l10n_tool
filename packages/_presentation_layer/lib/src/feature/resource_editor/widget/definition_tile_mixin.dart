@@ -10,10 +10,8 @@ mixin DefinitionTileMixin {
   Widget tileIcon() =>
       const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon));
 
-  Widget tileTitle(
-    TextTheme theme, {
-    required String title,
-    String? subtitle,
+  Widget definitionTile({
+    required Widget content,
     required Widget trailing,
   }) {
     return Row(
@@ -21,29 +19,21 @@ mixin DefinitionTileMixin {
       children: [
         tileIcon(),
         leadingSeparator,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SelectableText(title, style: titleStyle(theme)),
-              if (subtitle != null) SelectableText(subtitle, style: subtitleStyle(theme)),
-            ],
-          ),
-        ),
+        Expanded(child: content),
         trailing,
       ],
     );
   }
 
-  TextStyle titleStyle(TextTheme theme) => theme.titleMedium!;
+  TextStyle markingStyle(TextTheme theme) => subtitleStyle(theme);
+
+  TextStyle optionStyle(TextTheme theme, ColorScheme colors) =>
+      theme.bodyMedium!.copyWith(color: colors.primary);
 
   TextStyle subtitleStyle(TextTheme theme) =>
       theme.bodyMedium!.copyWith(color: theme.caption?.color);
 
-  TextStyle markingStyle(TextTheme theme) => subtitleStyle(theme);
+  TextStyle titleStyle(TextTheme theme) => theme.titleMedium!;
 
   TextStyle valueStyle(TextTheme theme) => theme.bodyMedium!;
-
-  TextStyle optionStyle(TextTheme theme, ColorScheme colors) =>
-      theme.bodyMedium!.copyWith(color: colors.primary);
 }
