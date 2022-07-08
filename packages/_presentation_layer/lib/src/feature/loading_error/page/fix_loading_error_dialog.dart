@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
+import '../../../common/widget/form_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import '../common/fix_stage.dart';
 
@@ -88,11 +89,11 @@ class _FixLoadingErrorDialogState extends ConsumerState<FixLoadingErrorDialog> {
           children: [
             _title(context),
             _progressIndicator(),
-            const SizedBox(height: 16),
+            FormMixin.verticalSeparator,
             _progressDescription(),
             const SizedBox(height: 40),
             _dialogButtons(),
-            const SizedBox(height: 16),
+            FormMixin.verticalSeparator,
           ],
         ),
       ),

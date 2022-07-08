@@ -1,6 +1,7 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
+import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/label_divider.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import 'definition_tile_mixin.dart';
@@ -157,7 +158,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
           }),
           inputFormatters: [textInputKeyFormatter],
         ),
-        DefinitionTileMixin.verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           label: 'Description',
@@ -168,7 +169,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
             widget.onUpdate(formDefinition);
           }),
         ),
-        DefinitionTileMixin.verticalSeparator,
+        FormMixin.verticalSeparator,
         placeholders(colors),
       ],
     );

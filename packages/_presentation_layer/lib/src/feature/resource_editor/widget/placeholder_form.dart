@@ -2,9 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/widget/buttons.dart';
+import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'definition_tile_mixin.dart';
 
 enum _DisplayOption {
   simple,
@@ -95,7 +95,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
 
   Widget _details(BuildContext context, ColorScheme colors) {
     return Column(children: [
-      DefinitionTileMixin.verticalSeparator,
+      FormMixin.verticalSeparator,
       textField(
         context: context,
         label: 'Description',
@@ -107,7 +107,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           widget.onUpdate(formPlaceholder);
         }),
       ),
-      DefinitionTileMixin.verticalSeparator,
+      FormMixin.verticalSeparator,
       textField(
         context: context,
         label: 'Example',

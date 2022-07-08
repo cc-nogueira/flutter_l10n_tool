@@ -2,11 +2,11 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/label_divider.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import 'configuration_form_dropdown.dart';
-import 'configuration_form_text_field.dart';
 
 class ConfigurationForm extends ConsumerWidget {
   const ConfigurationForm({super.key});
@@ -54,8 +54,6 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
   final FocusNode _outputClassFocus = FocusNode();
   final FocusNode _nullableGetterFocus = FocusNode();
   final FocusNode _headerFocus = FocusNode();
-
-  final _verticalSeparator = const SizedBox(height: 16);
 
   @override
   void initState() {
@@ -134,7 +132,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
             () => widget.configurationController.update((state) => state.copyWith(arbDir: value)),
           ),
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           label: 'template file',
@@ -148,7 +146,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
                 .update((state) => state.copyWith(templateArbFile: value)),
           ),
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         ConfigurationFormDropdown<bool>(
           label: 'required attributes',
           options: const [true, false],
@@ -180,7 +178,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
           ),
           focusNode: _syntheticPackageFocus,
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           enabled: !widget.configuration.syntheticPackage,
@@ -199,7 +197,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
                 widget.configurationController.update((state) => state.copyWith(outputDir: value)),
           ),
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           label: 'output file',
@@ -213,7 +211,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
                 .update((state) => state.copyWith(outputLocalizationFile: value)),
           ),
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           label: 'output class',
@@ -246,7 +244,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
           ),
           focusNode: _nullableGetterFocus,
         ),
-        _verticalSeparator,
+        FormMixin.verticalSeparator,
         textField(
           context: context,
           label: 'header',

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
+import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/navigation_drawer.dart';
 import '../../../l10n/app_localizations.dart';
 import '../widget/configuration_buttons.dart';
@@ -57,7 +58,7 @@ class _ProjectConfigurationWidget extends ConsumerWidget {
           padding: const EdgeInsets.only(top: 2.0, right: 8.0),
           child: _configurationToggleButtons(),
         ),
-        const SizedBox(height: 16.0),
+        FormMixin.verticalSeparator,
         Expanded(
           child: ListView(
             padding: const EdgeInsets.only(left: 4.0, right: 12.0),

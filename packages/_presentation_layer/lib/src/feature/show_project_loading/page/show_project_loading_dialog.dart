@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../common/widget/buttons.dart';
+import '../../../common/widget/form_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
 
@@ -32,11 +33,11 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
           children: [
             _title(context, loc, project),
             _progressIndicator(loadStage),
-            const SizedBox(height: 16),
+            FormMixin.verticalSeparator,
             _progressDescription(context, loc, project, loadStage),
             const SizedBox(height: 40),
             _dialogButtons(ref.read, colors, loadStage),
-            const SizedBox(height: 16),
+            FormMixin.verticalSeparator,
           ],
         ),
       ),
