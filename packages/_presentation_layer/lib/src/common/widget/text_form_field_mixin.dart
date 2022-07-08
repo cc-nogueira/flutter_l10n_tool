@@ -9,19 +9,24 @@ mixin TextFormFieldMixin {
   static final wordRegExp = RegExp(r'\w+');
 
   Widget textField({
-    required ColorScheme colors,
+    required BuildContext context,
     required String label,
     String? hintText,
     required String originalText,
     required TextEditingController textController,
     required ValueChanged<String> onChanged,
+    FocusNode? focusNode,
+    FocusNode? nextFocus,
     List<TextInputFormatter>? inputFormatters,
+    bool enabled = true,
     int? maxLines,
     bool enableCleanButton = false,
   }) {
+    final colors = Theme.of(context).colorScheme;
     final hasChanges = textController.text != originalText;
     return TextFormField(
       controller: textController,
+      enabled: enabled,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
@@ -46,6 +51,13 @@ mixin TextFormFieldMixin {
       ),
       inputFormatters: inputFormatters,
       onChanged: onChanged,
+      focusNode: focusNode,
+      onEditingComplete: nextFocus == null || focusNode == null
+          ? null
+          : () {
+              focusNode.unfocus();
+              FocusScope.of(context).requestFocus(nextFocus);
+            },
       maxLines: maxLines,
     );
   }

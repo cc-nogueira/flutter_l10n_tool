@@ -1,7 +1,7 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
-import 'text_form_field_mixin.dart';
+import '../../../common/widget/text_form_field_mixin.dart';
 import 'translation_tile_mixin.dart';
 
 abstract class TranslationForm extends StatefulWidget {
@@ -98,7 +98,7 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
       children: [
         title(theme.textTheme),
         const SizedBox(height: 4.0),
-        form(theme.colorScheme),
+        form(context, theme.colorScheme),
       ],
     );
   }
@@ -118,7 +118,7 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
 
   bool get hasChanges;
 
-  Widget form(ColorScheme colors);
+  Widget form(BuildContext context, ColorScheme colors);
 }
 
 class TextTranslationFormState extends TranslationFormState<TextTranslationForm> {
@@ -140,7 +140,7 @@ class TextTranslationFormState extends TranslationFormState<TextTranslationForm>
   bool get hasChanges => formTranslation.value != (widget.current?.value ?? '');
 
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Form(
       child: Padding(
         padding: const EdgeInsets.only(
@@ -148,7 +148,7 @@ class TextTranslationFormState extends TranslationFormState<TextTranslationForm>
           right: TranslationTileMixin.leadingSize,
         ),
         child: textField(
-          colors: colors,
+          context: context,
           label: 'Translation',
           originalText: formTranslation.value,
           textController: translationTextController,
@@ -164,7 +164,7 @@ class TextTranslationFormState extends TranslationFormState<TextTranslationForm>
 
 class PluralTranslationFormState extends TranslationFormState<PluralTranslationForm> {
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Container();
   }
 
@@ -179,7 +179,7 @@ class PluralTranslationFormState extends TranslationFormState<PluralTranslationF
 
 class SelectTranslationFormState extends TranslationFormState<SelectTranslationForm> {
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Container();
   }
 

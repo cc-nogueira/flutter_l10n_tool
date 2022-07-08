@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/label_divider.dart';
+import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import 'configuration_form_dropdown.dart';
 import 'configuration_form_text_field.dart';
@@ -36,7 +37,7 @@ class _ConfigurationForm extends StatefulWidget {
       configurationController.state = configuration;
 }
 
-class _ConfigurationFormState extends State<_ConfigurationForm> {
+class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFieldMixin {
   late final TextEditingController _arbDirTextController;
   late final TextEditingController _outputDirTextController;
   late final TextEditingController _templateArbFileTextController;
@@ -121,26 +122,28 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           label: const Text('Input'),
           separation: 8,
         ),
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           label: 'arb folder',
           hintText: L10nConfiguration.defaultArbDir,
           textController: _arbDirTextController,
           focusNode: _arbDirFocus,
           nextFocus: _templateArbFileFocus,
-          currentValue: () => widget.currentConfiguration.arbDir,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.arbDir,
+          onChanged: (value) => setState(
             () => widget.configurationController.update((state) => state.copyWith(arbDir: value)),
           ),
         ),
         _verticalSeparator,
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           label: 'template file',
           hintText: L10nConfiguration.defaultTemplateArbFile,
           textController: _templateArbFileTextController,
           focusNode: _templateArbFileFocus,
           nextFocus: _requiredAttibutesFocus,
-          currentValue: () => widget.currentConfiguration.templateArbFile,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.templateArbFile,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(templateArbFile: value)),
           ),
@@ -178,7 +181,8 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           focusNode: _syntheticPackageFocus,
         ),
         _verticalSeparator,
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           enabled: !widget.configuration.syntheticPackage,
           label: 'output folder',
           hintText: widget.configuration.syntheticPackage
@@ -186,37 +190,39 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
               : _arbDirTextController.text.isEmpty
                   ? L10nConfiguration.defaultArbDir
                   : _arbDirTextController.text,
-          textController: widget.configuration.syntheticPackage ? null : _outputDirTextController,
+          textController: _outputDirTextController,
           focusNode: _outputDirFocus,
           nextFocus: _outputLocalizationFocus,
-          currentValue: () => widget.currentConfiguration.outputDir,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.outputDir,
+          onChanged: (value) => setState(
             () =>
                 widget.configurationController.update((state) => state.copyWith(outputDir: value)),
           ),
         ),
         _verticalSeparator,
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           label: 'output file',
           hintText: L10nConfiguration.defaultOutputLocalizationFile,
           textController: _outputLocalizationFileTextController,
           focusNode: _outputLocalizationFocus,
           nextFocus: _outputClassFocus,
-          currentValue: () => widget.currentConfiguration.outputLocalizationFile,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.outputLocalizationFile,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(outputLocalizationFile: value)),
           ),
         ),
         _verticalSeparator,
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           label: 'output class',
           hintText: L10nConfiguration.defaultOutputClass,
           textController: _outputClassTextController,
           focusNode: _outputClassFocus,
           nextFocus: _nullableGetterFocus,
-          currentValue: () => widget.currentConfiguration.outputClass,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.outputClass,
+          onChanged: (value) => setState(
             () => widget.configurationController
                 .update((state) => state.copyWith(outputClass: value)),
           ),
@@ -241,14 +247,15 @@ class _ConfigurationFormState extends State<_ConfigurationForm> {
           focusNode: _nullableGetterFocus,
         ),
         _verticalSeparator,
-        ConfigurationFormTextField(
+        textField(
+          context: context,
           label: 'header',
           textController: _headerTextController,
           focusNode: _headerFocus,
           nextFocus: _arbDirFocus,
           maxLines: null,
-          currentValue: () => widget.currentConfiguration.header,
-          setValue: (value) => setState(
+          originalText: widget.currentConfiguration.header,
+          onChanged: (value) => setState(
             () => widget.configurationController.update((state) => state.copyWith(header: value)),
           ),
         ),

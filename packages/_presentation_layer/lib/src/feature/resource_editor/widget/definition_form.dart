@@ -2,9 +2,9 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/widget/label_divider.dart';
+import '../../../common/widget/text_form_field_mixin.dart';
 import 'definition_tile_mixin.dart';
 import 'placeholder_form.dart';
-import 'text_form_field_mixin.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
@@ -102,7 +102,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
         decoration: BoxDecoration(color: colors.primaryContainer),
         padding: const EdgeInsets.all(8.0),
         child: definitionTile(
-          content: form(theme.colorScheme),
+          content: form(context, colors),
           trailing: trailing(),
         ),
       ),
@@ -118,7 +118,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 
   bool get hasChanges => formDefinition != widget.current;
 
-  Widget form(ColorScheme colors);
+  Widget form(BuildContext context, ColorScheme colors);
 }
 
 class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
@@ -142,12 +142,12 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   }
 
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         textField(
-          colors: colors,
+          context: context,
           label: 'Key',
           originalText: formDefinition.key,
           textController: keyTextController,
@@ -159,7 +159,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
         ),
         DefinitionTileMixin.verticalSeparator,
         textField(
-          colors: colors,
+          context: context,
           label: 'Description',
           originalText: formDefinition.description ?? '',
           textController: descTextController,
@@ -199,7 +199,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
 
 class PluralDefinitionFormState extends DefinitionFormState<ArbPluralDefinition> {
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Container();
   }
 
@@ -214,7 +214,7 @@ class PluralDefinitionFormState extends DefinitionFormState<ArbPluralDefinition>
 
 class SelectDefinitionFormState extends DefinitionFormState<ArbSelectDefinition> {
   @override
-  Widget form(ColorScheme colors) {
+  Widget form(BuildContext context, ColorScheme colors) {
     return Container();
   }
 
