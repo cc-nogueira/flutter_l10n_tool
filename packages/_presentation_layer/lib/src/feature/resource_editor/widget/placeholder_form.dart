@@ -13,14 +13,17 @@ enum _DisplayOption {
 }
 
 class PlaceholderForm extends StatefulWidget {
-  const PlaceholderForm({super.key, this.placeholder});
-  final ArbPlaceholderBase? placeholder;
+  const PlaceholderForm({super.key, required this.placeholder, required this.onUpdate});
+
+  final ArbPlaceholderBase placeholder;
+  final ValueChanged<ArbPlaceholderBase> onUpdate;
 
   @override
   State<PlaceholderForm> createState() => _PlaceholderFormState();
 }
 
 class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMixin {
+  late ArbPlaceholderBase formPlaceholder;
   _DisplayOption displayOption = _DisplayOption.simple;
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
@@ -41,10 +44,11 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
   }
 
   void resetState() {
-    displayOption = _DisplayOption.simple;
-    keyTextController.text = widget.placeholder?.key ?? '';
-    descTextController.text = widget.placeholder?.description ?? '';
-    exampleTextController.text = widget.placeholder?.example ?? '';
+    formPlaceholder = widget.placeholder;
+    displayOption = formPlaceholder.hasDetails ? _DisplayOption.detailed : _DisplayOption.simple;
+    keyTextController.text = formPlaceholder.key;
+    descTextController.text = formPlaceholder.description;
+    exampleTextController.text = formPlaceholder.example;
   }
 
   @override
@@ -58,37 +62,49 @@ class _PlaceholderFormState extends State<PlaceholderForm> with DefinitionFormMi
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return displayOption == _DisplayOption.simple
-        ? buildCompact(context, colors)
-        : buildExpanded(context);
+    return Column(
+      children: [
+        _placeholderKeyRow(context, colors),
+        if (displayOption == _DisplayOption.detailed) _details(context, colors),
+      ],
+    );
   }
 
-  Widget buildCompact(BuildContext context, ColorScheme colors) {
-    return Row(children: [
-      SizedBox(
-        width: 200,
-        child: textField(
-          colors: colors,
-          label: 'Placeholder',
-          originalText: widget.placeholder?.key ?? '',
-          textController: keyTextController,
-          onChanged: (value) {},
+  Widget _placeholderKeyRow(BuildContext context, ColorScheme colors) => Row(children: [
+        Expanded(
+          child: textField(
+            colors: colors,
+            label: 'Placeholder',
+            originalText: formPlaceholder.key,
+            textController: keyTextController,
+            inputFormatters: [keyFormatter],
+            onChanged: (value) => setState(() {}),
+          ),
         ),
-      ),
-      IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
-      const SizedBox(width: 16.0),
-      _displayOptions,
-    ]);
-  }
+        IconButton(
+            onPressed: keyTextController.text.trim().isEmpty ? null : () {},
+            icon: const Icon(Icons.add)),
+        const SizedBox(width: 16.0),
+        if (!formPlaceholder.hasDetails) _displayOptions,
+      ]);
 
-  Widget buildExpanded(BuildContext context) {
+  Widget _details(BuildContext context, ColorScheme colors) {
     return Column(children: [
-      Row(
-        children: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
-          const SizedBox(width: 16.0),
-          _displayOptions,
-        ],
+      DefinitionFormMixin.verticalSeparator,
+      textField(
+        colors: colors,
+        label: 'Description',
+        originalText: formPlaceholder.description,
+        textController: descTextController,
+        onChanged: (value) {},
+      ),
+      DefinitionFormMixin.verticalSeparator,
+      textField(
+        colors: colors,
+        label: 'Example',
+        originalText: formPlaceholder.example,
+        textController: exampleTextController,
+        onChanged: (value) {},
       ),
     ]);
   }

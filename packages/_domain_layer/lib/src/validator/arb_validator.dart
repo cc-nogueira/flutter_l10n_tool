@@ -3,22 +3,25 @@ import '../exception/l10n_arb_exception.dart';
 import '../util/arb_util.dart';
 
 class ArbValidator {
-  const ArbValidator(this.configuration, {required this.translations, required this.definitions});
+  const ArbValidator();
 
-  final L10nConfiguration configuration;
-  final Map<String, String> translations;
-  final Map<String, dynamic> definitions;
-
-  void validate() {
+  void validate({
+    required L10nConfiguration configuration,
+    required Map<String, String> translations,
+    required Map<String, dynamic> definitions,
+  }) {
     if (configuration.requiredResourceAttributes) {
-      _validateAllResourcesWithDefinitions();
+      _validateAllResourcesWithDefinitions(translations: translations, definitions: definitions);
     }
-    _validatePluralResources();
-    _validateSelectResources();
-    _validatePlaceholders();
+    _validatePluralResources(translations: translations, definitions: definitions);
+    _validateSelectResources(translations: translations, definitions: definitions);
+    _validatePlaceholders(definitions);
   }
 
-  void _validateAllResourcesWithDefinitions() {
+  void _validateAllResourcesWithDefinitions({
+    required Map<String, String> translations,
+    required Map<String, dynamic> definitions,
+  }) {
     for (final key in translations.keys) {
       final definitionKey = '@$key';
       final definition = definitions[definitionKey];
@@ -31,7 +34,10 @@ class ArbValidator {
     }
   }
 
-  void _validatePluralResources() {
+  void _validatePluralResources({
+    required Map<String, String> translations,
+    required Map<String, dynamic> definitions,
+  }) {
     for (final entry in translations.entries) {
       final key = pluralKey(entry.value);
       if (key != null) {
@@ -59,7 +65,10 @@ class ArbValidator {
     }
   }
 
-  void _validateSelectResources() {
+  void _validateSelectResources({
+    required Map<String, String> translations,
+    required Map<String, dynamic> definitions,
+  }) {
     for (final entry in translations.entries) {
       final key = selectKey(entry.value);
       if (key != null) {
@@ -87,7 +96,7 @@ class ArbValidator {
     }
   }
 
-  void _validatePlaceholders() {
+  void _validatePlaceholders(Map<String, dynamic> definitions) {
     for (final entry in definitions.entries) {
       final placeholders = entry.value['placeholders'];
       if (placeholders != null && placeholders is! Map<String, dynamic>) {

@@ -52,6 +52,7 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
+        onUpdatePlaceholder: (value) {},
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );
@@ -61,6 +62,7 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
+        onUpdatePlaceholder: (value) {},
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );
@@ -70,6 +72,7 @@ class DefinitionWidget extends ConsumerWidget {
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
+        onUpdatePlaceholder: (value) {},
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );

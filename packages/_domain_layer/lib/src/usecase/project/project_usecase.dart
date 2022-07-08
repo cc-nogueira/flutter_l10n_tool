@@ -190,12 +190,12 @@ class ProjectUsecase {
       }
     }
 
-    final validator = ArbValidator(
-      project.configuration,
+    const validator = ArbValidator();
+    validator.validate(
+      configuration: project.configuration,
       translations: translations,
       definitions: definitions,
     );
-    validator.validate();
 
     final locale = _locale(config.effectiveTemplateArbFile, arb);
     final template = _arbTemplate(global: global, translations: translations, meta: definitions);
@@ -240,17 +240,19 @@ class ProjectUsecase {
       }
       final key = entry.key;
       final type = entry.value['type'] as String?;
-      final desc = entry.value['description'] as String?;
-      final example = entry.value['example'] as String?;
+      final desc = entry.value['description'] as String? ?? '';
+      final example = entry.value['example'] as String? ?? '';
       if (type == null) {
         arbPlaceholders.add(ArbPlaceholder(key: key, description: desc, example: example));
+      } else if (type == 'String') {
+        arbPlaceholders.add(ArbStringPlaceholder(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
         arbPlaceholders.add(
           ArbDateTimePlaceholder(
             key: key,
             description: desc,
             example: example,
-            format: entry.value['format'] as String?,
+            format: entry.value['format'] ?? '',
             isCustomDateFormat: entry.value['isCustomDateFormat'] == "true",
           ),
         );
@@ -258,11 +260,8 @@ class ProjectUsecase {
         final formatName = entry.value['format'] as String?;
         final format = formatName == null ? null : ArbNumberPlaceholderFormat.forName(formatName);
         final optionalParamsMap = entry.value['optionalParameters'] as Map<String, dynamic>?;
-        late final Map<String, String>? optionalParameters;
-        if (format == null || optionalParamsMap == null) {
-          optionalParameters = null;
-        } else {
-          optionalParameters = {};
+        final optionalParameters = <String, String>{};
+        if (format != null && optionalParamsMap != null) {
           for (final entry in optionalParamsMap.entries) {
             try {
               final parameter = ArbNumberPlaceholderParameter.forName(entry.key);

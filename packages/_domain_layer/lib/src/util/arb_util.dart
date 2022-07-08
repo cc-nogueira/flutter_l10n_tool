@@ -9,6 +9,7 @@ enum ArbDefinitionType {
 }
 
 class ArbUtil {
+  static final keyRegExp = RegExp(r'[_a-zA-Z]\w*');
   static final pluralRegExp = RegExp(r'{\s*(\w+)\s*,\s*plural\s*,(.*)}');
   static final selectRegExp = RegExp(r'{\s*(\w+)\s*,\s*select\s*,(.*)}');
   static final optionsRegExp = RegExp(r'(\w+){([^}]*)}');
