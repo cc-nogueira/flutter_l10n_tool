@@ -30,7 +30,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
   TextEditingController exampleTextController = TextEditingController();
-  TextEditingController formatTextController = TextEditingController();
+  TextEditingController customFormatTextController = TextEditingController();
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
     exampleTextController.text = formPlaceholder.example;
     formPlaceholder.maybeMap(
         dateTime: (value) {
-          formatTextController.text = value.format;
+          customFormatTextController.text = value.customFormat;
         },
         orElse: () {});
   }
@@ -128,6 +128,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       ),
       FormMixin.verticalSeparator,
       Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 1,
@@ -156,6 +157,60 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
     ]);
   }
 
+  Widget _formatInputOrEmpty() {
+    return formPlaceholder.maybeMap<Widget>(
+      number: (value) => textField(
+        context: context,
+        label: 'Format',
+        originalText: value.format?.name ?? '',
+        textController: customFormatTextController,
+        enableCleanButton: true,
+        onChanged: (txt) => setState(() {
+          // formPlaceholder = value.copyWith(format: txt);
+          // widget.onUpdate(formPlaceholder);
+        }),
+      ),
+      dateTime: (value) => Column(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                FormDropdown<ArbDatePlaceholderFormat>(
+                  label: 'Format',
+                  options: ArbDatePlaceholderFormat.values,
+                  optionLabel: (option) => option.icuName,
+                  originalValue: value.format,
+                  formValue: value.format,
+                  onChanged: (type) => setState(() {
+                    if (type != null) {
+                      formPlaceholder = value.copyWith(format: type);
+                      widget.onUpdate(formPlaceholder);
+                    }
+                  }),
+                ),
+              ],
+            ),
+          ),
+          if (value.format.isCustom) ...[
+            FormMixin.verticalSeparator,
+            textField(
+              context: context,
+              label: 'Custom Format',
+              hintText: 'Ex. EEE, M/d/y',
+              originalText: value.customFormat,
+              textController: customFormatTextController,
+              onChanged: (txt) => setState(() {
+                formPlaceholder = value.copyWith(customFormat: txt);
+                widget.onUpdate(formPlaceholder);
+              }),
+            ),
+          ],
+        ],
+      ),
+      orElse: () => Container(),
+    );
+  }
+
   ArbPlaceholder _copyWithType(ArbPlaceholderType? type) {
     switch (type) {
       case ArbPlaceholderType.stringType:
@@ -178,6 +233,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           key: formPlaceholder.key,
           description: formPlaceholder.description,
           example: formPlaceholder.example,
+          format: ArbDatePlaceholderFormat.yearMonthDay,
         );
       default:
         return ArbPlaceholder.generic(
@@ -186,23 +242,6 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           example: formPlaceholder.example,
         );
     }
-  }
-
-  Widget _formatInputOrEmpty() {
-    return formPlaceholder.maybeMap<Widget>(
-      dateTime: (value) => textField(
-        context: context,
-        label: 'Format',
-        originalText: value.format,
-        textController: formatTextController,
-        enableCleanButton: true,
-        onChanged: (txt) => setState(() {
-          formPlaceholder = value.copyWith(format: txt);
-          widget.onUpdate(formPlaceholder);
-        }),
-      ),
-      orElse: () => Container(),
-    );
   }
 
   List<Widget> _typeDetails() {

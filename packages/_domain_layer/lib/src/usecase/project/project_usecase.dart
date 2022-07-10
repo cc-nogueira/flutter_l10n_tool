@@ -247,13 +247,15 @@ class ProjectUsecase {
       } else if (type == 'String') {
         arbPlaceholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
+        final formatString = entry.value['format'] as String? ?? '';
+        final format = ArbDatePlaceholderFormat.forSkeleton(formatString);
         arbPlaceholders.add(
           ArbPlaceholder.dateTime(
             key: key,
             description: desc,
             example: example,
-            format: entry.value['format'] ?? '',
-            isCustomDateFormat: entry.value['isCustomDateFormat'] == "true",
+            format: format,
+            customFormat: format.isCustom ? formatString : '',
           ),
         );
       } else if (type == 'num' || type == 'int' || type == 'double') {

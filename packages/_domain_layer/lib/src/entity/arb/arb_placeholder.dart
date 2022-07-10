@@ -21,7 +21,7 @@ mixin ArbHasDetailsMixin {
 abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixin {
   @With<ArbKeyMixin>()
   @With<ArbHasDetailsMixin>()
-  @Assert('type == ArbPlaceholderType.undefinedType')
+  @Assert('type == ArbPlaceholderType.genericType')
   const factory ArbPlaceholder.generic({
     @Default('') String key,
     @Default('') String description,
@@ -63,8 +63,8 @@ abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixi
     @Default('') String example,
     @Default(true) bool hasDetails,
     @Default(ArbPlaceholderType.dateTimeType) ArbPlaceholderType type,
-    @Default('') String format,
-    @Default(false) bool isCustomDateFormat,
+    required ArbDatePlaceholderFormat format,
+    @Default('') String customFormat,
   }) = ArbDateTimePlaceholder;
 }
 
@@ -141,4 +141,60 @@ enum ArbNumberPlaceholderParameter {
           throw ArgumentError('Invalid match for ArbNumberPlaceholderParameter with $name'),
     );
   }
+}
+
+enum ArbDatePlaceholderFormat {
+  custom('custom', ''),
+  day('DAY', 'd'),
+  abbrWeekday('ABBR_WEEKDAY', 'E'),
+  weekday('WEEKDAY', 'EEEE'),
+  abbrStandaloneMonth('ABBR_STANDALONE_MONTH', 'LLL'),
+  standaloneMonth('STANDALONE_MONTH', 'LLLL'),
+  numMonth('NUM_MONTH', 'M'),
+  numMonthDay('NUM_MONTH_DAY', 'Md'),
+  numMonthWeekdayDay('NUM_MONTH_WEEKDAY_DAY', 'MEd'),
+  abbrMonth('ABBR_MONTH', 'MMM'),
+  abbrMonthDay('ABBR_MONTH_DAY', 'MMMd'),
+  abbrMonthWeekdayDay('ABBR_MONTH_WEEKDAY_DAY', 'MMMEd'),
+  month('MONTH', 'MMMM'),
+  monthDay('MONTH_DAY', 'MMMMd'),
+  monthWeekdayDay('MONTH_WEEKDAY_DAY', 'MMMMEEEEd'),
+  abbrQuarter('ABBR_QUARTER', 'QQQ'),
+  quarter('QUARTER', 'QQQQ'),
+  year('YEAR', 'y'),
+  yearNumMonth('YEAR_NUM_MONTH', 'yM'),
+  yearNumMonthDay('YEAR_NUM_MONTH_DAY', 'yMd'),
+  yearNumMonthWeekdayDay('YEAR_NUM_MONTH_WEEKDAY_DAY', 'yMEd'),
+  yearAbbrMonth('YEAR_ABBR_MONTH', 'yMMM'),
+  yearAbbrMonthDay('YEAR_ABBR_MONTH_DAY', 'yMMMd'),
+  yearAbbrMonthWeekDay('YEAR_ABBR_MONTH_WEEKDAY_DAY', 'yMMMEd'),
+  yearMonth('YEAR_MONTH', 'yMMMM'),
+  yearMonthDay('YEAR_MONTH_DAY', 'yMMMMd'),
+  yearMonthWeekdayDay('YEAR_MONTH_WEEKDAY_DAY', 'yMMMMEEEEd'),
+  yearAbbrQuarter('YEAR_ABBR_QUARTER', 'yQQQ'),
+  yearQuarter('YEAR_QUARTER', 'yQQQQ'),
+  hour24('HOUR24', 'H'),
+  hour24Minute('HOUR24_MINUTE', 'Hm'),
+  hour24MinuteSecond('HOUR24_MINUTE_SECOND', 'Hms'),
+  hour('HOUR', 'j'),
+  hourMinute('HOUR_MINUTE', 'jm'),
+  hourMinuteSecond('HOUR_MINUTE_SECOND', 'jms'),
+  minute('MINUTE', 'm'),
+  minuteSecond('MINUTE_SECOND', 'ms'),
+  second('SECOND', 's');
+
+  const ArbDatePlaceholderFormat(this.icuName, this.skeleton);
+
+  factory ArbDatePlaceholderFormat.forSkeleton(String value) {
+    return values.firstWhere(
+      (element) => element.skeleton == value,
+      orElse: () => custom,
+    );
+  }
+
+  final String icuName;
+  final String skeleton;
+
+  bool get isCustom => this == custom;
+  bool get isPredefined => !isCustom;
 }
