@@ -13,21 +13,26 @@ mixin TextFormFieldMixin {
     required String label,
     String? hintText,
     required String originalText,
-    required TextEditingController textController,
-    required ValueChanged<String> onChanged,
+    TextEditingController? textController,
+    ValueChanged<String>? onChanged,
     FocusNode? focusNode,
     FocusNode? nextFocus,
     List<TextInputFormatter>? inputFormatters,
     bool enabled = true,
+    bool readOnly = false,
     int? maxLines,
     bool enableCleanButton = false,
   }) {
     final colors = Theme.of(context).colorScheme;
-    final isModified = textController.text != originalText;
+    final isModified = textController != null && textController.text != originalText;
     return TextFormField(
       controller: textController,
+      initialValue: textController == null ? originalText : null,
       enabled: enabled,
-      style: const TextStyle(fontSize: 14),
+      readOnly: readOnly,
+      style: readOnly
+          ? TextStyle(fontSize: 14, color: colors.onPrimaryContainer, fontWeight: FontWeight.normal)
+          : const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 0.0),
         border: const OutlineInputBorder(),
@@ -37,14 +42,14 @@ mixin TextFormFieldMixin {
         hintText: hintText,
         floatingLabelBehavior: FloatingLabelBehavior.always,
         counterText: '',
-        suffixIcon: !enableCleanButton || textController.text.isEmpty
+        suffixIcon: !enableCleanButton || textController == null || textController.text.isEmpty
             ? null
             : IconButton(
                 icon: const Icon(Icons.clear),
                 tooltip: 'clear',
                 onPressed: () {
                   textController.clear();
-                  onChanged('');
+                  onChanged?.call('');
                 },
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
               ),

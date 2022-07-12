@@ -1,11 +1,15 @@
+import 'dart:collection';
+
 import 'package:riverpod/riverpod.dart';
 
 import '../../entity/arb/arb_definition.dart';
+import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
 import '../../provider/providers.dart';
 
 part 'notifier/definitions_notifier.dart';
 part 'notifier/map_notifiers.dart';
+part 'notifier/placeholders_notifier.dart';
 part 'notifier/selected_definition_notifier.dart';
 part 'notifier/translations_notifier.dart';
 
@@ -28,6 +32,17 @@ class ArbUsecase {
 
   void editDefinition({required ArbDefinition original, required ArbDefinition current}) {
     _beingEditedDefinitionsNotifier()._edit(original, current);
+  }
+
+  void updatePlaceholderEdition({
+    required ArbDefinition definition,
+    required ArbPlaceholder? placeholder,
+  }) {
+    if (placeholder == null) {
+      _beingEditedPlaceholdersNotifier()._discardChanges(definition);
+    } else {
+      _beingEditedPlaceholdersNotifier()._edit(definition, placeholder);
+    }
   }
 
   void discardDefinitionChanges({required ArbDefinition original}) {
@@ -74,6 +89,9 @@ class ArbUsecase {
 
   DefinitionsNotifier _beingEditedDefinitionsNotifier() =>
       read(beingEditedDefinitionsProvider.notifier);
+
+  PlaceholdersNotifier _beingEditedPlaceholdersNotifier() =>
+      read(beingEditedPlaceholdersProvider.notifier);
 
   DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
 

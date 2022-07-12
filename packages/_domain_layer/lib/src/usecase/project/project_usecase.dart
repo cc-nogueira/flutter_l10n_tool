@@ -248,14 +248,17 @@ class ProjectUsecase {
         arbPlaceholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
         final formatString = entry.value['format'] as String? ?? '';
-        final format = ArbDatePlaceholderFormat.forSkeleton(formatString);
+        final format = ArbIcuDatePlaceholderFormat.forSkeleton(formatString) ??
+            ArbIcuDatePlaceholderFormat.yearMonthDay;
+        final useCustomFormat = entry.value['isCustomDateFormat'] == 'true';
         arbPlaceholders.add(
           ArbPlaceholder.dateTime(
             key: key,
             description: desc,
             example: example,
-            format: format,
-            customFormat: format.isCustom ? formatString : '',
+            icuFormat: format,
+            useCustomFormat: useCustomFormat,
+            customFormat: useCustomFormat ? formatString : '',
           ),
         );
       } else if (type == 'num' || type == 'int' || type == 'double') {

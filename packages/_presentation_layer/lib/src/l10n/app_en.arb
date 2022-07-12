@@ -69,12 +69,31 @@
     "description": "Fix action label"
   },
 
-  "label_placeholder_display_option": "{option, select, simple{Simple} detailed{Detailed}}",
-  "@label_placeholder_display_option": {
+  "label_placeholder_date_format_type": "{option, select, icu{Built-in} custom{Custom}}",
+  "@label_placeholder_date_format_type": {
     "placeholders": {
       "option": {}
     }
   },
+
+  "label_description": "Description",
+
+  "label_example": "Example",
+
+  "label_set_placeholder_option": "Set {option}",
+  "@label_set_placeholder_option": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+
+  "label_add_placeholder": "Add Placeholder",
+
+  "label_save_placeholder": "Save Placeholder",
+
+  "label_discard_placeholder_changes": "Discard Changes",
 
   "message_loading": "Loading",
   "@message_loading": {

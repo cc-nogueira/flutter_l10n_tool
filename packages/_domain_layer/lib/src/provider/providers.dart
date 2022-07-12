@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../entity/arb/arb_definition.dart';
+import '../entity/arb/arb_placeholder.dart';
 import '../entity/arb/arb_translation.dart';
 import '../entity/preferences/display_option.dart';
 import '../entity/preferences/language_option.dart';
@@ -104,6 +105,10 @@ final currentDefinitionsProvider =
 final beingEditedDefinitionsProvider =
     StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
         (_) => DefinitionsNotifier());
+
+final beingEditedPlaceholdersProvider =
+    StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
+        (_) => PlaceholdersNotifier());
 
 final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
     TranslationsForLanguageNotifier,

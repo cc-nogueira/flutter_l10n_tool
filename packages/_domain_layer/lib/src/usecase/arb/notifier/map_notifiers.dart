@@ -4,13 +4,17 @@ abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
   /// Constructor that initialized the state to an empty map.
   MapNotifier() : super({});
 
+  /// State returns an unmodifiable view of this internally mutable state.
+  @override
+  UnmodifiableMapView<T, U> get state => UnmodifiableMapView(super.state);
+
   void _edit(T key, U value) {
-    state[key] = value;
+    super.state[key] = value;
     _updateState();
   }
 
   void _discardChanges(T key) {
-    final value = state.remove(key);
+    final value = super.state.remove(key);
     if (value != null) {
       _updateState();
     }
@@ -18,9 +22,9 @@ abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
 
   /// Internal - updates the state (with the same variable) to trigger state change notification.
   ///
-  /// In this notifier implementation state is mutable, it is a map that ischanged directly to avoid
-  /// repeated recreation of this state mapping for every change.
-  void _updateState() => state = state;
+  /// In this notifier implementation state is mutable, it is a map that only modified internally
+  /// avoiding repeated recreation for every change.
+  void _updateState() => state = super.state;
 
   /// Internal - since the state is a map that is modified directly we define that updateShouldNotify
   /// always.

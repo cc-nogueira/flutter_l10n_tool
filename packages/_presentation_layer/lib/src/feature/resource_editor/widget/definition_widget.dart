@@ -18,10 +18,14 @@ class DefinitionWidget extends ConsumerWidget {
     final current = ref.watch(currentDefinitionsProvider.select((value) => value[original]));
     final currentOrOriginal = current ?? original;
     final beingEdited = ref.read(beingEditedDefinitionsProvider)[original];
+    final placeholderBeingEdited = ref.read(beingEditedPlaceholdersProvider)[original];
 
     return beingEdited == null
         ? _tile(ref.read, current: currentOrOriginal)
-        : _form(ref.read, current: currentOrOriginal, beingEdited: beingEdited);
+        : _form(ref.read,
+            current: currentOrOriginal,
+            beingEdited: beingEdited,
+            placeholderBeingEdited: placeholderBeingEdited);
   }
 
   Widget _tile(Reader read, {required ArbDefinition current}) {
@@ -46,13 +50,17 @@ class DefinitionWidget extends ConsumerWidget {
     throw StateError('Illegal ArbDefinition type');
   }
 
-  Widget _form(Reader read, {required ArbDefinition current, required ArbDefinition beingEdited}) {
+  Widget _form(Reader read,
+      {required ArbDefinition current,
+      required ArbDefinition beingEdited,
+      required ArbPlaceholder? placeholderBeingEdited}) {
     if (current is ArbTextDefinition && beingEdited is ArbTextDefinition) {
       return TextDefinitionForm(
         current: current,
         beingEdited: beingEdited,
+        placeholderBeingEdited: placeholderBeingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
-        onUpdatePlaceholder: (value) {},
+        onUpdatePlaceholder: (value) => _updatePlaceholderBeingEdited(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );
@@ -87,6 +95,11 @@ class DefinitionWidget extends ConsumerWidget {
 
   void _updateBeingEdited(Reader read, ArbDefinition beingEdited) {
     read(arbUsecaseProvider).editDefinition(original: original, current: beingEdited);
+  }
+
+  void _updatePlaceholderBeingEdited(Reader read, ArbPlaceholder? beingEdited) {
+    read(arbUsecaseProvider)
+        .updatePlaceholderEdition(definition: original, placeholder: beingEdited);
   }
 
   void _discardChanges(Reader read) {

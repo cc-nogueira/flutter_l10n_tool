@@ -63,7 +63,8 @@ abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixi
     @Default('') String example,
     @Default(true) bool hasDetails,
     @Default(ArbPlaceholderType.dateTimeType) ArbPlaceholderType type,
-    required ArbDatePlaceholderFormat format,
+    required ArbIcuDatePlaceholderFormat icuFormat,
+    @Default(false) bool useCustomFormat,
     @Default('') String customFormat,
   }) = ArbDateTimePlaceholder;
 }
@@ -143,8 +144,7 @@ enum ArbNumberPlaceholderParameter {
   }
 }
 
-enum ArbDatePlaceholderFormat {
-  custom('custom', ''),
+enum ArbIcuDatePlaceholderFormat {
   day('DAY', 'd'),
   abbrWeekday('ABBR_WEEKDAY', 'E'),
   weekday('WEEKDAY', 'EEEE'),
@@ -183,18 +183,15 @@ enum ArbDatePlaceholderFormat {
   minuteSecond('MINUTE_SECOND', 'ms'),
   second('SECOND', 's');
 
-  const ArbDatePlaceholderFormat(this.icuName, this.skeleton);
+  const ArbIcuDatePlaceholderFormat(this.icuName, this.skeleton);
 
-  factory ArbDatePlaceholderFormat.forSkeleton(String value) {
-    return values.firstWhere(
-      (element) => element.skeleton == value,
-      orElse: () => custom,
-    );
+  static ArbIcuDatePlaceholderFormat? forSkeleton(String skeleton) {
+    for (final value in values) {
+      if (value.skeleton == skeleton) return value;
+    }
+    return null;
   }
 
   final String icuName;
   final String skeleton;
-
-  bool get isCustom => this == custom;
-  bool get isPredefined => !isCustom;
 }
