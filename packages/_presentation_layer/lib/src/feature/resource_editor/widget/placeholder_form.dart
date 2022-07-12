@@ -37,12 +37,12 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   late ArbNumberPlaceholder formNumberPlaceholder;
   var showDesc = false;
   var showExample = false;
-  var keyTextController = TextEditingController();
-  var descTextController = TextEditingController();
-  var exampleTextController = TextEditingController();
-  var numberCustomPatternTextController = TextEditingController();
-  var dateIcuFormatTextController = TextEditingController();
-  var dateCustomFormatTextController = TextEditingController();
+  late var keyTextController = _keyTC();
+  late var descTextController = _descTC();
+  late var exampleTextController = _exampleTC();
+  late var dateIcuFormatTextController = _dateIcuFormatTC();
+  late var dateCustomFormatTextController = _dateCustomFormatTC();
+  late var numberCustomPatternTextController = _numberCustomPatternTC();
 
   @override
   void initState() {
@@ -54,23 +54,41 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   void didUpdateWidget(covariant PlaceholderForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget != widget) {
-      resetState();
+      resetState(true);
     }
   }
 
-  void resetState() {
+  void resetState([updateControllers = false]) {
     _initDateAndNumberPlaceholders();
     showDesc = formPlaceholder.description.isNotEmpty;
     showExample = formPlaceholder.example.isNotEmpty;
-    keyTextController.text = formPlaceholder.key;
-    descTextController.text = formPlaceholder.description;
-    exampleTextController.text = formPlaceholder.example;
-    dateIcuFormatTextController.text = formDatePlaceholder.icuFormat.skeleton;
-    dateCustomFormatTextController.text = formDatePlaceholder.customFormat;
-    numberCustomPatternTextController.text = formNumberPlaceholder
-            .optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] ??
-        '';
+    if (updateControllers) {
+      keyTextController.dispose();
+      keyTextController = _keyTC();
+      descTextController.dispose();
+      descTextController = _descTC();
+      exampleTextController.dispose();
+      exampleTextController = _exampleTC();
+      dateIcuFormatTextController.dispose();
+      dateIcuFormatTextController = _dateIcuFormatTC();
+      dateCustomFormatTextController.dispose();
+      dateCustomFormatTextController = _dateCustomFormatTC();
+      numberCustomPatternTextController.dispose();
+      numberCustomPatternTextController = _numberCustomPatternTC();
+    }
   }
+
+  TextEditingController _keyTC() => TextEditingController(text: formPlaceholder.key);
+  TextEditingController _descTC() => TextEditingController(text: formPlaceholder.description);
+  TextEditingController _exampleTC() => TextEditingController(text: formPlaceholder.example);
+  TextEditingController _dateIcuFormatTC() =>
+      TextEditingController(text: formDatePlaceholder.icuFormat.skeleton);
+  TextEditingController _dateCustomFormatTC() =>
+      TextEditingController(text: formDatePlaceholder.customFormat);
+  TextEditingController _numberCustomPatternTC() => TextEditingController(
+      text: formNumberPlaceholder
+              .optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] ??
+          '');
 
   void _initDateAndNumberPlaceholders() {
     formPlaceholder = widget.placeholder;
@@ -239,11 +257,13 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
                       hintText: 'Ex. EEE, M/d/y',
                       originalText: value.customFormat,
                       textController: dateCustomFormatTextController,
-                      onChanged: (txt) => setState(() {
-                        formDatePlaceholder = formDatePlaceholder.copyWith(customFormat: txt);
-                        formPlaceholder = formDatePlaceholder;
-                        widget.onUpdate(formPlaceholder);
-                      }),
+                      onChanged: (txt) {
+                        setState(() {
+                          formDatePlaceholder = formDatePlaceholder.copyWith(customFormat: txt);
+                          formPlaceholder = formDatePlaceholder;
+                          widget.onUpdate(formPlaceholder);
+                        });
+                      },
                     )
                   : Row(
                       children: [
@@ -295,10 +315,12 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           originalText: formPlaceholder.description,
           textController: descTextController,
           enableCleanButton: true,
-          onChanged: (value) => setState(() {
-            formPlaceholder = formPlaceholder.copyWith(description: value);
-            widget.onUpdate(formPlaceholder);
-          }),
+          onChanged: (value) {
+            setState(() {
+              formPlaceholder = formPlaceholder.copyWith(description: value);
+              widget.onUpdate(formPlaceholder);
+            });
+          },
         )
       ],
       if (showExample) ...[
@@ -309,10 +331,12 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           originalText: formPlaceholder.example,
           textController: exampleTextController,
           enableCleanButton: true,
-          onChanged: (value) => setState(() {
-            formPlaceholder = formPlaceholder.copyWith(example: value);
-            widget.onUpdate(formPlaceholder);
-          }),
+          onChanged: (value) {
+            setState(() {
+              formPlaceholder = formPlaceholder.copyWith(example: value);
+              widget.onUpdate(formPlaceholder);
+            });
+          },
         ),
       ],
       if (!showDesc || !showExample) ...[
