@@ -24,6 +24,7 @@ class PlaceholderForm extends StatefulWidget {
     required this.onSave,
     required this.onDiscard,
     this.showSaveButton = true,
+    this.showPlaceholder = true,
     this.saveButtonKey,
   });
 
@@ -32,6 +33,7 @@ class PlaceholderForm extends StatefulWidget {
   final ValueChanged<ArbPlaceholder> onSave;
   final VoidCallback onDiscard;
   final bool showSaveButton;
+  final bool showPlaceholder;
   final Key? saveButtonKey;
 
   @override
@@ -182,23 +184,26 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       ),
       FormMixin.horizontalSeparator,
       Expanded(
-        child: textField(
-          context: context,
-          label: 'Placeholder',
-          originalText: formPlaceholder.key,
-          textController: keyTextController,
-          inputFormatters: [textInputKeyFormatter],
-          enableCleanButton: true,
-          onChanged: (value) => setState(() {
+        child: widget.showPlaceholder
+            ? _placeholderTextField()
+            : IgnorePointer(child: Opacity(opacity: 0.3, child: _placeholderTextField())),
+      ),
+    ]);
+  }
+
+  Widget _placeholderTextField() => textField(
+      context: context,
+      label: 'Placeholder',
+      originalText: formPlaceholder.key,
+      textController: keyTextController,
+      inputFormatters: [textInputKeyFormatter],
+      enableCleanButton: true,
+      onChanged: (value) => setState(() {
             formPlaceholder = formPlaceholder.copyWith(key: value);
             formDatePlaceholder = formDatePlaceholder.copyWith(key: value);
             formNumberPlaceholder = formNumberPlaceholder.copyWith(key: value);
             widget.onUpdate(formPlaceholder);
-          }),
-        ),
-      ),
-    ]);
-  }
+          }));
 
   Widget _saveDiscardButtonsRow(AppLocalizations loc, ColorScheme colors) {
     return Row(children: [
@@ -208,7 +213,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         key: widget.saveButtonKey,
         loc: loc,
         colors: colors,
-        onPressed: formPlaceholder.key.isEmpty ? null : () => widget.onSave(formDatePlaceholder),
+        onPressed: formPlaceholder.key.isEmpty ? null : () => widget.onSave(formPlaceholder),
         hide: !widget.showSaveButton,
       ),
     ]);

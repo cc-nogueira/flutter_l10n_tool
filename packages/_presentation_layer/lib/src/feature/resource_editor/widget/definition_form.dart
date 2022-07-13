@@ -13,18 +13,22 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
     super.key,
     required this.current,
     required this.beingEdited,
+    this.formPlaceholder,
     this.placeholderBeingEdited,
-    required this.onUpdate,
+    required this.onUpdateDefinition,
     required this.onUpdatePlaceholder,
+    required this.onEditPlaceholder,
     required this.onSaveChanges,
     required this.onDiscardChanges,
   });
 
   final T current;
   final T beingEdited;
+  final ArbPlaceholder? formPlaceholder;
   final ArbPlaceholder? placeholderBeingEdited;
-  final ValueChanged<ArbDefinition> onUpdate;
+  final ValueChanged<ArbDefinition> onUpdateDefinition;
   final ValueChanged<ArbPlaceholder?> onUpdatePlaceholder;
+  final ValueChanged<ArbPlaceholder?> onEditPlaceholder;
   final ValueChanged<ArbDefinition> onSaveChanges;
   final VoidCallback onDiscardChanges;
 }
@@ -34,9 +38,11 @@ class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
     super.key,
     required super.current,
     required super.beingEdited,
+    required super.formPlaceholder,
     required super.placeholderBeingEdited,
-    required super.onUpdate,
+    required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
+    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -50,8 +56,9 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
     super.key,
     required super.current,
     required super.beingEdited,
-    required super.onUpdate,
+    required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
+    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -65,8 +72,9 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
     super.key,
     required super.current,
     required super.beingEdited,
-    required super.onUpdate,
+    required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
+    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -78,7 +86,8 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
 abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
     with DefinitionTileMixin, TextFormFieldMixin {
   late StateController<T> definitionController;
-  late StateController<ArbPlaceholder?> placeholderController;
+  late StateController<ArbPlaceholder?> formPlaceholderController;
+  late StateController<ArbPlaceholder?> placeholderBeingEditedController;
 
   @override
   void initState() {
@@ -97,7 +106,8 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
   @mustCallSuper
   void resetState() {
     definitionController = StateController<T>(widget.beingEdited);
-    placeholderController = StateController<ArbPlaceholder?>(widget.placeholderBeingEdited);
+    formPlaceholderController = StateController(widget.formPlaceholder);
+    placeholderBeingEditedController = StateController(widget.placeholderBeingEdited);
   }
 
   @override
@@ -149,18 +159,17 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
 
   @override
   Widget form(BuildContext context, AppLocalizations loc, ColorScheme colors) {
-    final formDefinition = definitionController.state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         textField(
           context: context,
           label: 'Key',
-          originalText: formDefinition.key,
+          originalText: definitionController.state.key,
           textController: keyTextController,
           onChanged: (value) => setState(() {
             definitionController.update((state) => state.copyWith(key: value));
-            widget.onUpdate(formDefinition);
+            widget.onUpdateDefinition(definitionController.state);
           }),
           inputFormatters: [textInputKeyFormatter],
         ),
@@ -168,11 +177,11 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
         textField(
           context: context,
           label: 'Description',
-          originalText: formDefinition.description ?? '',
+          originalText: definitionController.state.description ?? '',
           textController: descTextController,
           onChanged: (value) => setState(() {
             definitionController.update((state) => state.copyWith(description: value));
-            widget.onUpdate(formDefinition);
+            widget.onUpdateDefinition(definitionController.state);
           }),
         ),
         FormMixin.verticalSeparator,
@@ -180,11 +189,18 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
           loc,
           colors,
           definitionController: definitionController,
-          placeholderController: placeholderController,
+          formPlaceholderController: formPlaceholderController,
+          placeholderBeingEditedController: placeholderBeingEditedController,
           onUpdatePlaceholder: widget.onUpdatePlaceholder,
+          onUpdateDefinition: _onUpdateDefinition,
+          onEditPlaceholder: widget.onEditPlaceholder,
         ),
       ],
     );
+  }
+
+  void _onUpdateDefinition(ArbDefinition definition) {
+    setState(() => widget.onUpdateDefinition(definition));
   }
 }
 

@@ -110,6 +110,10 @@ final beingEditedPlaceholdersProvider =
     StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
         (_) => PlaceholdersNotifier());
 
+final formPlaceholdersProvider =
+    StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
+        (_) => PlaceholdersNotifier());
+
 final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
     TranslationsForLanguageNotifier,
     Map<ArbDefinition, ArbTranslation>,

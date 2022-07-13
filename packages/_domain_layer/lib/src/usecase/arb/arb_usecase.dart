@@ -45,6 +45,17 @@ class ArbUsecase {
     }
   }
 
+  void updateFormPlaceholder({
+    required ArbDefinition definition,
+    required ArbPlaceholder? placeholder,
+  }) {
+    if (placeholder == null) {
+      _formPlaceholdersNotifier()._discardChanges(definition);
+    } else {
+      _formPlaceholdersNotifier()._edit(definition, placeholder);
+    }
+  }
+
   void discardDefinitionChanges({required ArbDefinition original}) {
     _beingEditedDefinitionsNotifier()._discardChanges(original);
   }
@@ -92,6 +103,8 @@ class ArbUsecase {
 
   PlaceholdersNotifier _beingEditedPlaceholdersNotifier() =>
       read(beingEditedPlaceholdersProvider.notifier);
+
+  PlaceholdersNotifier _formPlaceholdersNotifier() => read(formPlaceholdersProvider.notifier);
 
   DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
 
