@@ -229,9 +229,9 @@ class ProjectUsecase {
     );
   }
 
-  List<ArbPlaceholder>? _placeholders(Map<String, dynamic>? placeholders) {
+  List<ArbPlaceholder> _placeholders(Map<String, dynamic>? placeholders) {
     if (placeholders == null) {
-      return null;
+      return [];
     }
     final arbPlaceholders = <ArbPlaceholder>[];
     for (final entry in placeholders.entries) {

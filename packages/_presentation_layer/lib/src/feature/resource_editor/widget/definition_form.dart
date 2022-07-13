@@ -1,13 +1,12 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../common/widget/buttons.dart';
 import '../../../common/widget/form_mixin.dart';
-import '../../../common/widget/label_divider.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import 'definition_tile_mixin.dart';
-import 'placeholder_form.dart';
+import 'placeholders_and_form.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
@@ -78,8 +77,8 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
 
 abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
     with DefinitionTileMixin, TextFormFieldMixin {
-  late T formDefinition;
-  ArbPlaceholder? formPlaceholder;
+  late StateController<T> definitionController;
+  late StateController<ArbPlaceholder?> placeholderController;
 
   @override
   void initState() {
@@ -97,8 +96,8 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 
   @mustCallSuper
   void resetState() {
-    formDefinition = widget.beingEdited;
-    formPlaceholder = widget.placeholderBeingEdited;
+    definitionController = StateController<T>(widget.beingEdited);
+    placeholderController = StateController<ArbPlaceholder?>(widget.placeholderBeingEdited);
   }
 
   @override
@@ -123,9 +122,9 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
       ]);
 
-  void _saveChanges() => widget.onSaveChanges(formDefinition);
+  void _saveChanges() => widget.onSaveChanges(definitionController.state);
 
-  bool get hasChanges => formDefinition != widget.current;
+  bool get hasChanges => definitionController.state != widget.current;
 
   Widget form(BuildContext context, AppLocalizations loc, ColorScheme colors);
 }
@@ -144,12 +143,13 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
   @override
   void resetState() {
     super.resetState();
-    keyTextController.text = formDefinition.key;
-    descTextController.text = formDefinition.description ?? '';
+    keyTextController.text = definitionController.state.key;
+    descTextController.text = definitionController.state.description ?? '';
   }
 
   @override
   Widget form(BuildContext context, AppLocalizations loc, ColorScheme colors) {
+    final formDefinition = definitionController.state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -159,7 +159,7 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
           originalText: formDefinition.key,
           textController: keyTextController,
           onChanged: (value) => setState(() {
-            formDefinition = formDefinition.copyWith(key: value);
+            definitionController.update((state) => state.copyWith(key: value));
             widget.onUpdate(formDefinition);
           }),
           inputFormatters: [textInputKeyFormatter],
@@ -171,60 +171,20 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
           originalText: formDefinition.description ?? '',
           textController: descTextController,
           onChanged: (value) => setState(() {
-            formDefinition = formDefinition.copyWith(description: value);
+            definitionController.update((state) => state.copyWith(description: value));
             widget.onUpdate(formDefinition);
           }),
         ),
         FormMixin.verticalSeparator,
-        placeholders(loc, colors),
+        PlaceholdersAndForm(
+          loc,
+          colors,
+          definitionController: definitionController,
+          placeholderController: placeholderController,
+          onUpdatePlaceholder: widget.onUpdatePlaceholder,
+        ),
       ],
     );
-  }
-
-  Widget placeholders(AppLocalizations loc, ColorScheme colors) {
-    final showPlaceholders =
-        formDefinition.placeholders?.isNotEmpty ?? false || formPlaceholder != null;
-    if (showPlaceholders) {
-      return Column(
-        children: [
-          LabelDivider(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            color: colors.onBackground,
-            label: const Text('Placeholders'),
-            separation: 8.0,
-          ),
-          if (formDefinition.placeholders?.isNotEmpty ?? false)
-            Row(children: [
-              for (final each in formDefinition.placeholders!) placeholderTag(each),
-            ]),
-          formPlaceholder != null
-              ? PlaceholderForm(
-                  placeholder: formPlaceholder!,
-                  onUpdate: widget.onUpdatePlaceholder,
-                  onDiscard: _discardPlaceholderEdition,
-                )
-              : _addPlaceholderButton(loc),
-        ],
-      );
-    }
-    return _addPlaceholderButton(loc);
-  }
-
-  Widget _addPlaceholderButton(AppLocalizations loc) {
-    return outlinedButton(
-        text: loc.label_add_placeholder,
-        onPressed: () => setState(() {
-              formPlaceholder = ArbPlaceholder.generic();
-            }));
-  }
-
-  void _discardPlaceholderEdition() => setState(() {
-        formPlaceholder = null;
-        widget.onUpdatePlaceholder(formPlaceholder);
-      });
-
-  Widget placeholderTag(ArbPlaceholder placeholder) {
-    return Text(placeholder.key);
   }
 }
 

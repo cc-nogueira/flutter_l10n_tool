@@ -11,7 +11,7 @@ abstract class ArbDefinition {
     required String value,
     String? context,
     String? description,
-    List<ArbPlaceholder>? placeholders,
+    List<ArbPlaceholder> placeholders = const [],
   }) {
     final type = ArbUtil.typeForValue(value);
     switch (type) {
@@ -44,7 +44,7 @@ abstract class ArbDefinition {
   String get value;
   String? get context;
   String? get description;
-  List<ArbPlaceholder>? get placeholders;
+  List<ArbPlaceholder> get placeholders;
 }
 
 @freezed
@@ -54,7 +54,7 @@ class ArbTextDefinition with _$ArbTextDefinition implements ArbDefinition {
     required String value,
     String? context,
     String? description,
-    List<ArbPlaceholder>? placeholders,
+    @Default([]) List<ArbPlaceholder> placeholders,
   }) = _ArbTextDefinition;
 
   const ArbTextDefinition._();
@@ -70,7 +70,7 @@ class ArbPluralDefinition with _$ArbPluralDefinition implements ArbDefinition {
     required String value,
     String? context,
     String? description,
-    List<ArbPlaceholder>? placeholders,
+    @Default([]) List<ArbPlaceholder> placeholders,
   }) = _ArbPluralDefinition;
 
   const ArbPluralDefinition._();
@@ -88,7 +88,7 @@ class ArbSelectDefinition with _$ArbSelectDefinition implements ArbDefinition {
     required String value,
     String? context,
     String? description,
-    List<ArbPlaceholder>? placeholders,
+    @Default([]) List<ArbPlaceholder> placeholders,
   }) = _ArbSelectDefinition;
 
   const ArbSelectDefinition._();

@@ -28,6 +28,27 @@ ButtonStyle segmentedButtonStyle(
   );
 }
 
+ButtonStyle chipButtonStyle(
+  ColorScheme colors, {
+  EdgeInsets? padding,
+  bool selected = false,
+  Size? minimumSize,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
+}) {
+  return OutlinedButton.styleFrom(
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+    padding: padding,
+    backgroundColor:
+        selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
+    primary:
+        selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurfaceVariant,
+    minimumSize: minimumSize,
+  );
+}
+
 ButtonStyle filledButtonStyle(ColorScheme colors) => ElevatedButton.styleFrom(
       onPrimary: colors.onPrimary,
       primary: colors.primary,
@@ -35,19 +56,20 @@ ButtonStyle filledButtonStyle(ColorScheme colors) => ElevatedButton.styleFrom(
     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0));
 
 ButtonStyle filledTonalButtonStyle(ColorScheme colors) => ElevatedButton.styleFrom(
-      onPrimary: colors.onSecondaryContainer,
-      primary: colors.secondaryContainer,
-      //textStyle: const TextStyle(fontWeight: FontWeight.normal),
+      onPrimary: colors.onSecondary,
+      primary: colors.secondary,
+      // textStyle: const TextStyle(fontWeight: FontWeight.normal),
     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0));
 
 TextButton textButton({required String text, required VoidCallback? onPressed}) =>
-    TextButton(onPressed: onPressed, child: Text(text));
+    TextButton(onPressed: onPressed, child: Text(text, overflow: TextOverflow.ellipsis));
 
 OutlinedButton outlinedButton({
   required String text,
   required VoidCallback? onPressed,
+  TextOverflow? overflow,
 }) =>
-    OutlinedButton(onPressed: onPressed, child: Text(text));
+    OutlinedButton(onPressed: onPressed, child: Text(text, overflow: overflow));
 
 OutlinedButton segmentedButton({
   required ColorScheme colors,
@@ -98,16 +120,70 @@ OutlinedButton segmentedButton({
         );
 }
 
+OutlinedButton inputChip({
+  required ColorScheme colors,
+  required String text,
+  TextStyle? style,
+  double deleteSize = 18.0,
+  Size? minimumSize,
+  required VoidCallback? onPressed,
+  VoidCallback? onDelete,
+  bool selected = false,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
+}) {
+  final child = onDelete == null
+      ? Text(text, style: style)
+      : Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(text, style: style),
+            const SizedBox(width: 8),
+            InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
+          ],
+        );
+  return OutlinedButton(
+    style: chipButtonStyle(
+      colors,
+      padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+      selected: selected,
+      minimumSize: minimumSize,
+      backgroundColor: backgroundColor,
+      color: color,
+      selectedBackgroundColor: selectedBackgroundColor,
+      selectedColor: selectedColor,
+    ),
+    onPressed: onPressed,
+    child: child,
+  );
+}
+
 ElevatedButton filledButton({
+  Key? key,
   required ColorScheme colors,
   required String text,
   required VoidCallback? onPressed,
+  TextOverflow? overflow,
 }) =>
-    ElevatedButton(style: filledButtonStyle(colors), onPressed: onPressed, child: Text(text));
+    ElevatedButton(
+      key: key,
+      style: filledButtonStyle(colors),
+      onPressed: onPressed,
+      child: Text(text, overflow: overflow),
+    );
 
 ElevatedButton filledTonalButton({
+  Key? key,
   required ColorScheme colors,
   required String text,
   required VoidCallback? onPressed,
+  TextOverflow? overflow,
 }) =>
-    ElevatedButton(style: filledTonalButtonStyle(colors), onPressed: onPressed, child: Text(text));
+    ElevatedButton(
+      key: key,
+      style: filledTonalButtonStyle(colors),
+      onPressed: onPressed,
+      child: Text(text, overflow: overflow),
+    );

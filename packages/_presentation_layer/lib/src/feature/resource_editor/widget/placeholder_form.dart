@@ -6,6 +6,7 @@ import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
+import 'placeholder_buttons.dart';
 
 enum _PlaceholderDateFormatType {
   icu,
@@ -20,12 +21,18 @@ class PlaceholderForm extends StatefulWidget {
     super.key,
     required this.placeholder,
     required this.onUpdate,
+    required this.onSave,
     required this.onDiscard,
+    this.showSaveButton = true,
+    this.saveButtonKey,
   });
 
   final ArbPlaceholder placeholder;
   final ValueChanged<ArbPlaceholder> onUpdate;
+  final ValueChanged<ArbPlaceholder> onSave;
   final VoidCallback onDiscard;
+  final bool showSaveButton;
+  final Key? saveButtonKey;
 
   @override
   State<PlaceholderForm> createState() => _PlaceholderFormState();
@@ -145,6 +152,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FormMixin.verticalSeparator,
         _typeAndPlaceholderRow(),
         ..._typeDetails(loc),
         ..._descriptionAndExample(loc),
@@ -194,15 +202,20 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
 
   Widget _saveDiscardButtonsRow(AppLocalizations loc, ColorScheme colors) {
     return Row(children: [
-      outlinedButton(text: loc.label_discard_placeholder_changes, onPressed: widget.onDiscard),
+      _discardButton(loc),
       FormMixin.horizontalSeparator,
-      filledButton(
+      SavePlaceholderButton(
+        key: widget.saveButtonKey,
+        loc: loc,
         colors: colors,
-        text: loc.label_save_placeholder,
-        onPressed: formPlaceholder.key.isEmpty ? null : () {},
-      )
+        onPressed: formPlaceholder.key.isEmpty ? null : () => widget.onSave(formDatePlaceholder),
+        hide: !widget.showSaveButton,
+      ),
     ]);
   }
+
+  Widget _discardButton(AppLocalizations loc) =>
+      outlinedButton(text: loc.label_discard_placeholder_changes, onPressed: widget.onDiscard);
 
   List<Widget> _typeDetails(AppLocalizations loc) {
     return formPlaceholder.maybeMap<List<Widget>>(
