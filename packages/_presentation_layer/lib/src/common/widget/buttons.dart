@@ -37,6 +37,7 @@ ButtonStyle chipButtonStyle(
   Color? color,
   Color? selectedBackgroundColor,
   Color? selectedColor,
+  Alignment? align,
 }) {
   return OutlinedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -46,6 +47,7 @@ ButtonStyle chipButtonStyle(
     primary:
         selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurfaceVariant,
     minimumSize: minimumSize,
+    alignment: align,
   );
 }
 
@@ -121,18 +123,20 @@ OutlinedButton segmentedButton({
 }
 
 OutlinedButton inputChip({
+  Key? key,
   required ColorScheme colors,
   required String text,
   TextStyle? style,
   double deleteSize = 18.0,
   Size? minimumSize,
-  required VoidCallback? onPressed,
+  VoidCallback? onPressed,
   VoidCallback? onDelete,
   bool selected = false,
   Color? backgroundColor,
   Color? color,
   Color? selectedBackgroundColor,
   Color? selectedColor,
+  Alignment? align,
 }) {
   final child = onDelete == null
       ? Text(text, style: style)
@@ -145,6 +149,7 @@ OutlinedButton inputChip({
           ],
         );
   return OutlinedButton(
+    key: key,
     style: chipButtonStyle(
       colors,
       padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
@@ -154,6 +159,7 @@ OutlinedButton inputChip({
       color: color,
       selectedBackgroundColor: selectedBackgroundColor,
       selectedColor: selectedColor,
+      align: align,
     ),
     onPressed: onPressed,
     child: child,

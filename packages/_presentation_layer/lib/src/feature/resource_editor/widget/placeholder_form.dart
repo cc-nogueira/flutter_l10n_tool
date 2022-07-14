@@ -7,6 +7,7 @@ import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import 'placeholder_buttons.dart';
+import 'placeholders_and_form.dart';
 
 enum _PlaceholderDateFormatType {
   icu,
@@ -25,8 +26,9 @@ class PlaceholderForm extends StatefulWidget {
     required this.onSave,
     required this.onDiscard,
     this.showSaveButton = true,
-    this.showPlaceholder = true,
+    this.showPlaceholderInput = true,
     this.saveButtonKey,
+    this.placeholderInputKey,
   });
 
   final ArbPlaceholder? original;
@@ -35,8 +37,9 @@ class PlaceholderForm extends StatefulWidget {
   final ValueChanged<ArbPlaceholder> onSave;
   final VoidCallback onDiscard;
   final bool showSaveButton;
-  final bool showPlaceholder;
+  final bool showPlaceholderInput;
   final Key? saveButtonKey;
+  final Key? placeholderInputKey;
 
   @override
   State<PlaceholderForm> createState() => _PlaceholderFormState();
@@ -186,7 +189,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       ),
       FormMixin.horizontalSeparator,
       Expanded(
-        child: widget.showPlaceholder
+        child: widget.showPlaceholderInput
             ? _placeholderTextField()
             : IgnorePointer(child: Opacity(opacity: 0.3, child: _placeholderTextField())),
       ),
@@ -194,6 +197,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   }
 
   Widget _placeholderTextField() => textField(
+      key: placeholderInputKey,
       context: context,
       label: 'Placeholder',
       originalText: widget.original?.key ?? '',

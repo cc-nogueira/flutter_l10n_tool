@@ -5,25 +5,40 @@ import '../../../l10n/app_localizations.dart';
 
 abstract class PlaceholderButton extends StatelessWidget {
   const PlaceholderButton(
-      {super.key, required this.loc, required this.colors, this.onPressed, this.hide = false});
+      {super.key,
+      required this.loc,
+      required this.colors,
+      this.onPressed,
+      this.hide = false,
+      this.opacity = 1.0});
 
   final AppLocalizations loc;
   final ColorScheme colors;
   final VoidCallback? onPressed;
   final bool hide;
+  final double opacity;
 
   @override
   Widget build(BuildContext context) =>
-      (hide || onPressed == null) ? IgnorePointer(child: _buttonWidget) : _button;
+      (hide || opacity < 1.0 || onPressed == null) ? IgnorePointer(child: _buttonWidget) : _button;
 
-  Widget get _buttonWidget => hide ? Opacity(opacity: 0.3, child: _button) : _button;
+  Widget get _buttonWidget {
+    final resolvedOpacity = hide ? 0.0 : opacity;
+    return resolvedOpacity < 1.0 ? Opacity(opacity: resolvedOpacity, child: _button) : _button;
+  }
 
   Widget get _button;
 }
 
 class NewPlaceholderButton extends PlaceholderButton {
-  const NewPlaceholderButton(
-      {super.key, required super.loc, required super.colors, super.onPressed, super.hide});
+  const NewPlaceholderButton({
+    super.key,
+    required super.loc,
+    required super.colors,
+    super.onPressed,
+    super.hide,
+    super.opacity,
+  });
 
   @override
   Widget get _button => filledTonalButton(
@@ -34,8 +49,14 @@ class NewPlaceholderButton extends PlaceholderButton {
 }
 
 class SavePlaceholderButton extends PlaceholderButton {
-  const SavePlaceholderButton(
-      {super.key, required super.loc, required super.colors, super.onPressed, super.hide});
+  const SavePlaceholderButton({
+    super.key,
+    required super.loc,
+    required super.colors,
+    super.onPressed,
+    super.hide,
+    super.opacity,
+  });
 
   @override
   Widget get _button => filledButton(

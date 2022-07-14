@@ -11,6 +11,8 @@ import 'placeholder_form.dart';
 
 GlobalKey newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
 GlobalKey savePlaceholderKey = LabeledGlobalKey('savePlaceholderKey');
+GlobalKey selectedPlaceholderKey = LabeledGlobalKey('selectedPlaceholderKey');
+GlobalKey placeholderInputKey = LabeledGlobalKey('placeholderInputKey');
 GlobalKey stackKey = LabeledGlobalKey('stackKey');
 
 class PlaceholdersAndForm extends StatefulWidget {
@@ -316,14 +318,24 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   }
 
   Widget _flightWidget() {
-    return animation.value < 0.8
-        ? NewPlaceholderButton(loc: loc, colors: colors)
-        : SavePlaceholderButton(loc: loc, colors: colors);
+    return isEdition
+        ? inputChip(
+            colors: colors,
+            text: placeholderBeingEditedController.state!.key,
+            align: Alignment.centerLeft,
+            onPressed: () {})
+        : animation.value < 0.8
+            ? NewPlaceholderButton(loc: loc, colors: colors)
+            : SavePlaceholderButton(loc: loc, colors: colors);
   }
 
   void _readPositions() {
-    final startTarget = newPlaceholderKey.currentContext?.findRenderObject();
-    final finalTarget = savePlaceholderKey.currentContext?.findRenderObject();
+    final startTarget = isEdition
+        ? selectedPlaceholderKey.currentContext?.findRenderObject()
+        : newPlaceholderKey.currentContext?.findRenderObject();
+    final finalTarget = isEdition
+        ? placeholderInputKey.currentContext?.findRenderObject()
+        : savePlaceholderKey.currentContext?.findRenderObject();
     final stackWidget = stackKey.currentContext?.findRenderObject();
     if (startTarget is RenderBox && finalTarget is RenderBox && stackWidget != null) {
       startTargetRenderBox.state = startTarget;
@@ -355,7 +367,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
                 loc: loc,
                 colors: colors,
                 onPressed: newPlaceholderCallback,
-                hide: !isInitial,
+                hide: !isInitial && !isEdition,
+                opacity: 1.0 - animation.value,
               ),
             ],
           ),
@@ -372,8 +385,9 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
                 onUpdate: updateCallback,
                 onSave: saveChangesCallback,
                 onDiscard: discardChangesCallback,
+                showPlaceholderInput: isFinal || !isEdition,
                 showSaveButton: isFinal || isEdition,
-                showPlaceholder: isFinal || !isEdition,
+                placeholderInputKey: placeholderInputKey,
                 saveButtonKey: savePlaceholderKey,
               ),
             ),
@@ -387,10 +401,12 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     ArbPlaceholder placeholder, {
     required ArbPlaceholder? beingEdited,
   }) {
+    final isSelected = placeholder.key == beingEdited?.key;
     return inputChip(
+      key: isSelected ? selectedPlaceholderKey : null,
       colors: colors,
       text: placeholder.key,
-      selected: placeholder.key == beingEdited?.key,
+      selected: isSelected,
       onPressed: () => editPlaceholderCallback(placeholder),
       onDelete: () => deleteCallback(placeholder),
     );

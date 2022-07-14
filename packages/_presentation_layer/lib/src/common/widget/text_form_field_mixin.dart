@@ -9,6 +9,7 @@ mixin TextFormFieldMixin {
   static final wordRegExp = RegExp(r'\w+');
 
   Widget textField({
+    Key? key,
     required BuildContext context,
     required String label,
     String? hintText,
@@ -26,6 +27,7 @@ mixin TextFormFieldMixin {
     final colors = Theme.of(context).colorScheme;
     final isModified = textController != null && textController.text != originalText;
     return TextFormField(
+      key: key,
       controller: textController,
       initialValue: textController == null ? originalText : null,
       enabled: enabled,
