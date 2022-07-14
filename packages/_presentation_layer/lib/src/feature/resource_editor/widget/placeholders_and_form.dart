@@ -334,7 +334,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   }
 
   Widget _placeholders() {
-    final placeholder = formPlaceholderController.state;
+    final formPlaceholder = formPlaceholderController.state;
     final arbDefinition = definitionController.state;
     final beingEdited = placeholderBeingEditedController.state;
     return Column(
@@ -360,14 +360,15 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             ],
           ),
         ),
-        if (!isInitial && placeholder != null)
+        if (!isInitial && formPlaceholder != null)
           SizeTransition(
             axisAlignment: -1.0,
             sizeFactor: animation,
             child: Opacity(
               opacity: animation.value,
               child: PlaceholderForm(
-                placeholder: placeholder,
+                original: beingEdited,
+                formPlaceholder: formPlaceholder,
                 onUpdate: updateCallback,
                 onSave: saveChangesCallback,
                 onDiscard: discardChangesCallback,

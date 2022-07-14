@@ -19,7 +19,8 @@ enum _PlaceholderDateFormatType {
 class PlaceholderForm extends StatefulWidget {
   const PlaceholderForm({
     super.key,
-    required this.placeholder,
+    required this.original,
+    required this.formPlaceholder,
     required this.onUpdate,
     required this.onSave,
     required this.onDiscard,
@@ -28,7 +29,8 @@ class PlaceholderForm extends StatefulWidget {
     this.saveButtonKey,
   });
 
-  final ArbPlaceholder placeholder;
+  final ArbPlaceholder? original;
+  final ArbPlaceholder formPlaceholder;
   final ValueChanged<ArbPlaceholder> onUpdate;
   final ValueChanged<ArbPlaceholder> onSave;
   final VoidCallback onDiscard;
@@ -87,21 +89,9 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
     }
   }
 
-  TextEditingController _keyTC() => TextEditingController(text: formPlaceholder.key);
-  TextEditingController _descTC() => TextEditingController(text: formPlaceholder.description);
-  TextEditingController _exampleTC() => TextEditingController(text: formPlaceholder.example);
-  TextEditingController _dateIcuFormatTC() =>
-      TextEditingController(text: formDatePlaceholder.icuFormat.skeleton);
-  TextEditingController _dateCustomFormatTC() =>
-      TextEditingController(text: formDatePlaceholder.customFormat);
-  TextEditingController _numberCustomPatternTC() => TextEditingController(
-      text: formNumberPlaceholder
-              .optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] ??
-          '');
-
   void _initDateAndNumberPlaceholders() {
-    formPlaceholder = widget.placeholder;
-    widget.placeholder.maybeMap(
+    formPlaceholder = widget.formPlaceholder;
+    widget.formPlaceholder.maybeMap(
       number: (numberPlaceholder) {
         formNumberPlaceholder = numberPlaceholder;
         _initDatePlaceholder();
@@ -117,11 +107,23 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
     );
   }
 
+  TextEditingController _keyTC() => TextEditingController(text: formPlaceholder.key);
+  TextEditingController _descTC() => TextEditingController(text: formPlaceholder.description);
+  TextEditingController _exampleTC() => TextEditingController(text: formPlaceholder.example);
+  TextEditingController _dateIcuFormatTC() =>
+      TextEditingController(text: formDatePlaceholder.icuFormat.skeleton);
+  TextEditingController _dateCustomFormatTC() =>
+      TextEditingController(text: formDatePlaceholder.customFormat);
+  TextEditingController _numberCustomPatternTC() => TextEditingController(
+      text: formNumberPlaceholder
+              .optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] ??
+          '');
+
   void _initDatePlaceholder() {
     formDatePlaceholder = ArbDateTimePlaceholder(
-      key: widget.placeholder.key,
-      description: widget.placeholder.description,
-      example: widget.placeholder.example,
+      key: widget.formPlaceholder.key,
+      description: widget.formPlaceholder.description,
+      example: widget.formPlaceholder.example,
       icuFormat: ArbIcuDatePlaceholderFormat.yearMonthDay,
       customFormat: '',
     );
@@ -172,7 +174,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           label: 'Type',
           options: ArbPlaceholderType.values,
           optionLabel: (value) => value.type,
-          originalValue: widget.placeholder.type,
+          originalValue: widget.original?.type ?? ArbPlaceholderType.genericType,
           formValue: formPlaceholder.type,
           onChanged: (value) => setState(() {
             if (value != formPlaceholder.type) {
@@ -194,7 +196,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   Widget _placeholderTextField() => textField(
       context: context,
       label: 'Placeholder',
-      originalText: formPlaceholder.key,
+      originalText: widget.original?.key ?? '',
       textController: keyTextController,
       inputFormatters: [textInputKeyFormatter],
       enableCleanButton: true,
@@ -206,6 +208,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           }));
 
   Widget _saveDiscardButtonsRow(AppLocalizations loc, ColorScheme colors) {
+    final enabled = formPlaceholder.key.isNotEmpty && formPlaceholder != widget.original;
     return Row(children: [
       _discardButton(loc),
       FormMixin.horizontalSeparator,
@@ -213,7 +216,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         key: widget.saveButtonKey,
         loc: loc,
         colors: colors,
-        onPressed: formPlaceholder.key.isEmpty ? null : () => widget.onSave(formPlaceholder),
+        onPressed: enabled ? () => widget.onSave(formPlaceholder) : null,
         hide: !widget.showSaveButton,
       ),
     ]);
@@ -223,103 +226,135 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       outlinedButton(text: loc.label_discard_placeholder_changes, onPressed: widget.onDiscard);
 
   List<Widget> _typeDetails(AppLocalizations loc) {
+    final original = widget.original;
     return formPlaceholder.maybeMap<List<Widget>>(
       orElse: () => [],
-      number: (value) => [
-        FormMixin.verticalSeparator,
-        textField(
-          context: context,
-          label: 'Format',
-          originalText: value.format?.name ?? '',
-          textController: numberCustomPatternTextController,
-          enableCleanButton: true,
-          onChanged: (txt) => setState(() {
-            final optionalParameters =
-                Map<String, String>.from(formNumberPlaceholder.optionalParameters);
-            optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] = txt;
-            formNumberPlaceholder = formNumberPlaceholder.copyWith(
-                optionalParameters: Map.unmodifiable(optionalParameters));
-            formPlaceholder = formNumberPlaceholder;
-            widget.onUpdate(formPlaceholder);
-          }),
-        )
-      ],
-      dateTime: (value) => [
-        FormMixin.verticalSeparator,
-        Row(
-          children: [
-            SizedBox(
-              width: 120,
-              child: FormDropdown<_PlaceholderDateFormatType>(
-                label: 'Format type',
-                options: const [_PlaceholderDateFormatType.icu, _PlaceholderDateFormatType.custom],
-                optionLabel: (option) => option.text(loc),
-                originalValue: _PlaceholderDateFormatType.icu,
-                formValue: _PlaceholderDateFormatType.icu,
-                onChanged: (option) {
-                  final isCustom = option?.isCustom ?? false;
-                  setState(() {
-                    formDatePlaceholder = value.copyWith(useCustomFormat: isCustom);
-                    formPlaceholder = formDatePlaceholder;
-                    widget.onUpdate(formPlaceholder);
-                  });
-                },
+      number: (value) {
+        late final String originalText;
+        if (original is ArbNumberPlaceholder) {
+          originalText = original.format?.name ?? '';
+        } else {
+          originalText = '';
+        }
+        return [
+          FormMixin.verticalSeparator,
+          textField(
+            context: context,
+            label: 'Format',
+            originalText: originalText,
+            textController: numberCustomPatternTextController,
+            enableCleanButton: true,
+            onChanged: (txt) => setState(() {
+              final optionalParameters =
+                  Map<String, String>.from(formNumberPlaceholder.optionalParameters);
+              optionalParameters[ArbNumberPlaceholderParameter.customPattern.name] = txt;
+              formNumberPlaceholder = formNumberPlaceholder.copyWith(
+                  optionalParameters: Map.unmodifiable(optionalParameters));
+              formPlaceholder = formNumberPlaceholder;
+              widget.onUpdate(formPlaceholder);
+            }),
+          )
+        ];
+      },
+      dateTime: (value) {
+        late final _PlaceholderDateFormatType originalFormatType;
+        late final String originalCustomFormat;
+        late final ArbIcuDatePlaceholderFormat originalIcuFormat;
+        if (original is ArbDateTimePlaceholder) {
+          originalFormatType = original.useCustomFormat
+              ? _PlaceholderDateFormatType.custom
+              : _PlaceholderDateFormatType.icu;
+          originalCustomFormat = original.customFormat;
+          originalIcuFormat = original.icuFormat;
+        } else {
+          originalFormatType = _PlaceholderDateFormatType.icu;
+          originalCustomFormat = '';
+          originalIcuFormat = ArbIcuDatePlaceholderFormat.yearMonthDay;
+        }
+
+        return [
+          FormMixin.verticalSeparator,
+          Row(
+            children: [
+              SizedBox(
+                width: 120,
+                child: FormDropdown<_PlaceholderDateFormatType>(
+                  label: 'Format type',
+                  options: const [
+                    _PlaceholderDateFormatType.icu,
+                    _PlaceholderDateFormatType.custom
+                  ],
+                  optionLabel: (option) => option.text(loc),
+                  originalValue: originalFormatType,
+                  formValue: value.useCustomFormat
+                      ? _PlaceholderDateFormatType.custom
+                      : _PlaceholderDateFormatType.icu,
+                  onChanged: (option) {
+                    final isCustom = option?.isCustom ?? false;
+                    setState(() {
+                      formDatePlaceholder = value.copyWith(useCustomFormat: isCustom);
+                      formPlaceholder = formDatePlaceholder;
+                      widget.onUpdate(formPlaceholder);
+                    });
+                  },
+                ),
               ),
-            ),
-            FormMixin.horizontalSeparator,
-            Expanded(
-              child: formDatePlaceholder.useCustomFormat
-                  ? textField(
-                      context: context,
-                      label: 'Custom Format',
-                      hintText: 'Ex. EEE, M/d/y',
-                      originalText: value.customFormat,
-                      textController: dateCustomFormatTextController,
-                      onChanged: (txt) {
-                        setState(() {
-                          formDatePlaceholder = formDatePlaceholder.copyWith(customFormat: txt);
-                          formPlaceholder = formDatePlaceholder;
-                          widget.onUpdate(formPlaceholder);
-                        });
-                      },
-                    )
-                  : Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: FormDropdown<ArbIcuDatePlaceholderFormat>(
-                            label: 'ICU name',
-                            options: ArbIcuDatePlaceholderFormat.values,
-                            optionLabel: (option) => option.icuName,
-                            originalValue: value.icuFormat,
-                            formValue: value.icuFormat,
-                            onChanged: (icu) => setState(() {
-                              if (icu != null) {
-                                dateIcuFormatTextController.text = icu.skeleton;
-                                formDatePlaceholder = formDatePlaceholder.copyWith(icuFormat: icu);
-                                formPlaceholder = formDatePlaceholder;
-                                widget.onUpdate(formPlaceholder);
-                              }
-                            }),
+              FormMixin.horizontalSeparator,
+              Expanded(
+                child: formDatePlaceholder.useCustomFormat
+                    ? textField(
+                        context: context,
+                        label: 'Custom Format',
+                        hintText: 'Ex. EEE, M/d/y',
+                        originalText: originalCustomFormat,
+                        textController: dateCustomFormatTextController,
+                        onChanged: (txt) {
+                          setState(() {
+                            formDatePlaceholder = formDatePlaceholder.copyWith(customFormat: txt);
+                            formPlaceholder = formDatePlaceholder;
+                            widget.onUpdate(formPlaceholder);
+                          });
+                        },
+                      )
+                    : Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: FormDropdown<ArbIcuDatePlaceholderFormat>(
+                              label: 'ICU name',
+                              options: ArbIcuDatePlaceholderFormat.values,
+                              optionLabel: (option) => option.icuName,
+                              originalValue: originalIcuFormat,
+                              formValue: value.icuFormat,
+                              onChanged: (icu) => setState(() {
+                                if (icu != null) {
+                                  dateIcuFormatTextController.text = icu.skeleton;
+                                  formDatePlaceholder =
+                                      formDatePlaceholder.copyWith(icuFormat: icu);
+                                  formPlaceholder = formDatePlaceholder;
+                                  widget.onUpdate(formPlaceholder);
+                                }
+                              }),
+                            ),
                           ),
-                        ),
-                        FormMixin.horizontalSeparator,
-                        Expanded(
-                          flex: 1,
-                          child: textField(
-                            context: context,
-                            readOnly: true,
-                            label: 'Format',
-                            originalText: value.icuFormat.skeleton,
-                            textController: dateIcuFormatTextController,
+                          FormMixin.horizontalSeparator,
+                          Expanded(
+                            flex: 1,
+                            child: textField(
+                              context: context,
+                              readOnly: true,
+                              label: 'Format',
+                              originalText: originalIcuFormat.skeleton,
+                              textController: dateIcuFormatTextController,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        )
-      ],
+                        ],
+                      ),
+              ),
+            ],
+          )
+        ];
+      },
     );
   }
 
