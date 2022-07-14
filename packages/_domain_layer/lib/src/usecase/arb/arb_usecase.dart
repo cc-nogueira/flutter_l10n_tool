@@ -61,7 +61,11 @@ class ArbUsecase {
   }
 
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
-    _currentDefinitionsNotifier()._edit(original, value);
+    if (original == value) {
+      _currentDefinitionsNotifier()._discardChanges(original);
+    } else {
+      _currentDefinitionsNotifier()._edit(original, value);
+    }
     discardDefinitionChanges(original: original);
   }
 

@@ -18,6 +18,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);
     final definitions = project.template.definitions;
+    final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final beingEditedTranslations = ref.watch(beingEditedTranslationLocalesProvider);
     final beingEditedDefinitions = ref.watch(beingEditedDefinitionsProvider);
     final selected = ref.watch(selectedDefinitionProvider);
@@ -31,6 +32,7 @@ class ResourcesDrawer extends NavigationDrawer {
               itemCount: definitions.length,
               itemBuilder: (ctx, index) {
                 final definition = definitions[index];
+                final current = currentDefinitions[definition];
                 final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
                     beingEditedDefinitions.containsKey(definition);
                 return _itemBuilder(
@@ -38,6 +40,7 @@ class ResourcesDrawer extends NavigationDrawer {
                   ref.read,
                   colors,
                   definition,
+                  current: current,
                   isBeingEdited: isBeingEdited,
                   isSelected: definition == selected,
                 );
@@ -54,6 +57,7 @@ class ResourcesDrawer extends NavigationDrawer {
     Reader read,
     ColorScheme colors,
     ArbDefinition definition, {
+    required ArbDefinition? current,
     required bool isSelected,
     required bool isBeingEdited,
   }) {
@@ -63,11 +67,15 @@ class ResourcesDrawer extends NavigationDrawer {
       selectedTileColor: colors.secondaryContainer,
       selectedColor: colors.onSecondaryContainer,
       minLeadingWidth: 14,
-      leading: isBeingEdited ? const Icon(Icons.edit, size: 14) : const SizedBox(width: 12),
+      leading: isBeingEdited
+          ? const Icon(Icons.edit, size: 14)
+          : current != null
+              ? const Icon(Icons.save, size: 14)
+              : const SizedBox(width: 12),
       trailing: isSelected ? const Icon(Icons.keyboard_double_arrow_right) : null,
       selected: isSelected,
       title: Text(
-        definition.key,
+        current?.key ?? definition.key,
         style: isSelected ? const TextStyle(fontWeight: FontWeight.w600) : null,
       ),
       onTap: () => _onResourceTap(read, definition),

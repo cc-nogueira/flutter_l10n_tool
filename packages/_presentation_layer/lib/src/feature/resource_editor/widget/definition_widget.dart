@@ -22,7 +22,7 @@ class DefinitionWidget extends ConsumerWidget {
     final placeholderBeingEdited = ref.read(beingEditedPlaceholdersProvider)[original];
 
     return beingEdited == null
-        ? _tile(ref.read, current: currentOrOriginal)
+        ? _tile(ref.read, definition: currentOrOriginal, isOriginal: current == null)
         : _form(ref.read,
             current: currentOrOriginal,
             beingEdited: beingEdited,
@@ -30,23 +30,26 @@ class DefinitionWidget extends ConsumerWidget {
             placeholderBeingEdited: placeholderBeingEdited);
   }
 
-  Widget _tile(Reader read, {required ArbDefinition current}) {
-    if (current is ArbTextDefinition) {
+  Widget _tile(Reader read, {required ArbDefinition definition, required bool isOriginal}) {
+    if (definition is ArbTextDefinition) {
       return TextDefinitionTile(
-        definition: current,
-        onEdit: () => _edit(read, current),
+        definition: definition,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, definition),
       );
     }
-    if (current is ArbSelectDefinition) {
+    if (definition is ArbSelectDefinition) {
       return SelectDefinitionTile(
-        definition: current,
-        onEdit: () => _edit(read, current),
+        definition: definition,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, definition),
       );
     }
-    if (current is ArbPluralDefinition) {
+    if (definition is ArbPluralDefinition) {
       return PluralDefinitionTile(
-        definition: current,
-        onEdit: () => _edit(read, current),
+        definition: definition,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, definition),
       );
     }
     throw StateError('Illegal ArbDefinition type');

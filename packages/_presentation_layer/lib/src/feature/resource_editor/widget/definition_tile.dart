@@ -5,9 +5,15 @@ import 'definition_tile_mixin.dart';
 
 abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
     with DefinitionTileMixin {
-  const DefinitionTile({super.key, required this.definition, required this.onEdit});
+  const DefinitionTile({
+    super.key,
+    required this.definition,
+    required this.isOriginal,
+    required this.onEdit,
+  });
 
   final T definition;
+  final bool isOriginal;
   final VoidCallback? onEdit;
 
   @override
@@ -22,7 +28,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          definitionTile(content: titleContent(textTheme), trailing: titleTrailing()),
+          definitionTile(content: titleContent(textTheme), trailing: titleTrailing(context)),
           if (content != null) content,
         ],
       ),
@@ -38,16 +44,57 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
         ],
       );
 
-  Widget titleTrailing() =>
-      IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
+  Widget titleTrailing(BuildContext context) => isOriginal
+      ? _editButton()
+      : Row(
+          children: [_savedButton(context), _editButton()],
+        );
+
+  Widget _editButton() => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
+
+  Widget _savedButton(BuildContext context) => Tooltip(
+        message: 'Definition modified. Click to rollback!',
+        child: IconButton(
+          icon: const Icon(Icons.restore),
+          iconSize: 20,
+          onPressed: () => _rollbackDefinition(context),
+        ),
+      );
 
   Widget? bodyContent(TextTheme theme, ColorScheme colors) => null;
+
+  void _rollbackDefinition(BuildContext context) async {
+    final confirmRollback = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Please confirm'),
+        content: const Text(
+          'Definition has been modified.\n'
+          'Please confirm rollback or dismiss this dialog.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Rollback Definition'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Dismiss'),
+          )
+        ],
+      ),
+    );
+    if (confirmRollback == true) {
+      return;
+    }
+  }
 }
 
 class TextDefinitionTile extends DefinitionTile<ArbTextDefinition> {
   const TextDefinitionTile({
     super.key,
     required super.definition,
+    required super.isOriginal,
     required super.onEdit,
   });
 }
@@ -56,6 +103,7 @@ class PluralDefinitionTile extends DefinitionTile<ArbPluralDefinition> {
   const PluralDefinitionTile({
     super.key,
     required super.definition,
+    required super.isOriginal,
     required super.onEdit,
   });
 }
@@ -64,6 +112,7 @@ class SelectDefinitionTile extends DefinitionTile<ArbSelectDefinition> {
   const SelectDefinitionTile({
     super.key,
     required super.definition,
+    required super.isOriginal,
     required super.onEdit,
   });
 }
