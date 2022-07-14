@@ -369,7 +369,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         textField(
           context: context,
           label: loc.label_description,
-          originalText: formPlaceholder.description,
+          originalText: widget.original?.description ?? '',
           textController: descTextController,
           enableCleanButton: true,
           onChanged: (value) {
@@ -385,7 +385,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         textField(
           context: context,
           label: loc.label_example,
-          originalText: formPlaceholder.example,
+          originalText: widget.original?.example ?? '',
           textController: exampleTextController,
           enableCleanButton: true,
           onChanged: (value) {
