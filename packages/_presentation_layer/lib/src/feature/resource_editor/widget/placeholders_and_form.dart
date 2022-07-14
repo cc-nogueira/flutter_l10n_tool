@@ -39,6 +39,15 @@ class PlaceholdersAndForm extends StatefulWidget {
   final StateController<ArbTextDefinition> definitionController;
   final StateController<ArbPlaceholder?> formPlaceholderController;
   final StateController<ArbPlaceholder?> placeholderBeingEditedController;
+
+  bool get formPlaceholderHasChanges {
+    final formPlaceholder = formPlaceholderController.state;
+    if (formPlaceholder == null) {
+      return false;
+    }
+    final beingEdited = placeholderBeingEditedController.state ?? ArbPlaceholder.generic();
+    return formPlaceholder != beingEdited;
+  }
 }
 
 class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
@@ -102,6 +111,10 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
   }
 
   void _onEditPlaceholder(ArbPlaceholder placeholder) {
+    if (widget.formPlaceholderHasChanges) {
+      _alertPendingChanges();
+      return;
+    }
     widget.formPlaceholderController.state = placeholder;
     widget.placeholderBeingEditedController.state = placeholder;
     widget.onUpdatePlaceholder(placeholder);
@@ -179,6 +192,39 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
     );
   }
 
+  void _onDelete(ArbPlaceholder placeholder) {
+    final placeholders = [
+      for (final each in widget.definitionController.state.placeholders)
+        if (each.key != placeholder.key) each
+    ];
+    setState(() {
+      widget.definitionController.update(
+        (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
+      );
+      widget.onUpdateDefinition(widget.definitionController.state);
+    });
+  }
+
+  Future<void> _alertPendingChanges() {
+    return showDialog<void>(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text('Please save or discard changes'),
+            content: const Text(
+              'There are pending changes in the placeholder being edited.\n'
+              'Please save or discard changes before editing another placeholder.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        });
+  }
+
   Future<bool?> _confirmReplaceDialog() {
     return showDialog<bool>(
         context: context,
@@ -223,19 +269,6 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
             ],
           );
         });
-  }
-
-  void _onDelete(ArbPlaceholder placeholder) {
-    final placeholders = [
-      for (final each in widget.definitionController.state.placeholders)
-        if (each.key != placeholder.key) each
-    ];
-    setState(() {
-      widget.definitionController.update(
-        (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
-      );
-      widget.onUpdateDefinition(widget.definitionController.state);
-    });
   }
 }
 
@@ -402,13 +435,16 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     required ArbPlaceholder? beingEdited,
   }) {
     final isSelected = placeholder.key == beingEdited?.key;
-    return inputChip(
-      key: isSelected ? selectedPlaceholderKey : null,
-      colors: colors,
-      text: placeholder.key,
-      selected: isSelected,
-      onPressed: () => editPlaceholderCallback(placeholder),
-      onDelete: () => deleteCallback(placeholder),
+    return IgnorePointer(
+      ignoring: isSelected,
+      child: inputChip(
+        key: isSelected ? selectedPlaceholderKey : null,
+        colors: colors,
+        text: placeholder.key,
+        selected: isSelected,
+        onPressed: () => editPlaceholderCallback(placeholder),
+        onDelete: () => deleteCallback(placeholder),
+      ),
     );
   }
 }

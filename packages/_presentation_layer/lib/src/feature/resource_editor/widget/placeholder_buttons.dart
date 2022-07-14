@@ -19,12 +19,14 @@ abstract class PlaceholderButton extends StatelessWidget {
   final double opacity;
 
   @override
-  Widget build(BuildContext context) =>
-      (hide || opacity < 1.0 || onPressed == null) ? IgnorePointer(child: _buttonWidget) : _button;
+  Widget build(BuildContext context) => IgnorePointer(
+        ignoring: hide || opacity < 1.0 || onPressed == null,
+        child: _buttonWidget,
+      );
 
   Widget get _buttonWidget {
     final resolvedOpacity = hide ? 0.0 : opacity;
-    return resolvedOpacity < 1.0 ? Opacity(opacity: resolvedOpacity, child: _button) : _button;
+    return Opacity(opacity: resolvedOpacity, child: _button);
   }
 
   Widget get _button;
