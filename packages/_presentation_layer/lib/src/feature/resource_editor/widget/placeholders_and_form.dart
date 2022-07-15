@@ -18,9 +18,8 @@ GlobalKey _stackKey = LabeledGlobalKey('stackKey');
 
 /// Show existing placeholders, actions and a dynamic form for placeholder edition.
 ///
-/// This is an statefull widget to implement animations to slide open the edition form.
-/// It animates the user action target (Add Button or Placeholder Chip) flying into the opening form.
-/// On form closing this animation is reversed to return the action to the corresponding target.
+/// Interacts with [ArbUsecase] to update the placeholder under use interaction and to track the
+/// existing placeholder being edited (or none) for an ArbDefinition.
 class PlaceholdersAndForm extends ConsumerWidget {
   /// Const constructor.
   const PlaceholdersAndForm({
@@ -30,10 +29,16 @@ class PlaceholdersAndForm extends ConsumerWidget {
     required this.onUpdateDefinition,
   });
 
+  /// Original definition is used as Key to placeholders providers.
   final ArbDefinition originalDefinition;
+
   final StateController<ArbTextDefinition> definitionController;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
 
+  /// Build method read placeholders providers (without watching them) and renders
+  /// the internal [_PlaceholdersAndForm] widget.
+  ///
+  /// Also register callbacks to interact with [ArbUsecase].
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
@@ -53,11 +58,13 @@ class PlaceholdersAndForm extends ConsumerWidget {
     );
   }
 
+  /// Internal - update the placeholder under user edition through its usecase.
   void _updateFormPlaceholder(Reader read, ArbPlaceholder? formPlaceholder) {
     read(arbUsecaseProvider)
         .updateFormPlaceholder(definition: originalDefinition, placeholder: formPlaceholder);
   }
 
+  /// Internal - track the placeholder being edited (or none) through its usecase.
   void _editPlaceholder(Reader read, ArbPlaceholder? placeholder) {
     read(arbUsecaseProvider).trackExistingPlaceholderBeingEdited(
         definition: originalDefinition, placeholder: placeholder);
