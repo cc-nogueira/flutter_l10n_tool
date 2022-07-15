@@ -11,24 +11,18 @@ import 'placeholders_and_form.dart';
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
     super.key,
+    required this.originalDefinition,
     required this.currentDefinition,
     required this.definitionBeingEdited,
-    this.formPlaceholder,
-    this.existingPlaceholderBeingEdited,
     required this.onUpdateDefinition,
-    required this.onUpdatePlaceholder,
-    required this.onEditPlaceholder,
     required this.onSaveChanges,
     required this.onDiscardChanges,
   });
 
+  final ArbDefinition originalDefinition;
   final T currentDefinition;
   final T definitionBeingEdited;
-  final ArbPlaceholder? formPlaceholder;
-  final ArbPlaceholder? existingPlaceholderBeingEdited;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
-  final ValueChanged<ArbPlaceholder?> onUpdatePlaceholder;
-  final ValueChanged<ArbPlaceholder?> onEditPlaceholder;
   final ValueChanged<ArbDefinition> onSaveChanges;
   final VoidCallback onDiscardChanges;
 }
@@ -36,13 +30,10 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
 class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
   const TextDefinitionForm({
     super.key,
+    required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
-    required super.formPlaceholder,
-    required super.existingPlaceholderBeingEdited,
     required super.onUpdateDefinition,
-    required super.onUpdatePlaceholder,
-    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -54,11 +45,10 @@ class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
 class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   const PluralDefinitionForm({
     super.key,
+    required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
     required super.onUpdateDefinition,
-    required super.onUpdatePlaceholder,
-    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -70,11 +60,10 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
 class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   const SelectDefinitionForm({
     super.key,
+    required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
     required super.onUpdateDefinition,
-    required super.onUpdatePlaceholder,
-    required super.onEditPlaceholder,
     required super.onSaveChanges,
     required super.onDiscardChanges,
   });
@@ -182,14 +171,9 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
         ),
         FormMixin.verticalSeparator,
         PlaceholdersAndForm(
-          loc,
-          colors,
+          originalDefinition: widget.originalDefinition,
           definitionController: definitionController,
-          formPlaceholder: widget.formPlaceholder,
-          existingPlaceholderBeingEdited: widget.existingPlaceholderBeingEdited,
-          onUpdatePlaceholder: widget.onUpdatePlaceholder,
           onUpdateDefinition: _onUpdateDefinition,
-          onEditPlaceholder: widget.onEditPlaceholder,
         ),
       ],
     );

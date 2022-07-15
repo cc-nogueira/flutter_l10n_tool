@@ -21,12 +21,54 @@ GlobalKey _stackKey = LabeledGlobalKey('stackKey');
 /// This is an statefull widget to implement animations to slide open the edition form.
 /// It animates the user action target (Add Button or Placeholder Chip) flying into the opening form.
 /// On form closing this animation is reversed to return the action to the corresponding target.
-class PlaceholdersAndForm extends StatefulWidget {
+class PlaceholdersAndForm extends ConsumerWidget {
   /// Const constructor.
-  PlaceholdersAndForm(
+  const PlaceholdersAndForm({
+    super.key,
+    required this.originalDefinition,
+    required this.definitionController,
+    required this.onUpdateDefinition,
+  });
+
+  final ArbDefinition originalDefinition;
+  final StateController<ArbTextDefinition> definitionController;
+  final ValueChanged<ArbDefinition> onUpdateDefinition;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final formPlaceholder = ref.read(formPlaceholdersProvider)[originalDefinition];
+    final existingPlaceholderBeingEdited =
+        ref.read(existingPlaceholdersBeingEditedProvider)[originalDefinition];
+    return _PlaceholdersAndForm(
+      loc,
+      colors,
+      definitionController: definitionController,
+      formPlaceholder: formPlaceholder,
+      existingPlaceholderBeingEdited: existingPlaceholderBeingEdited,
+      onUpdateDefinition: onUpdateDefinition,
+      onUpdatePlaceholder: (value) => _updateFormPlaceholder(ref.read, value),
+      onEditPlaceholder: (value) => _editPlaceholder(ref.read, value),
+    );
+  }
+
+  void _updateFormPlaceholder(Reader read, ArbPlaceholder? formPlaceholder) {
+    read(arbUsecaseProvider)
+        .updateFormPlaceholder(definition: originalDefinition, placeholder: formPlaceholder);
+  }
+
+  void _editPlaceholder(Reader read, ArbPlaceholder? placeholder) {
+    read(arbUsecaseProvider).trackExistingPlaceholderBeingEdited(
+        definition: originalDefinition, placeholder: placeholder);
+  }
+}
+
+class _PlaceholdersAndForm extends StatefulWidget {
+  /// Const constructor.
+  _PlaceholdersAndForm(
     this.loc,
     this.colors, {
-    super.key,
     required this.definitionController,
     required ArbPlaceholder? formPlaceholder,
     required ArbPlaceholder? existingPlaceholderBeingEdited,
@@ -37,7 +79,7 @@ class PlaceholdersAndForm extends StatefulWidget {
         existingPlaceholderBeingEditedController = StateController(existingPlaceholderBeingEdited);
 
   @override
-  State<PlaceholdersAndForm> createState() => _PlaceholdersAndFormState();
+  State<_PlaceholdersAndForm> createState() => _PlaceholdersAndFormState();
 
   /// AppLocalizations is "cached" here because it is used many times by the state object.
   final AppLocalizations loc;
@@ -62,7 +104,7 @@ class PlaceholdersAndForm extends StatefulWidget {
   }
 }
 
-class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
+class _PlaceholdersAndFormState extends State<_PlaceholdersAndForm>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -76,7 +118,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
   }
 
   @override
-  void didUpdateWidget(covariant PlaceholdersAndForm oldWidget) {
+  void didUpdateWidget(covariant _PlaceholdersAndForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget != oldWidget) {
       resetState();
@@ -361,9 +403,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   }
 
   Widget _placeholders() {
-    final formPlaceholder = formPlaceholderController.state;
     final arbDefinition = definitionController.state;
-    final beingEdited = existingPlaceholderBeingEditedController.state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -376,7 +416,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             spacing: 8.0,
             children: [
               for (final each in arbDefinition.placeholders)
-                _placeholderTag(each, beingEdited: beingEdited),
+                _placeholderTag(each, beingEdited: existingPlaceholderBeingEditedController.state),
               PlaceholderButton(
                 key: _newPlaceholderKey,
                 colors: colors,
@@ -389,15 +429,15 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             ],
           ),
         ),
-        if (!isInitial && formPlaceholder != null)
+        if (!isInitial && formPlaceholderController.state != null)
           SizeTransition(
             axisAlignment: -1.0,
             sizeFactor: animation,
             child: Opacity(
               opacity: animation.value,
               child: PlaceholderForm(
-                original: beingEdited,
-                formPlaceholder: formPlaceholder,
+                original: existingPlaceholderBeingEditedController.state,
+                formPlaceholder: formPlaceholderController.state!,
                 onUpdate: updateCallback,
                 addCallback: addCallback,
                 replaceCallback: replaceCallback,
