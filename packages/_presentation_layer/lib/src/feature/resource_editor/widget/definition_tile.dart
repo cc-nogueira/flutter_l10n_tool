@@ -47,12 +47,12 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
   Widget titleTrailing(BuildContext context) => isOriginal
       ? _editButton()
       : Row(
-          children: [_savedButton(context), _editButton()],
+          children: [_rollbackButton(context), _editButton()],
         );
 
   Widget _editButton() => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
 
-  Widget _savedButton(BuildContext context) => Tooltip(
+  Widget _rollbackButton(BuildContext context) => Tooltip(
         message: 'Definition modified. Click to rollback!',
         child: IconButton(
           icon: const Icon(Icons.restore),
@@ -97,6 +97,15 @@ class TextDefinitionTile extends DefinitionTile<ArbTextDefinition> {
     required super.isOriginal,
     required super.onEdit,
   });
+
+  @override
+  Widget? bodyContent(TextTheme theme, ColorScheme colors) {
+    final placeholders = definition.placeholders;
+    if (placeholders.isEmpty) {
+      return null;
+    }
+    return null;
+  }
 }
 
 class PluralDefinitionTile extends DefinitionTile<ArbPluralDefinition> {

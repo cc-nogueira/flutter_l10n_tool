@@ -5,13 +5,13 @@ class NavigationButton extends StatefulWidget {
     this.destination, {
     super.key,
     required this.isActive,
-    required this.indicatoColor,
+    required this.indicatorColor,
     required this.width,
     this.onTap,
   });
 
   final NavigationRailDestination destination;
-  final Color indicatoColor;
+  final Color indicatorColor;
   final bool isActive;
   final double width;
   final VoidCallback? onTap;
@@ -61,7 +61,7 @@ class _NavigationButtonState extends State<NavigationButton> with SingleTickerPr
     final colors = Theme.of(context).colorScheme;
     final indicator = NavigationIndicator(
       animation: _animation,
-      color: widget.indicatoColor,
+      color: widget.indicatorColor,
       width: widget.width,
     );
     final icon = Padding(

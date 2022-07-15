@@ -62,8 +62,9 @@ class SavePlaceholderButton extends PlaceholderButton {
 
   @override
   Widget get _button => filledButton(
-      colors: colors,
-      text: loc.label_save_placeholder,
-      overflow: TextOverflow.ellipsis,
-      onPressed: onPressed);
+        colors: colors,
+        text: loc.label_save_placeholder,
+        fitText: true,
+        onPressed: onPressed,
+      );
 }

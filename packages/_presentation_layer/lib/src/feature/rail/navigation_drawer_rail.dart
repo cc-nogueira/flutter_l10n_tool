@@ -78,7 +78,7 @@ class NavigationDrawerRail extends ConsumerWidget {
       buttons.add(
         NavigationButton(
           destination,
-          indicatoColor: option.color(colors),
+          indicatorColor: option.color(colors),
           width: _navigationWidth,
           isActive: option == activeNavigation,
           onTap: () => _onDestinationTap(read, option),

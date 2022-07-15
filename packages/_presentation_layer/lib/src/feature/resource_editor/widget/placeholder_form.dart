@@ -156,16 +156,27 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FormMixin.verticalSeparator,
-        _typeAndPlaceholderRow(),
-        ..._typeDetails(loc),
-        ..._descriptionAndExample(loc),
-        FormMixin.verticalSeparator,
-        _saveDiscardButtonsRow(loc, colors),
-      ],
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      child: Material(
+        color: colors.primaryContainer,
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        elevation: 4,
+        surfaceTintColor: Colors.black,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _typeAndPlaceholderRow(),
+              ..._typeDetails(loc),
+              ..._descriptionAndExample(loc),
+              FormMixin.verticalSeparator,
+              _saveDiscardButtonsRow(loc, colors),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -401,13 +412,13 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         Row(children: [
           if (!showDesc)
             textButton(
-              text: loc.label_set_placeholder_option(loc.label_description),
+              text: '+ ${loc.label_description}',
               onPressed: () => setState(() => showDesc = true),
             ),
           if (!showDesc && !showExample) FormMixin.horizontalSeparator,
           if (!showExample)
             textButton(
-              text: loc.label_set_placeholder_option(loc.label_example),
+              text: '+ ${loc.label_example}',
               onPressed: () => setState(() => showExample = true),
             ),
         ])

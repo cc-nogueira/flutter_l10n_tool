@@ -80,15 +80,6 @@
 
   "label_example": "Example",
 
-  "label_set_placeholder_option": "Set {option}",
-  "@label_set_placeholder_option": {
-    "placeholders": {
-      "option": {
-        "type": "String"
-      }
-    }
-  },
-
   "label_new": "New",
 
   "label_save_placeholder": "Save Placeholder",

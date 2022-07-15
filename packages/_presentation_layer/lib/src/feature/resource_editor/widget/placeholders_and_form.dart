@@ -4,6 +4,7 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/widget/arb_placeholder_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
 import 'placeholder_buttons.dart';
@@ -54,10 +55,12 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
+  static const kFlightAnimationDuration = Duration(milliseconds: 300);
+
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _controller = AnimationController(vsync: this, duration: kFlightAnimationDuration);
     resetState();
   }
 
@@ -126,6 +129,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
     _controller.reverse(from: 1.0).then((_) {
       widget.formPlaceholderController.state = null;
       widget.placeholderBeingEditedController.state = null;
+      widget.onEditPlaceholder(null);
       widget.onUpdatePlaceholder(null);
     });
   }
@@ -351,15 +355,18 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   }
 
   Widget _flightWidget() {
-    return isEdition
-        ? inputChip(
-            colors: colors,
-            text: placeholderBeingEditedController.state!.key,
-            align: Alignment.centerLeft,
-            onPressed: () {})
-        : animation.value < 0.8
-            ? NewPlaceholderButton(loc: loc, colors: colors)
-            : SavePlaceholderButton(loc: loc, colors: colors);
+    if (isEdition) {
+      return inputChip(
+          colors: colors,
+          text: placeholderBeingEditedController.state!.key,
+          align: Alignment.centerLeft,
+          onPressed: () {});
+    }
+    final showNewButton = animation.status == AnimationStatus.reverse && animation.value < 0.8 ||
+        animation.value < 0.3;
+    return showNewButton
+        ? NewPlaceholderButton(loc: loc, colors: colors)
+        : SavePlaceholderButton(loc: loc, colors: colors);
   }
 
   void _readPositions() {
@@ -394,7 +401,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             spacing: 8.0,
             children: [
               for (final each in arbDefinition.placeholders)
-                _placeholderTag(colors, each, beingEdited: beingEdited),
+                _placeholderTag(each, beingEdited: beingEdited),
               NewPlaceholderButton(
                 key: newPlaceholderKey,
                 loc: loc,
@@ -429,30 +436,12 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     );
   }
 
-  Widget _placeholderTag(
-    ColorScheme colors,
-    ArbPlaceholder placeholder, {
-    required ArbPlaceholder? beingEdited,
-  }) {
-    final isSelected = placeholder.key == beingEdited?.key;
-    final iconColor = isSelected ? colors.onSecondaryContainer : colors.onPrimaryContainer;
-    final icon = placeholder.maybeMap(
-      dateTime: (_) => Icon(Icons.calendar_month_outlined, color: iconColor),
-      number: (_) => Icon(Icons.onetwothree_outlined, color: iconColor),
-      string: (_) => Icon(Icons.abc, color: iconColor),
-      orElse: () => null,
-    );
-    return IgnorePointer(
-      ignoring: isSelected,
-      child: inputChip(
-        key: isSelected ? selectedPlaceholderKey : null,
-        colors: colors,
-        icon: icon,
-        text: placeholder.key,
-        selected: isSelected,
-        onPressed: () => editPlaceholderCallback(placeholder),
-        onDelete: () => deleteCallback(placeholder),
-      ),
-    );
+  Widget _placeholderTag(ArbPlaceholder placeholder, {required ArbPlaceholder? beingEdited}) {
+    final selected = placeholder.key == beingEdited?.key;
+    return ArbPlaceholderChip(placeholder,
+        key: selected ? selectedPlaceholderKey : null,
+        selected: selected,
+        onPressed: editPlaceholderCallback,
+        onDelete: deleteCallback);
   }
 }
