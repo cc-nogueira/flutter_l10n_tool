@@ -82,7 +82,9 @@
 
   "label_new": "New",
 
-  "label_save_placeholder": "Save Placeholder",
+  "label_add_placeholder": "Add Placeholder",
+
+  "label_update_placeholder": "Update Placeholder",
 
   "label_discard_placeholder_changes": "Discard Changes",
 

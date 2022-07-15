@@ -23,26 +23,30 @@ class PlaceholderForm extends StatefulWidget {
     required this.original,
     required this.formPlaceholder,
     required this.onUpdate,
-    required this.onSave,
+    required this.addCallback,
+    required this.replaceCallback,
     required this.onDiscard,
-    this.showSaveButton = true,
+    this.showAddButton = true,
     this.showPlaceholderInput = true,
-    this.saveButtonKey,
+    this.addButtonKey,
     this.placeholderInputKey,
   });
 
   final ArbPlaceholder? original;
   final ArbPlaceholder formPlaceholder;
   final ValueChanged<ArbPlaceholder> onUpdate;
-  final ValueChanged<ArbPlaceholder> onSave;
+  final ValueChanged<ArbPlaceholder> addCallback;
+  final ValueChanged<ArbPlaceholder> replaceCallback;
   final VoidCallback onDiscard;
-  final bool showSaveButton;
+  final bool showAddButton;
   final bool showPlaceholderInput;
-  final Key? saveButtonKey;
+  final Key? addButtonKey;
   final Key? placeholderInputKey;
 
   @override
   State<PlaceholderForm> createState() => _PlaceholderFormState();
+
+  bool get isEditing => original != null;
 }
 
 class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMixin {
@@ -172,7 +176,9 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
               ..._typeDetails(loc),
               ..._descriptionAndExample(loc),
               FormMixin.verticalSeparator,
-              _saveDiscardButtonsRow(loc, colors),
+              widget.isEditing
+                  ? _updateAddDiscardButtonsRow(loc, colors)
+                  : _saveDiscardButtonsRow(loc, colors),
             ],
           ),
         ),
@@ -223,16 +229,41 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
           }));
 
   Widget _saveDiscardButtonsRow(AppLocalizations loc, ColorScheme colors) {
-    final enabled = formPlaceholder.key.isNotEmpty && formPlaceholder != widget.original;
+    final enableAdd = formPlaceholder.key.isNotEmpty && formPlaceholder != widget.original;
     return Row(children: [
       _discardButton(loc),
       FormMixin.horizontalSeparator,
-      SavePlaceholderButton(
-        key: widget.saveButtonKey,
+      FormMixin.horizontalSeparator,
+      AddPlaceholderButton(
+        key: widget.addButtonKey,
         loc: loc,
         colors: colors,
-        onPressed: enabled ? () => widget.onSave(formPlaceholder) : null,
-        hide: !widget.showSaveButton,
+        onPressed: enableAdd ? () => widget.addCallback(formPlaceholder) : null,
+        hide: !widget.showAddButton,
+      ),
+    ]);
+  }
+
+  Widget _updateAddDiscardButtonsRow(AppLocalizations loc, ColorScheme colors) {
+    final enableUpdate = formPlaceholder.key.isNotEmpty && formPlaceholder != widget.original;
+    final enableAdd = enableUpdate && formPlaceholder.key != widget.original!.key;
+    return Row(children: [
+      _discardButton(loc),
+      FormMixin.horizontalSeparator,
+      FormMixin.horizontalSeparator,
+      AddPlaceholderButton(
+        key: widget.addButtonKey,
+        loc: loc,
+        colors: colors,
+        onPressed: enableAdd ? () => widget.addCallback(formPlaceholder) : null,
+        hide: !widget.showAddButton,
+        tonal: true,
+      ),
+      FormMixin.horizontalSeparator,
+      UpdatePlaceholderButton(
+        loc: loc,
+        colors: colors,
+        onPressed: enableUpdate ? () => widget.replaceCallback(formPlaceholder) : null,
       ),
     ]);
   }

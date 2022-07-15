@@ -209,10 +209,14 @@ ElevatedButton filledTonalButton({
   required String text,
   required VoidCallback? onPressed,
   TextOverflow? overflow,
-}) =>
-    ElevatedButton(
-      key: key,
-      style: filledTonalButtonStyle(colors),
-      onPressed: onPressed,
-      child: Text(text, overflow: overflow),
-    );
+  bool fitText = false,
+}) {
+  assert(overflow == null || fitText == false);
+  final child = fitText ? FittedBox(child: Text(text)) : Text(text, overflow: overflow);
+  return ElevatedButton(
+    key: key,
+    style: filledTonalButtonStyle(colors),
+    onPressed: onPressed,
+    child: child,
+  );
+}

@@ -50,21 +50,60 @@ class NewPlaceholderButton extends PlaceholderButton {
       onPressed: onPressed ?? () {});
 }
 
-class SavePlaceholderButton extends PlaceholderButton {
-  const SavePlaceholderButton({
+class AddPlaceholderButton extends PlaceholderButton {
+  const AddPlaceholderButton({
     super.key,
     required super.loc,
     required super.colors,
     super.onPressed,
     super.hide,
     super.opacity,
+    this.tonal = false,
   });
 
+  final bool tonal;
+
   @override
-  Widget get _button => filledButton(
-        colors: colors,
-        text: loc.label_save_placeholder,
-        fitText: true,
-        onPressed: onPressed,
-      );
+  Widget get _button => tonal
+      ? filledTonalButton(
+          colors: colors,
+          text: loc.label_add_placeholder,
+          fitText: true,
+          onPressed: onPressed,
+        )
+      : filledButton(
+          colors: colors,
+          text: loc.label_add_placeholder,
+          fitText: true,
+          onPressed: onPressed,
+        );
+}
+
+class UpdatePlaceholderButton extends PlaceholderButton {
+  const UpdatePlaceholderButton({
+    super.key,
+    required super.loc,
+    required super.colors,
+    super.onPressed,
+    super.hide,
+    super.opacity,
+    this.tonal = false,
+  });
+
+  final bool tonal;
+
+  @override
+  Widget get _button => tonal
+      ? filledTonalButton(
+          colors: colors,
+          text: loc.label_update_placeholder,
+          overflow: TextOverflow.ellipsis,
+          onPressed: onPressed,
+        )
+      : filledButton(
+          colors: colors,
+          text: loc.label_update_placeholder,
+          overflow: TextOverflow.ellipsis,
+          onPressed: onPressed,
+        );
 }

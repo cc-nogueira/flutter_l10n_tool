@@ -98,7 +98,8 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
       editPlaceholderCallback: _onEditPlaceholder,
       discardChangesCallback: _onDiscardChanges,
       updateCallback: _onUpdate,
-      saveChangesCallback: _onSaveChanges,
+      addCallback: _onAdd,
+      replaceCallback: _onReplace,
       deleteCallback: _onDelete,
       definitionController: widget.definitionController,
       formPlaceholderController: widget.formPlaceholderController,
@@ -139,18 +140,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
     widget.onUpdatePlaceholder(placeholder);
   }
 
-  void _onSaveChanges(ArbPlaceholder placeholder) async {
-    final beingEdited = widget.placeholderBeingEditedController.state;
-    if (beingEdited == null) {
-      await _onSaveNewPlaceholder(placeholder);
-    } else {
-      await _onSaveEditionOfPlaceholder(placeholder, beingEdited: beingEdited);
-    }
-    widget.onUpdateDefinition(widget.definitionController.state);
-    _onDiscardChanges();
-  }
-
-  Future<void> _onSaveNewPlaceholder(ArbPlaceholder placeholder) async {
+  Future<void> _onAdd(ArbPlaceholder placeholder) async {
     final placeholders = List<ArbPlaceholder>.from(widget.definitionController.state.placeholders);
     final foundIndex = placeholders.indexWhere((element) => element.key == placeholder.key);
     if (foundIndex != -1) {
@@ -163,15 +153,11 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
       placeholders.add(placeholder);
       placeholders.sort((a, b) => a.key.compareTo(b.key));
     }
-    widget.definitionController.update(
-      (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
-    );
+    _updateDefintionPlaceholders(placeholders);
   }
 
-  Future<void> _onSaveEditionOfPlaceholder(
-    ArbPlaceholder placeholder, {
-    required ArbPlaceholder beingEdited,
-  }) async {
+  Future<void> _onReplace(ArbPlaceholder placeholder) async {
+    final beingEdited = widget.placeholderBeingEditedController.state!;
     final placeholders = List<ArbPlaceholder>.from(widget.definitionController.state.placeholders);
     final foundIndex = placeholders.indexWhere((element) => element.key == beingEdited.key);
     if (foundIndex == -1) {
@@ -180,20 +166,18 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
     if (placeholder.key == beingEdited.key) {
       placeholders[foundIndex] = placeholder;
     } else {
-      String? action;
-      action = await _confirmUpdateOrAddDialog();
-      if (action == "update") {
-        placeholders[foundIndex] = placeholder;
-      } else if (action == "add") {
-        placeholders.add(placeholder);
-      } else {
-        return;
+      final repeatedIndex = placeholders.indexWhere((element) => element.key == placeholder.key);
+      if (repeatedIndex != -1) {
+        final replace = await _confirmReplaceDialog();
+        if (replace != true) {
+          return;
+        }
+        placeholders.removeAt(repeatedIndex);
       }
+      placeholders[foundIndex] = placeholder;
       placeholders.sort((a, b) => a.key.compareTo(b.key));
     }
-    widget.definitionController.update(
-      (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
-    );
+    _updateDefintionPlaceholders(placeholders);
   }
 
   void _onDelete(ArbPlaceholder placeholder) {
@@ -201,12 +185,15 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
       for (final each in widget.definitionController.state.placeholders)
         if (each.key != placeholder.key) each
     ];
-    setState(() {
-      widget.definitionController.update(
-        (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
-      );
-      widget.onUpdateDefinition(widget.definitionController.state);
-    });
+    setState(() => _updateDefintionPlaceholders(placeholders));
+  }
+
+  void _updateDefintionPlaceholders(List<ArbPlaceholder> placeholders) {
+    widget.definitionController.update(
+      (state) => state.copyWith(placeholders: UnmodifiableListView(placeholders)),
+    );
+    widget.onUpdateDefinition(widget.definitionController.state);
+    _onDiscardChanges();
   }
 
   Future<void> _alertPendingChanges() {
@@ -249,31 +236,6 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
           );
         });
   }
-
-  Future<String?> _confirmUpdateOrAddDialog() {
-    return showDialog<String>(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: const Text('Please confirm'),
-            content: const Text('Placeholder name changed. Update placeholder or add a new one?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(null),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop("update"),
-                child: const Text('Update'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop("add"),
-                child: const Text('Add'),
-              )
-            ],
-          );
-        });
-  }
 }
 
 class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
@@ -284,7 +246,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     required this.newPlaceholderCallback,
     required this.editPlaceholderCallback,
     required this.discardChangesCallback,
-    required this.saveChangesCallback,
+    required this.addCallback,
+    required this.replaceCallback,
     required this.definitionController,
     required this.formPlaceholderController,
     required this.placeholderBeingEditedController,
@@ -298,7 +261,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   final VoidCallback discardChangesCallback;
   final ValueChanged<ArbPlaceholder> editPlaceholderCallback;
   final ValueChanged<ArbPlaceholder?> updateCallback;
-  final ValueChanged<ArbPlaceholder> saveChangesCallback;
+  final ValueChanged<ArbPlaceholder> addCallback;
+  final ValueChanged<ArbPlaceholder> replaceCallback;
   final ValueChanged<ArbPlaceholder> deleteCallback;
   final StateController<ArbTextDefinition> definitionController;
   final StateController<ArbPlaceholder?> formPlaceholderController;
@@ -366,7 +330,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
         animation.value < 0.3;
     return showNewButton
         ? NewPlaceholderButton(loc: loc, colors: colors)
-        : SavePlaceholderButton(loc: loc, colors: colors);
+        : AddPlaceholderButton(loc: loc, colors: colors);
   }
 
   void _readPositions() {
@@ -423,12 +387,13 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
                 original: beingEdited,
                 formPlaceholder: formPlaceholder,
                 onUpdate: updateCallback,
-                onSave: saveChangesCallback,
+                addCallback: addCallback,
+                replaceCallback: replaceCallback,
                 onDiscard: discardChangesCallback,
                 showPlaceholderInput: isFinal || !isEdition,
-                showSaveButton: isFinal || isEdition,
+                showAddButton: isFinal || isEdition,
                 placeholderInputKey: placeholderInputKey,
-                saveButtonKey: savePlaceholderKey,
+                addButtonKey: savePlaceholderKey,
               ),
             ),
           ),
