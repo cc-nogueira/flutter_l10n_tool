@@ -8,7 +8,7 @@ import '../../common/widget/navigation_drawer.dart';
 import '../../l10n/app_localizations.dart';
 
 class ResourcesDrawer extends NavigationDrawer {
-  const ResourcesDrawer({super.key}) : super(NavigationDrawerTopOption.preferences);
+  const ResourcesDrawer({super.key}) : super(NavigationDrawerTopOption.resources);
 
   @override
   String titleText(AppLocalizations loc) => loc.title_resources_drawer;
