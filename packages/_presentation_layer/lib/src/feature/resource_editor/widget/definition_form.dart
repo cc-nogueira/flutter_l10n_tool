@@ -11,10 +11,10 @@ import 'placeholders_and_form.dart';
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
     super.key,
-    required this.current,
-    required this.beingEdited,
+    required this.currentDefinition,
+    required this.definitionBeingEdited,
     this.formPlaceholder,
-    this.placeholderBeingEdited,
+    this.existingPlaceholderBeingEdited,
     required this.onUpdateDefinition,
     required this.onUpdatePlaceholder,
     required this.onEditPlaceholder,
@@ -22,10 +22,10 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
     required this.onDiscardChanges,
   });
 
-  final T current;
-  final T beingEdited;
+  final T currentDefinition;
+  final T definitionBeingEdited;
   final ArbPlaceholder? formPlaceholder;
-  final ArbPlaceholder? placeholderBeingEdited;
+  final ArbPlaceholder? existingPlaceholderBeingEdited;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
   final ValueChanged<ArbPlaceholder?> onUpdatePlaceholder;
   final ValueChanged<ArbPlaceholder?> onEditPlaceholder;
@@ -36,10 +36,10 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
 class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
   const TextDefinitionForm({
     super.key,
-    required super.current,
-    required super.beingEdited,
+    required super.currentDefinition,
+    required super.definitionBeingEdited,
     required super.formPlaceholder,
-    required super.placeholderBeingEdited,
+    required super.existingPlaceholderBeingEdited,
     required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
     required super.onEditPlaceholder,
@@ -54,8 +54,8 @@ class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
 class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   const PluralDefinitionForm({
     super.key,
-    required super.current,
-    required super.beingEdited,
+    required super.currentDefinition,
+    required super.definitionBeingEdited,
     required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
     required super.onEditPlaceholder,
@@ -70,8 +70,8 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
 class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   const SelectDefinitionForm({
     super.key,
-    required super.current,
-    required super.beingEdited,
+    required super.currentDefinition,
+    required super.definitionBeingEdited,
     required super.onUpdateDefinition,
     required super.onUpdatePlaceholder,
     required super.onEditPlaceholder,
@@ -86,8 +86,6 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
 abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
     with DefinitionTileMixin, TextFormFieldMixin {
   late StateController<T> definitionController;
-  late StateController<ArbPlaceholder?> formPlaceholderController;
-  late StateController<ArbPlaceholder?> placeholderBeingEditedController;
 
   @override
   void initState() {
@@ -105,9 +103,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 
   @mustCallSuper
   void resetState() {
-    definitionController = StateController<T>(widget.beingEdited);
-    formPlaceholderController = StateController(widget.formPlaceholder);
-    placeholderBeingEditedController = StateController(widget.placeholderBeingEdited);
+    definitionController = StateController<T>(widget.definitionBeingEdited);
   }
 
   @override
@@ -134,7 +130,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
 
   void _saveChanges() => widget.onSaveChanges(definitionController.state);
 
-  bool get hasChanges => definitionController.state != widget.current;
+  bool get hasChanges => definitionController.state != widget.currentDefinition;
 
   Widget form(BuildContext context, AppLocalizations loc, ColorScheme colors);
 }
@@ -189,8 +185,8 @@ class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
           loc,
           colors,
           definitionController: definitionController,
-          formPlaceholderController: formPlaceholderController,
-          placeholderBeingEditedController: placeholderBeingEditedController,
+          formPlaceholder: widget.formPlaceholder,
+          existingPlaceholderBeingEdited: widget.existingPlaceholderBeingEdited,
           onUpdatePlaceholder: widget.onUpdatePlaceholder,
           onUpdateDefinition: _onUpdateDefinition,
           onEditPlaceholder: widget.onEditPlaceholder,

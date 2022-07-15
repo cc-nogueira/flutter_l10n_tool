@@ -7,7 +7,6 @@ import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import 'placeholder_button.dart';
-import 'placeholders_and_form.dart';
 
 enum _PlaceholderDateFormatType {
   icu,
@@ -165,7 +164,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       child: Material(
         color: colors.primaryContainer,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        elevation: 4,
+        elevation: 8,
         surfaceTintColor: Colors.black,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -214,7 +213,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   }
 
   Widget _placeholderTextField() => textField(
-      key: placeholderInputKey,
+      key: widget.placeholderInputKey,
       context: context,
       label: 'Placeholder',
       originalText: widget.original?.key ?? '',

@@ -106,10 +106,28 @@ final beingEditedDefinitionsProvider =
     StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
         (_) => DefinitionsNotifier());
 
-final beingEditedPlaceholdersProvider =
+/// Represents an existing placeholder currently being edited for a ArbDefinition.
+///
+/// It will be the initial value of the corresponding value in [formPlaceholdersProvider] for an
+/// edit placeholder action.
+/// When the Form value changes by user interaction these two values may differ, representing
+/// pending changes in the form.
+///
+/// The value for a ArbDefinition will be null when no placeholder is being edited or when a new
+/// placeholder is being edited in the user's form.
+final existingPlaceholdersBeingEditedProvider =
     StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
         (_) => PlaceholdersNotifier());
 
+/// Form placeholders are the current value displayed and edited by the user for a ArbDefinition.
+///
+/// When editing an existing placeholder this value will be initialized with the corresponding
+/// [existingPlaceholdersBeingEditedProvider].
+/// When the Form value changes by user interaction these two values may differ, representing
+/// pending changes in the form.
+///
+/// When editing a new placeholder this value will a new generic placeholder and no corresponding
+/// entry will found in [existingPlaceholdersBeingEditedProvider].
 final formPlaceholdersProvider =
     StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
         (_) => PlaceholdersNotifier());

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/widget/buttons.dart';
-import '../../../l10n/app_localizations.dart';
 
 class PlaceholderButton extends StatelessWidget {
   const PlaceholderButton({

@@ -15,19 +15,22 @@ class DefinitionWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(_rebuildProvider);
 
-    final current = ref.watch(currentDefinitionsProvider.select((value) => value[original]));
-    final currentOrOriginal = current ?? original;
-    final beingEdited = ref.read(beingEditedDefinitionsProvider)[original];
+    final currentDefinition =
+        ref.watch(currentDefinitionsProvider.select((value) => value[original]));
+    final currentOrOriginalDefinition = currentDefinition ?? original;
+    final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
+    final existingPlaceholderBeingEdited =
+        ref.read(existingPlaceholdersBeingEditedProvider)[original];
     final formPlaceholder = ref.read(formPlaceholdersProvider)[original];
-    final placeholderBeingEdited = ref.read(beingEditedPlaceholdersProvider)[original];
 
-    return beingEdited == null
-        ? _tile(ref.read, definition: currentOrOriginal, isOriginal: current == null)
+    return definitionBeingEdited == null
+        ? _tile(ref.read,
+            definition: currentOrOriginalDefinition, isOriginal: currentDefinition == null)
         : _form(ref.read,
-            current: currentOrOriginal,
-            beingEdited: beingEdited,
+            currentDefinition: currentOrOriginalDefinition,
+            definitionBeingEdited: definitionBeingEdited,
             formPlaceholder: formPlaceholder,
-            placeholderBeingEdited: placeholderBeingEdited);
+            existingPlaceholderBeingEdited: existingPlaceholderBeingEdited);
   }
 
   Widget _tile(Reader read, {required ArbDefinition definition, required bool isOriginal}) {
@@ -57,40 +60,40 @@ class DefinitionWidget extends ConsumerWidget {
 
   Widget _form(
     Reader read, {
-    required ArbDefinition current,
-    required ArbDefinition beingEdited,
+    required ArbDefinition currentDefinition,
+    required ArbDefinition definitionBeingEdited,
     required ArbPlaceholder? formPlaceholder,
-    required ArbPlaceholder? placeholderBeingEdited,
+    required ArbPlaceholder? existingPlaceholderBeingEdited,
   }) {
-    if (current is ArbTextDefinition && beingEdited is ArbTextDefinition) {
+    if (currentDefinition is ArbTextDefinition && definitionBeingEdited is ArbTextDefinition) {
       return TextDefinitionForm(
-        current: current,
-        beingEdited: beingEdited,
+        currentDefinition: currentDefinition,
+        definitionBeingEdited: definitionBeingEdited,
         formPlaceholder: formPlaceholder,
-        placeholderBeingEdited: placeholderBeingEdited,
-        onUpdateDefinition: (value) => _updateBeingEdited(read, value),
+        existingPlaceholderBeingEdited: existingPlaceholderBeingEdited,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
         onUpdatePlaceholder: (value) => _updateFormPlaceholder(read, value),
-        onEditPlaceholder: (value) => _updatePlaceholderBeingEdited(read, value),
+        onEditPlaceholder: (value) => _editPlaceholder(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );
     }
-    if (current is ArbPluralDefinition && beingEdited is ArbPluralDefinition) {
+    if (currentDefinition is ArbPluralDefinition && definitionBeingEdited is ArbPluralDefinition) {
       return PluralDefinitionForm(
-        current: current,
-        beingEdited: beingEdited,
-        onUpdateDefinition: (value) => _updateBeingEdited(read, value),
+        currentDefinition: currentDefinition,
+        definitionBeingEdited: definitionBeingEdited,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
         onUpdatePlaceholder: (value) {},
         onEditPlaceholder: (value) {},
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       );
     }
-    if (current is ArbSelectDefinition && beingEdited is ArbSelectDefinition) {
+    if (currentDefinition is ArbSelectDefinition && definitionBeingEdited is ArbSelectDefinition) {
       return SelectDefinitionForm(
-        current: current,
-        beingEdited: beingEdited,
-        onUpdateDefinition: (value) => _updateBeingEdited(read, value),
+        currentDefinition: currentDefinition,
+        definitionBeingEdited: definitionBeingEdited,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
         onUpdatePlaceholder: (value) {},
         onEditPlaceholder: (value) {},
         onSaveChanges: (value) => _saveChanges(read, value),
@@ -101,11 +104,11 @@ class DefinitionWidget extends ConsumerWidget {
   }
 
   void _edit(Reader read, ArbDefinition current) {
-    _updateBeingEdited(read, current);
+    _updateDefinition(read, current);
     _rebuild(read);
   }
 
-  void _updateBeingEdited(Reader read, ArbDefinition beingEdited) {
+  void _updateDefinition(Reader read, ArbDefinition beingEdited) {
     read(arbUsecaseProvider).editDefinition(original: original, current: beingEdited);
   }
 
@@ -114,13 +117,14 @@ class DefinitionWidget extends ConsumerWidget {
         .updateFormPlaceholder(definition: original, placeholder: formPlaceholder);
   }
 
-  void _updatePlaceholderBeingEdited(Reader read, ArbPlaceholder? placeholder) {
+  void _editPlaceholder(Reader read, ArbPlaceholder? placeholder) {
     read(arbUsecaseProvider)
-        .updatePlaceholderEdition(definition: original, placeholder: placeholder);
+        .trackExistingPlaceholderBeingEdited(definition: original, placeholder: placeholder);
   }
 
   void _discardChanges(Reader read) {
-    read(arbUsecaseProvider).discardDefinitionChanges(original: original);
+    final usecase = read(arbUsecaseProvider);
+    usecase.discardDefinitionChanges(original: original);
     _rebuild(read);
   }
 

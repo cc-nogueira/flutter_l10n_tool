@@ -3,7 +3,7 @@ part of '../arb_usecase.dart';
 /// Arb usecase notifier for placeholders modified or being edited.
 ///
 /// This is a public notifier acessible through corresponding providers:
-///  - [beingEditedPlaceholdersProvider] and
+///  - [existingPlaceholdersBeingEditedProvider] and
 ///  - [formPlaceholdersProvider].
 ///
 /// Changes are only possible through the [ArbUsecase] (private methods).

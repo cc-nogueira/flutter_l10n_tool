@@ -34,30 +34,10 @@ class ArbUsecase {
     _beingEditedDefinitionsNotifier()._edit(original, current);
   }
 
-  void updatePlaceholderEdition({
-    required ArbDefinition definition,
-    required ArbPlaceholder? placeholder,
-  }) {
-    if (placeholder == null) {
-      _beingEditedPlaceholdersNotifier()._discardChanges(definition);
-    } else {
-      _beingEditedPlaceholdersNotifier()._edit(definition, placeholder);
-    }
-  }
-
-  void updateFormPlaceholder({
-    required ArbDefinition definition,
-    required ArbPlaceholder? placeholder,
-  }) {
-    if (placeholder == null) {
-      _formPlaceholdersNotifier()._discardChanges(definition);
-    } else {
-      _formPlaceholdersNotifier()._edit(definition, placeholder);
-    }
-  }
-
   void discardDefinitionChanges({required ArbDefinition original}) {
     _beingEditedDefinitionsNotifier()._discardChanges(original);
+    _existingPlaceholdersBeingEditedNotifier()._discardChanges(original);
+    _formPlaceholdersNotifier()._discardChanges(original);
   }
 
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
@@ -71,6 +51,47 @@ class ArbUsecase {
 
   void rollbackDefinition({required ArbDefinition original}) {
     _currentDefinitionsNotifier()._discardChanges(original);
+  }
+
+  /// Track the placeholder being edited.
+  ///
+  /// This method is called with an actual placeholder when the user starts editing an existing placeholder.
+  /// This method is called with a null placeholder value when the user discard placeholder edition and
+  /// no placeholders are currently being edited for the corresponding ArbDefinition.
+  ///
+  /// Note that this method is not invoked when a new placeholder is being edited.
+  void trackExistingPlaceholderBeingEdited({
+    required ArbDefinition definition,
+    required ArbPlaceholder? placeholder,
+  }) {
+    if (placeholder == null) {
+      _existingPlaceholdersBeingEditedNotifier()._discardChanges(definition);
+    } else {
+      _existingPlaceholdersBeingEditedNotifier()._edit(definition, placeholder);
+    }
+  }
+
+  /// Update the form placeholder provider to reflect the placeholder being edited by the user.
+  ///
+  /// This method is invoded with a new generic placeholder when the user starts the creation of a
+  /// new placeholder.
+  ///
+  /// This method is invoked with an existing placeholder when the user starts the edition of an
+  /// existing placeholder.
+  ///
+  /// This method is called for all subsequent changes ih the placeholder being edited (such as
+  /// typing on input fields or selecting options in the form).
+  ///
+  /// This method is invoked with a null value when the user discard changes in the placeholder form.
+  void updateFormPlaceholder({
+    required ArbDefinition definition,
+    required ArbPlaceholder? placeholder,
+  }) {
+    if (placeholder == null) {
+      _formPlaceholdersNotifier()._discardChanges(definition);
+    } else {
+      _formPlaceholdersNotifier()._edit(definition, placeholder);
+    }
   }
 
   void editTranslation({
@@ -105,13 +126,17 @@ class ArbUsecase {
   DefinitionsNotifier _beingEditedDefinitionsNotifier() =>
       read(beingEditedDefinitionsProvider.notifier);
 
-  PlaceholdersNotifier _beingEditedPlaceholdersNotifier() =>
-      read(beingEditedPlaceholdersProvider.notifier);
+  /// Return the [existingPlaceholdersBeingEditedProvider] notifier.
+  PlaceholdersNotifier _existingPlaceholdersBeingEditedNotifier() =>
+      read(existingPlaceholdersBeingEditedProvider.notifier);
 
+  ///Return the [formPlaceholdersProvider] notifier.
   PlaceholdersNotifier _formPlaceholdersNotifier() => read(formPlaceholdersProvider.notifier);
 
+  ///Return the [currentDefinitionsProvider] notifier.
   DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
 
+  ///Return the [beingEditedTranslationLocalesProvider] notifier.
   TranslationLocalesNotifier _beingEditedTranslationLocalesNotifier() =>
       read(beingEditedTranslationLocalesProvider.notifier);
 

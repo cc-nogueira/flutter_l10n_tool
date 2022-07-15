@@ -10,43 +10,54 @@ import '../../../l10n/app_localizations.dart';
 import 'placeholder_button.dart';
 import 'placeholder_form.dart';
 
-GlobalKey newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
-GlobalKey savePlaceholderKey = LabeledGlobalKey('savePlaceholderKey');
-GlobalKey selectedPlaceholderKey = LabeledGlobalKey('selectedPlaceholderKey');
-GlobalKey placeholderInputKey = LabeledGlobalKey('placeholderInputKey');
-GlobalKey stackKey = LabeledGlobalKey('stackKey');
+GlobalKey _newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
+GlobalKey _savePlaceholderKey = LabeledGlobalKey('savePlaceholderKey');
+GlobalKey _selectedPlaceholderKey = LabeledGlobalKey('selectedPlaceholderKey');
+GlobalKey _placeholderInputKey = LabeledGlobalKey('placeholderInputKey');
+GlobalKey _stackKey = LabeledGlobalKey('stackKey');
 
+/// Show existing placeholders, actions and a dynamic form for placeholder edition.
+///
+/// This is an statefull widget to implement animations to slide open the edition form.
+/// It animates the user action target (Add Button or Placeholder Chip) flying into the opening form.
+/// On form closing this animation is reversed to return the action to the corresponding target.
 class PlaceholdersAndForm extends StatefulWidget {
-  const PlaceholdersAndForm(
+  /// Const constructor.
+  PlaceholdersAndForm(
     this.loc,
     this.colors, {
     super.key,
     required this.definitionController,
-    required this.formPlaceholderController,
-    required this.placeholderBeingEditedController,
+    required ArbPlaceholder? formPlaceholder,
+    required ArbPlaceholder? existingPlaceholderBeingEdited,
     required this.onUpdateDefinition,
     required this.onUpdatePlaceholder,
     required this.onEditPlaceholder,
-  });
+  })  : formPlaceholderController = StateController(formPlaceholder),
+        existingPlaceholderBeingEditedController = StateController(existingPlaceholderBeingEdited);
 
   @override
   State<PlaceholdersAndForm> createState() => _PlaceholdersAndFormState();
 
+  /// AppLocalizations is "cached" here because it is used many times by the state object.
   final AppLocalizations loc;
+
+  /// The color schem is "cached" here because it is used many times by the state object.
   final ColorScheme colors;
+
+  final StateController<ArbTextDefinition> definitionController;
+  final StateController<ArbPlaceholder?> formPlaceholderController;
+  final StateController<ArbPlaceholder?> existingPlaceholderBeingEditedController;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
   final ValueChanged<ArbPlaceholder?> onUpdatePlaceholder;
   final ValueChanged<ArbPlaceholder?> onEditPlaceholder;
-  final StateController<ArbTextDefinition> definitionController;
-  final StateController<ArbPlaceholder?> formPlaceholderController;
-  final StateController<ArbPlaceholder?> placeholderBeingEditedController;
 
   bool get formPlaceholderHasChanges {
     final formPlaceholder = formPlaceholderController.state;
     if (formPlaceholder == null) {
       return false;
     }
-    final beingEdited = placeholderBeingEditedController.state ?? ArbPlaceholder.generic();
+    final beingEdited = existingPlaceholderBeingEditedController.state ?? ArbPlaceholder.generic();
     return formPlaceholder != beingEdited;
   }
 }
@@ -103,7 +114,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
       deleteCallback: _onDelete,
       definitionController: widget.definitionController,
       formPlaceholderController: widget.formPlaceholderController,
-      placeholderBeingEditedController: widget.placeholderBeingEditedController,
+      existingPlaceholderBeingEditedController: widget.existingPlaceholderBeingEditedController,
     );
   }
 
@@ -120,7 +131,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
       return;
     }
     widget.formPlaceholderController.state = placeholder;
-    widget.placeholderBeingEditedController.state = placeholder;
+    widget.existingPlaceholderBeingEditedController.state = placeholder;
     widget.onUpdatePlaceholder(placeholder);
     widget.onEditPlaceholder(placeholder);
     _controller.forward(from: 0.0);
@@ -129,7 +140,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
   void _onDiscardChanges() {
     _controller.reverse(from: 1.0).then((_) {
       widget.formPlaceholderController.state = null;
-      widget.placeholderBeingEditedController.state = null;
+      widget.existingPlaceholderBeingEditedController.state = null;
       widget.onEditPlaceholder(null);
       widget.onUpdatePlaceholder(null);
     });
@@ -157,7 +168,7 @@ class _PlaceholdersAndFormState extends State<PlaceholdersAndForm>
   }
 
   Future<void> _onReplace(ArbPlaceholder placeholder) async {
-    final beingEdited = widget.placeholderBeingEditedController.state!;
+    final beingEdited = widget.existingPlaceholderBeingEditedController.state!;
     final placeholders = List<ArbPlaceholder>.from(widget.definitionController.state.placeholders);
     final foundIndex = placeholders.indexWhere((element) => element.key == beingEdited.key);
     if (foundIndex == -1) {
@@ -250,7 +261,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     required this.replaceCallback,
     required this.definitionController,
     required this.formPlaceholderController,
-    required this.placeholderBeingEditedController,
+    required this.existingPlaceholderBeingEditedController,
     required this.updateCallback,
     required this.deleteCallback,
   }) : super(listenable: animation);
@@ -266,7 +277,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   final ValueChanged<ArbPlaceholder> deleteCallback;
   final StateController<ArbTextDefinition> definitionController;
   final StateController<ArbPlaceholder?> formPlaceholderController;
-  final StateController<ArbPlaceholder?> placeholderBeingEditedController;
+  final StateController<ArbPlaceholder?> existingPlaceholderBeingEditedController;
   final StateController<Offset> startTargetOffset = StateController(Offset.zero);
   final StateController<Offset> finalTargetOffset = StateController(Offset.zero);
   final StateController<RenderBox?> startTargetRenderBox = StateController(null);
@@ -277,7 +288,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   bool get isAnimating => animation.value > 0.0 && animation.value < 1.0;
   bool get isFinal => animation.value == 1.0;
 
-  bool get isEdition => placeholderBeingEditedController.state != null;
+  bool get isEdition => existingPlaceholderBeingEditedController.state != null;
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +296,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
       startTargetRenderBox.state = null;
     }
     return Stack(
-      key: stackKey,
+      key: _stackKey,
       children: [
         _placeholders(),
         _transitioningButton(),
@@ -322,7 +333,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     if (isEdition) {
       return inputChip(
           colors: colors,
-          text: placeholderBeingEditedController.state!.key,
+          text: existingPlaceholderBeingEditedController.state!.key,
           align: Alignment.centerLeft,
           onPressed: () {});
     }
@@ -335,12 +346,12 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
 
   void _readPositions() {
     final startTarget = isEdition
-        ? selectedPlaceholderKey.currentContext?.findRenderObject()
-        : newPlaceholderKey.currentContext?.findRenderObject();
+        ? _selectedPlaceholderKey.currentContext?.findRenderObject()
+        : _newPlaceholderKey.currentContext?.findRenderObject();
     final finalTarget = isEdition
-        ? placeholderInputKey.currentContext?.findRenderObject()
-        : savePlaceholderKey.currentContext?.findRenderObject();
-    final stackWidget = stackKey.currentContext?.findRenderObject();
+        ? _placeholderInputKey.currentContext?.findRenderObject()
+        : _savePlaceholderKey.currentContext?.findRenderObject();
+    final stackWidget = _stackKey.currentContext?.findRenderObject();
     if (startTarget is RenderBox && finalTarget is RenderBox && stackWidget != null) {
       startTargetRenderBox.state = startTarget;
       finalTargetRenderBox.state = finalTarget;
@@ -352,7 +363,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   Widget _placeholders() {
     final formPlaceholder = formPlaceholderController.state;
     final arbDefinition = definitionController.state;
-    final beingEdited = placeholderBeingEditedController.state;
+    final beingEdited = existingPlaceholderBeingEditedController.state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -367,7 +378,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
               for (final each in arbDefinition.placeholders)
                 _placeholderTag(each, beingEdited: beingEdited),
               PlaceholderButton(
-                key: newPlaceholderKey,
+                key: _newPlaceholderKey,
                 colors: colors,
                 tonal: true,
                 text: loc.label_new,
@@ -393,8 +404,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
                 onDiscard: discardChangesCallback,
                 showPlaceholderInput: isFinal || !isEdition,
                 showAddButton: isFinal || isEdition,
-                placeholderInputKey: placeholderInputKey,
-                addButtonKey: savePlaceholderKey,
+                placeholderInputKey: _placeholderInputKey,
+                addButtonKey: _savePlaceholderKey,
               ),
             ),
           ),
@@ -405,7 +416,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   Widget _placeholderTag(ArbPlaceholder placeholder, {required ArbPlaceholder? beingEdited}) {
     final selected = placeholder.key == beingEdited?.key;
     return ArbPlaceholderChip(placeholder,
-        key: selected ? selectedPlaceholderKey : null,
+        key: selected ? _selectedPlaceholderKey : null,
         selected: selected,
         onPressed: editPlaceholderCallback,
         onDelete: deleteCallback);
