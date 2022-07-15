@@ -435,11 +435,19 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     required ArbPlaceholder? beingEdited,
   }) {
     final isSelected = placeholder.key == beingEdited?.key;
+    final iconColor = isSelected ? colors.onSecondaryContainer : colors.onPrimaryContainer;
+    final icon = placeholder.maybeMap(
+      dateTime: (_) => Icon(Icons.calendar_month_outlined, color: iconColor),
+      number: (_) => Icon(Icons.onetwothree_outlined, color: iconColor),
+      string: (_) => Icon(Icons.abc, color: iconColor),
+      orElse: () => null,
+    );
     return IgnorePointer(
       ignoring: isSelected,
       child: inputChip(
         key: isSelected ? selectedPlaceholderKey : null,
         colors: colors,
+        icon: icon,
         text: placeholder.key,
         selected: isSelected,
         onPressed: () => editPlaceholderCallback(placeholder),

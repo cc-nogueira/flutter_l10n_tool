@@ -132,6 +132,7 @@ OutlinedButton inputChip({
   VoidCallback? onPressed,
   VoidCallback? onDelete,
   bool selected = false,
+  Icon? icon,
   Color? backgroundColor,
   Color? color,
   Color? selectedBackgroundColor,
@@ -148,22 +149,40 @@ OutlinedButton inputChip({
             InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
           ],
         );
-  return OutlinedButton(
-    key: key,
-    style: chipButtonStyle(
-      colors,
-      padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
-      selected: selected,
-      minimumSize: minimumSize,
-      backgroundColor: backgroundColor,
-      color: color,
-      selectedBackgroundColor: selectedBackgroundColor,
-      selectedColor: selectedColor,
-      align: align,
-    ),
-    onPressed: onPressed,
-    child: child,
-  );
+  return icon == null
+      ? OutlinedButton(
+          key: key,
+          style: chipButtonStyle(
+            colors,
+            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+            align: align,
+          ),
+          onPressed: onPressed,
+          child: child,
+        )
+      : OutlinedButton.icon(
+          key: key,
+          style: chipButtonStyle(
+            colors,
+            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+            align: align,
+          ),
+          onPressed: onPressed,
+          icon: icon,
+          label: child,
+        );
 }
 
 ElevatedButton filledButton({
