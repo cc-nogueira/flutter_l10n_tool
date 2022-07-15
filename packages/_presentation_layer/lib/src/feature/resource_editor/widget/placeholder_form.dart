@@ -234,10 +234,10 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       _discardButton(loc),
       FormMixin.horizontalSeparator,
       FormMixin.horizontalSeparator,
-      PlaceholderButton.add(
+      PlaceholderButton(
         key: widget.addButtonKey,
-        loc: loc,
         colors: colors,
+        text: loc.label_add_placeholder,
         onPressed: enableAdd ? () => widget.addCallback(formPlaceholder) : null,
         hide: !widget.showAddButton,
       ),
@@ -251,18 +251,18 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       _discardButton(loc),
       FormMixin.horizontalSeparator,
       FormMixin.horizontalSeparator,
-      PlaceholderButton.add(
+      PlaceholderButton(
         key: widget.addButtonKey,
-        loc: loc,
         colors: colors,
+        text: loc.label_add_placeholder,
+        tonal: true,
         onPressed: enableAdd ? () => widget.addCallback(formPlaceholder) : null,
         hide: !widget.showAddButton,
-        tonal: true,
       ),
       FormMixin.horizontalSeparator,
-      PlaceholderButton.update(
-        loc: loc,
+      PlaceholderButton(
         colors: colors,
+        text: loc.label_update_placeholder,
         onPressed: enableUpdate ? () => widget.replaceCallback(formPlaceholder) : null,
       ),
     ]);

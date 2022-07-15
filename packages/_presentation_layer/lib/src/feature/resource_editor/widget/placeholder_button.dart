@@ -16,63 +16,6 @@ class PlaceholderButton extends StatelessWidget {
     this.opacity = 1.0,
   }) : assert(overflow == null || !fitText);
 
-  factory PlaceholderButton.newPlaceholder({
-    Key? key,
-    required AppLocalizations loc,
-    required ColorScheme colors,
-    bool hide = false,
-    double opacity = 1.0,
-    VoidCallback? onPressed,
-  }) =>
-      PlaceholderButton(
-        key: key,
-        colors: colors,
-        text: loc.label_new,
-        tonal: true,
-        hide: hide,
-        opacity: opacity,
-        onPressed: onPressed ?? () {},
-      );
-
-  factory PlaceholderButton.add({
-    Key? key,
-    required AppLocalizations loc,
-    required ColorScheme colors,
-    bool tonal = false,
-    bool hide = false,
-    double opacity = 1.0,
-    VoidCallback? onPressed,
-  }) =>
-      PlaceholderButton(
-        key: key,
-        colors: colors,
-        text: loc.label_add_placeholder,
-        tonal: tonal,
-        hide: hide,
-        opacity: opacity,
-        fitText: true,
-        onPressed: onPressed,
-      );
-
-  factory PlaceholderButton.update({
-    Key? key,
-    required AppLocalizations loc,
-    required ColorScheme colors,
-    bool tonal = false,
-    bool hide = false,
-    double opacity = 1.0,
-    VoidCallback? onPressed,
-  }) =>
-      PlaceholderButton(
-        key: key,
-        colors: colors,
-        text: loc.label_update_placeholder,
-        tonal: tonal,
-        hide: hide,
-        opacity: opacity,
-        onPressed: onPressed,
-      );
-
   final ColorScheme colors;
   final String text;
   final bool tonal;

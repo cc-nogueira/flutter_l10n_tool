@@ -329,8 +329,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     final showNewButton = animation.status == AnimationStatus.reverse && animation.value < 0.8 ||
         animation.value < 0.3;
     return showNewButton
-        ? PlaceholderButton.newPlaceholder(loc: loc, colors: colors)
-        : PlaceholderButton.add(loc: loc, colors: colors);
+        ? PlaceholderButton(text: loc.label_new, colors: colors, onPressed: () {})
+        : PlaceholderButton(text: loc.label_add_placeholder, colors: colors, onPressed: null);
   }
 
   void _readPositions() {
@@ -366,10 +366,11 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             children: [
               for (final each in arbDefinition.placeholders)
                 _placeholderTag(each, beingEdited: beingEdited),
-              PlaceholderButton.newPlaceholder(
+              PlaceholderButton(
                 key: newPlaceholderKey,
-                loc: loc,
                 colors: colors,
+                tonal: true,
+                text: loc.label_new,
                 onPressed: newPlaceholderCallback,
                 hide: !isInitial && !isEdition,
                 opacity: 1.0 - animation.value,
