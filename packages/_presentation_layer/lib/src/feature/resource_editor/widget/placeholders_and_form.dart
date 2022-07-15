@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/arb_placeholder_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
-import 'placeholder_buttons.dart';
+import 'placeholder_button.dart';
 import 'placeholder_form.dart';
 
 GlobalKey newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
@@ -329,8 +329,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     final showNewButton = animation.status == AnimationStatus.reverse && animation.value < 0.8 ||
         animation.value < 0.3;
     return showNewButton
-        ? NewPlaceholderButton(loc: loc, colors: colors)
-        : AddPlaceholderButton(loc: loc, colors: colors);
+        ? PlaceholderButton.newPlaceholder(loc: loc, colors: colors)
+        : PlaceholderButton.add(loc: loc, colors: colors);
   }
 
   void _readPositions() {
@@ -366,7 +366,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             children: [
               for (final each in arbDefinition.placeholders)
                 _placeholderTag(each, beingEdited: beingEdited),
-              NewPlaceholderButton(
+              PlaceholderButton.newPlaceholder(
                 key: newPlaceholderKey,
                 loc: loc,
                 colors: colors,
