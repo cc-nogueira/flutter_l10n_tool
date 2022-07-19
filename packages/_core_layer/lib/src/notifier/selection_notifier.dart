@@ -1,6 +1,8 @@
 import 'package:riverpod/riverpod.dart';
 
-/// Selection notifier.
+/// A Riverpod StateNotifier to manage a single selection value or null.
+///
+/// It provides methods to select, toggleSelect and clearSelection.
 class SelectionNotifier<T> extends StateNotifier<T?> {
   /// Constructor that initializes the state to null (no selection).
   SelectionNotifier() : super(null);
@@ -12,7 +14,7 @@ class SelectionNotifier<T> extends StateNotifier<T?> {
   ///
   /// It will change to a value if it is not already selected.
   /// It will deselect it if it is already selected.
-  void toggle(T? definition) {
+  void toggleSelect(T? definition) {
     if (state == definition) {
       state = null;
     } else {
@@ -21,5 +23,5 @@ class SelectionNotifier<T> extends StateNotifier<T?> {
   }
 
   /// Clear the current selection.
-  void clear() => state = null;
+  void clearSelection() => state = null;
 }

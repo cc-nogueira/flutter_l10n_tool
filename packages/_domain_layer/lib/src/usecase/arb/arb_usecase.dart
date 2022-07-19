@@ -21,34 +21,34 @@ class ArbUsecase {
   }
 
   void toggle(ArbDefinition? definition) {
-    _selectedDefinitionNotifier().toggle(definition);
+    _selectedDefinitionNotifier().toggleSelect(definition);
   }
 
   void clearSelection() {
-    _selectedDefinitionNotifier().clear();
+    _selectedDefinitionNotifier().clearSelection();
   }
 
   void editDefinition({required ArbDefinition original, required ArbDefinition current}) {
-    _beingEditedDefinitionsNotifier().edit(original, current);
+    _beingEditedDefinitionsNotifier().update(original, current);
   }
 
   void discardDefinitionChanges({required ArbDefinition original}) {
-    _beingEditedDefinitionsNotifier().discardChanges(original);
-    _existingPlaceholdersBeingEditedNotifier().discardChanges(original);
-    _formPlaceholdersNotifier().discardChanges(original);
+    _beingEditedDefinitionsNotifier().remove(original);
+    _existingPlaceholdersBeingEditedNotifier().remove(original);
+    _formPlaceholdersNotifier().remove(original);
   }
 
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
     if (original == value) {
-      _currentDefinitionsNotifier().discardChanges(original);
+      _currentDefinitionsNotifier().remove(original);
     } else {
-      _currentDefinitionsNotifier().edit(original, value);
+      _currentDefinitionsNotifier().update(original, value);
     }
     discardDefinitionChanges(original: original);
   }
 
   void rollbackDefinition({required ArbDefinition original}) {
-    _currentDefinitionsNotifier().discardChanges(original);
+    _currentDefinitionsNotifier().remove(original);
   }
 
   /// Track the placeholder being edited.
@@ -63,9 +63,9 @@ class ArbUsecase {
     required ArbPlaceholder? placeholder,
   }) {
     if (placeholder == null) {
-      _existingPlaceholdersBeingEditedNotifier().discardChanges(definition);
+      _existingPlaceholdersBeingEditedNotifier().remove(definition);
     } else {
-      _existingPlaceholdersBeingEditedNotifier().edit(definition, placeholder);
+      _existingPlaceholdersBeingEditedNotifier().update(definition, placeholder);
     }
   }
 
@@ -86,9 +86,9 @@ class ArbUsecase {
     required ArbPlaceholder? placeholder,
   }) {
     if (placeholder == null) {
-      _formPlaceholdersNotifier().discardChanges(definition);
+      _formPlaceholdersNotifier().remove(definition);
     } else {
-      _formPlaceholdersNotifier().edit(definition, placeholder);
+      _formPlaceholdersNotifier().update(definition, placeholder);
     }
   }
 
@@ -97,7 +97,7 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation current,
   }) {
-    _beingEditedTranslationsForLanguageNotifier(locale).edit(definition, current);
+    _beingEditedTranslationsForLanguageNotifier(locale).update(definition, current);
     _beingEditedTranslationLocalesNotifier().add(definition, locale);
   }
 
@@ -105,7 +105,7 @@ class ArbUsecase {
     required String locale,
     required ArbDefinition definition,
   }) {
-    _beingEditedTranslationsForLanguageNotifier(locale).discardChanges(definition);
+    _beingEditedTranslationsForLanguageNotifier(locale).remove(definition);
     _beingEditedTranslationLocalesNotifier().remove(definition, locale);
   }
 
@@ -114,7 +114,7 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation value,
   }) {
-    _currentTranslationsForLanguageNotifier(locale).edit(definition, value);
+    _currentTranslationsForLanguageNotifier(locale).update(definition, value);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
