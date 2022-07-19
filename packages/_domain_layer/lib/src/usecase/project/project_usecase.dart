@@ -74,22 +74,22 @@ class ProjectUsecase
     final projectNotifier = _projectNotifier();
     try {
       await _initProject(projectNotifier, projectPath: projectPath);
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _loadPubspec(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _defineConfiguration(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _readTemplateFile(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _readTranslationFiles(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _saveToRecentProjects(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinished) return;
+      if (read(projectProvider).loadStage.isFinal) return;
       await _setLoaded(projectNotifier);
     } on L10nException catch (e) {
       projectNotifier.l10nException(e);

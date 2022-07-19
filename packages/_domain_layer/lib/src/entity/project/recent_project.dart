@@ -4,6 +4,9 @@ import '../entity.dart';
 
 part 'recent_project.freezed.dart';
 
+/// Entity to store recent projects openned by the application.
+///
+/// Stores project name and path.
 @freezed
 class RecentProject with _$RecentProject implements Entity {
   const factory RecentProject({

@@ -19,7 +19,7 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
     final loadStage = ref.watch(projectProvider.select((project) => project.loadStage));
     final project = ref.read(projectProvider);
     final loc = AppLocalizations.of(context);
-    if (loadStage.isFinished) {
+    if (loadStage.isFinal) {
       _postFrameClose(context, ref.read);
     }
     final colors = Theme.of(context).colorScheme;

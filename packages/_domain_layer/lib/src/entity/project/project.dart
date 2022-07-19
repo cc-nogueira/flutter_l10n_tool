@@ -8,6 +8,16 @@ import 'load_stage.dart';
 
 part 'project.freezed.dart';
 
+/// Entity representing the Flutter localization project.
+///
+/// Contains:
+/// - Project name and path.
+/// - Current [LoadStage].
+/// - Whether pubspec contains the generateFlag (required for synthetic package usage).
+/// - [L10nConfiguration].
+/// - [ArbTemplate] with global resources and template resource definitions.
+/// - Map of [ArbLocaleTranslations] per locale.
+/// - Possible loading exception.
 @freezed
 class Project with _$Project {
   const factory Project({
@@ -26,7 +36,7 @@ class Project with _$Project {
 
   bool get hasError => l10nException != null;
   bool get hasNoError => !hasError;
-  bool get isReady => loadStage.isFinished && path.isNotEmpty && hasNoError;
+  bool get isReady => loadStage.isFinal && path.isNotEmpty && hasNoError;
   bool get isNotReady => !isReady;
   bool get generateWarning => !generateFlag && configuration.syntheticPackage;
   bool get noGenerateWarning => !generateWarning;

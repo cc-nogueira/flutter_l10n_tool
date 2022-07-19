@@ -10,7 +10,7 @@ part 'preference.freezed.dart';
 /// These preferences are converted from String to specific types in the PreferencesUsecase.
 /// These preferences are accessed through preference providers also in PreferencesUsecase.
 ///
-/// @see [PreferencesUsecase].
+/// See [PreferencesUsecase].
 @freezed
 class Preference with _$Preference implements Entity {
   /// Freezed factory constructor.
