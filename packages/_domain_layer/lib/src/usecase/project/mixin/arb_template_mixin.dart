@@ -191,8 +191,8 @@ mixin ArbTemplateMixin on ArbMixin {
         placeholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
       } else if (type == 'DateTime') {
         final formatString = entry.value['format'] as String? ?? '';
-        final format = ArbIcuDatePlaceholderFormat.forSkeleton(formatString) ??
-            ArbIcuDatePlaceholderFormat.yearMonthDay;
+        final format = ArbIcuDateTimePlaceholderFormat.forSkeleton(formatString) ??
+            ArbIcuDateTimePlaceholderFormat.yearMonthDay;
         final useCustomFormat = entry.value['isCustomDateFormat'] == 'true';
         placeholders.add(
           ArbPlaceholder.dateTime(

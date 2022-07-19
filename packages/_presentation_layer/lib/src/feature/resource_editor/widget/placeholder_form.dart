@@ -130,7 +130,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       key: widget.formPlaceholder.key,
       description: widget.formPlaceholder.description,
       example: widget.formPlaceholder.example,
-      icuFormat: ArbIcuDatePlaceholderFormat.yearMonthDay,
+      icuFormat: ArbIcuDateTimePlaceholderFormat.yearMonthDay,
       customFormat: '',
     );
   }
@@ -304,7 +304,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       dateTime: (value) {
         late final _PlaceholderDateFormatType originalFormatType;
         late final String originalCustomFormat;
-        late final ArbIcuDatePlaceholderFormat originalIcuFormat;
+        late final ArbIcuDateTimePlaceholderFormat originalIcuFormat;
         if (original is ArbDateTimePlaceholder) {
           originalFormatType = original.useCustomFormat
               ? _PlaceholderDateFormatType.custom
@@ -314,7 +314,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         } else {
           originalFormatType = _PlaceholderDateFormatType.icu;
           originalCustomFormat = '';
-          originalIcuFormat = ArbIcuDatePlaceholderFormat.yearMonthDay;
+          originalIcuFormat = ArbIcuDateTimePlaceholderFormat.yearMonthDay;
         }
 
         return [
@@ -365,9 +365,9 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
                         children: [
                           Expanded(
                             flex: 1,
-                            child: FormDropdown<ArbIcuDatePlaceholderFormat>(
+                            child: FormDropdown<ArbIcuDateTimePlaceholderFormat>(
                               label: 'ICU name',
-                              options: ArbIcuDatePlaceholderFormat.values,
+                              options: ArbIcuDateTimePlaceholderFormat.values,
                               optionLabel: (option) => option.icuName,
                               originalValue: originalIcuFormat,
                               formValue: value.icuFormat,

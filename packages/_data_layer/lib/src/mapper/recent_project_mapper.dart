@@ -18,6 +18,7 @@ class RecentProjectMapper extends EntityMapper<RecentProject, RecentProjectModel
   RecentProjectModel mapModel(RecentProject entity) =>
       RecentProjectModel(id: entity.id, name: entity.name, path: entity.path);
 
+  /// Map a list of entities to a list of models registering the list order in these model objects.
   @override
   List<RecentProjectModel> mapModels(Iterable<RecentProject> entities) {
     final list = super.mapModels(entities);

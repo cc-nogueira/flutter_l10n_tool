@@ -4,18 +4,20 @@ import 'arb_key_mixin.dart';
 
 part 'arb_placeholder.freezed.dart';
 
-mixin ArbHasDetailsMixin {
-  String get description;
-  String get example;
-
-  /// Test to see if any optional field is filled in.
-  bool get hasDetails => description.trim().isNotEmpty || example.trim().isNotEmpty;
-}
-
+/// An union of possible ArbPlaceholders as defined in ICU and Flutter projects.
+///
+/// - ArbGenericPlaceholder
+/// - ArbStringPlaceholder
+/// - ArbNumberPlaceholder
+/// = ArbDateTimePlaceholder
 @freezed
 class ArbPlaceholder with _$ArbPlaceholder {
+  /// ArbGenericPlaceholder factory with [ArbKeyMixin].
+  /// Represents a placeholder with no specific type defined in the template file.
+  ///
+  /// It contains the common key, description and example fields.
+  /// It has the fixed type [ArbPlaceholderType.genericType].
   @With<ArbKeyMixin>()
-  @With<ArbHasDetailsMixin>()
   @Assert('type == ArbPlaceholderType.genericType')
   const factory ArbPlaceholder.generic({
     @Default('') String key,
@@ -24,46 +26,62 @@ class ArbPlaceholder with _$ArbPlaceholder {
     @Default(ArbPlaceholderType.genericType) ArbPlaceholderType type,
   }) = ArbGenericPlaceholder;
 
+  /// ArbStringPlaceholder factory with [ArbKeyMixin].
+  ///
+  /// It contains the common key, description and example fields.
+  /// It has the fixed type [ArbPlaceholderType.stringType].
   @With<ArbKeyMixin>()
-  @Assert('hasDetails')
   @Assert('type == ArbPlaceholderType.stringType')
   const factory ArbPlaceholder.string({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
-    @Default(true) bool hasDetails,
     @Default(ArbPlaceholderType.stringType) ArbPlaceholderType type,
   }) = ArbStringPlaceholder;
 
+  /// ArbNumberPlaceholder factory with [ArbKeyMixin].
+  ///
+  /// It contains the common key, description and example fields.
+  /// It may have one of the numeric types:
+  /// - [ArbPlaceholderType.numType]
+  /// - [ArbPlaceholderType.intType]
+  /// - [ArbPlaceholderType.doubleType]
+  /// It mau contain a [ArbNumberPlaceholderFormat] format and that format associated optional
+  /// parameters.
   @With<ArbKeyMixin>()
-  @Assert('hasDetails')
   @Assert(
       'type == ArbPlaceholderType.numType || type == ArbPlaceholderType.intType || type == ArbPlaceholderType.doubleType')
   const factory ArbPlaceholder.number({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
-    @Default(true) bool hasDetails,
     required ArbPlaceholderType type,
     ArbNumberPlaceholderFormat? format,
     @Default(<String, String>{}) Map<String, String> optionalParameters,
   }) = ArbNumberPlaceholder;
 
+  /// ArbDateTimePlaceholder factory with [ArbKeyMixin].
+  ///
+  /// It contains the common key, description and example fields.
+  /// It has the fixed type [ArbPlaceholderType.dateTimeType].
+  ///
+  /// It may use an predefined ICU data format (from DateTime predefined constructors)
+  /// or use a custom format. When the useCustomFormat flag is set the value in icuFormat is
+  /// irrelevant.
   @With<ArbKeyMixin>()
-  @Assert('hasDetails')
   @Assert('type == ArbPlaceholderType.dateTimeType')
   const factory ArbPlaceholder.dateTime({
     @Default('') String key,
     @Default('') String description,
     @Default('') String example,
-    @Default(true) bool hasDetails,
     @Default(ArbPlaceholderType.dateTimeType) ArbPlaceholderType type,
-    required ArbIcuDatePlaceholderFormat icuFormat,
+    required ArbIcuDateTimePlaceholderFormat icuFormat,
     @Default(false) bool useCustomFormat,
     @Default('') String customFormat,
   }) = ArbDateTimePlaceholder;
 }
 
+/// Possible ArbPlaceholder types.
 enum ArbPlaceholderType {
   genericType('generic'),
   stringType('String'),
@@ -72,8 +90,10 @@ enum ArbPlaceholderType {
   doubleType('double', true),
   dateTimeType('DateTime');
 
+  /// Enum constructor
   const ArbPlaceholderType(this.type, [this.isNumberType = false]);
 
+  /// Enum factory to lookup for the right enum value for a named type.
   factory ArbPlaceholderType.forType(String type) {
     return values.firstWhere(
       (element) => element.name == type,
@@ -85,6 +105,9 @@ enum ArbPlaceholderType {
   final bool isNumberType;
 }
 
+/// Possible ArbNumberPlaceholder formats.
+///
+/// Each format specifies valid optional parameters.
 enum ArbNumberPlaceholderFormat {
   compact([]),
   compactCurrency([
@@ -112,8 +135,10 @@ enum ArbNumberPlaceholderFormat {
     ArbNumberPlaceholderParameter.decimalDigits,
   ]);
 
+  /// Enum constructor.
   const ArbNumberPlaceholderFormat(this.optionalParameters);
 
+  /// Enum factory to lookup for a right enum value for a named type.
   factory ArbNumberPlaceholderFormat.forName(String name) {
     return values.firstWhere(
       (element) => element.name == name,
@@ -121,15 +146,20 @@ enum ArbNumberPlaceholderFormat {
     );
   }
 
+  /// Optional parameters valid for each enum value.
   final List<ArbNumberPlaceholderParameter> optionalParameters;
 }
 
+/// Possible ArbNumberPlaceholder optional parameters.
+///
+/// These valid options for each Format are mapped by [ArbNumberPlaceholderFormat] enum.
 enum ArbNumberPlaceholderParameter {
   name,
   symbol,
   decimalDigits,
   customPattern;
 
+  /// Enum factory to lookup the right enum value for a named type.
   factory ArbNumberPlaceholderParameter.forName(String name) {
     return values.firstWhere(
       (element) => element.name == name,
@@ -139,7 +169,10 @@ enum ArbNumberPlaceholderParameter {
   }
 }
 
-enum ArbIcuDatePlaceholderFormat {
+/// Possible ICU Date formats.
+///
+/// These are the DateTime formats supported by Dart DateTime constructor.
+enum ArbIcuDateTimePlaceholderFormat {
   day('DAY', 'd'),
   abbrWeekday('ABBR_WEEKDAY', 'E'),
   weekday('WEEKDAY', 'EEEE'),
@@ -178,15 +211,22 @@ enum ArbIcuDatePlaceholderFormat {
   minuteSecond('MINUTE_SECOND', 'ms'),
   second('SECOND', 's');
 
-  const ArbIcuDatePlaceholderFormat(this.icuName, this.skeleton);
+  /// Enum constructor.
+  const ArbIcuDateTimePlaceholderFormat(this.icuName, this.skeleton);
 
-  static ArbIcuDatePlaceholderFormat? forSkeleton(String skeleton) {
+  /// Enum lookup by a provided constructor skeleton.
+  /// This is not defined as a Factory method because we want to be able to return null
+  /// signaling that a skeleton could represent a custom format.
+  static ArbIcuDateTimePlaceholderFormat? forSkeleton(String skeleton) {
     for (final value in values) {
       if (value.skeleton == skeleton) return value;
     }
     return null;
   }
 
+  /// ICU name for a format.
   final String icuName;
+
+  /// Dart constructor skeleton for a format.
   final String skeleton;
 }

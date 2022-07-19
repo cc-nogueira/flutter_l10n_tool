@@ -5,6 +5,9 @@ import 'arb_translation.dart';
 
 part 'arb_template.freezed.dart';
 
+/// Entity for a parsed ArbTemplate file.
+///
+/// Contains global resources and ARB resource definitions.
 @freezed
 class ArbTemplate with _$ArbTemplate {
   const factory ArbTemplate({
