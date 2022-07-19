@@ -6,7 +6,8 @@ import '../../entity/project/recent_project.dart';
 import '../../provider/providers.dart';
 import '../../repository/recent_projects_repository.dart';
 
-part 'notifier/recent_projects_notifier.dart';
+part 'recent_projects_providers.dart';
+part 'recent_projects_scope.dart';
 
 class RecentProjectsUsecase {
   const RecentProjectsUsecase({required this.read, required this.recentProjectsRepository});
@@ -17,12 +18,12 @@ class RecentProjectsUsecase {
   @internal
   final RecentProjectsRepository recentProjectsRepository;
 
-  List<RecentProject> _recentProjects() => recentProjectsRepository.getAll();
+  List<RecentProject> _repositoryStore() => recentProjectsRepository.getAll();
 
   void setFirst(RecentProject recentProject) {
     final recentList = _setFirst(recentProject);
     final updatedList = recentProjectsRepository.synchronizeAll(recentList);
-    read(recentProjectsProvider.notifier).update(updatedList);
+    _recentProjectController().state = updatedList;
   }
 
   void remove(RecentProject value) {
@@ -33,7 +34,7 @@ class RecentProjectsUsecase {
     ];
     if (without.length < list.length) {
       final updatedList = recentProjectsRepository.synchronizeAll(without);
-      read(recentProjectsProvider.notifier).update(updatedList);
+      _recentProjectController().state = updatedList;
     }
   }
 
@@ -60,5 +61,10 @@ class RecentProjectsUsecase {
       }
     }
     return Tuple2(found, left);
+  }
+
+  StateController<List<RecentProject>> _recentProjectController() {
+    final scope = read(_recentProjectsScopeProvider);
+    return read(scope.recentProjectsProvider.notifier);
   }
 }

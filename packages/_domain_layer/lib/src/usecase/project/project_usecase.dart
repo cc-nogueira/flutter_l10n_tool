@@ -12,6 +12,7 @@ import '../../exception/l10n_exception.dart';
 import '../../exception/l10n_fix_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
 import '../../provider/providers.dart';
+import '../arb/arb_usecase.dart';
 import '../recent_projects/recent_projects_usecase.dart';
 import 'mixin/arb_mixin.dart';
 import 'mixin/arb_template_mixin.dart';

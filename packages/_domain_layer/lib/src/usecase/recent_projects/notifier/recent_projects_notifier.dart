@@ -1,9 +1,10 @@
-part of '../recent_projects_usecase.dart';
+import 'package:riverpod/riverpod.dart';
+
+import '../../../entity/project/recent_project.dart';
 
 class RecentProjectsNotifier extends StateNotifier<List<RecentProject>> {
-  RecentProjectsNotifier(RecentProjectsUsecase usecase) : super(usecase._recentProjects());
+  RecentProjectsNotifier(super.state);
 
-  @internal
   void update(List<RecentProject> updatedList) {
     state = updatedList;
   }

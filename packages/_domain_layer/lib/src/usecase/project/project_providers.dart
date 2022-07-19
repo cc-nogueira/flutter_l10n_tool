@@ -1,5 +1,9 @@
 part of 'project_usecase.dart';
 
+/// ProjectUsecase singleton provider
+final projectUsecaseProvider =
+    Provider<ProjectUsecase>((ref) => ref.watch(domainLayerProvider).projectUsecase);
+
 /// Current project scope provider
 final _projectScopeProvider = StateProvider((ref) => ProjectScope());
 

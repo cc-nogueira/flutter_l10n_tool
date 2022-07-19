@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'l10n_exception.dart';
 
+/// Common class for all ARB exceptions.
 abstract class L10nArbException extends L10nException {
   const L10nArbException(this.id);
 

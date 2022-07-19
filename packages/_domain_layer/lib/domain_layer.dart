@@ -14,7 +14,6 @@ export 'src/exception/entity_not_found_exception.dart';
 export 'src/exception/l10n_arb_exception.dart';
 export 'src/exception/l10n_exception.dart';
 export 'src/exception/l10n_pubspec_exception.dart';
-export 'src/exception/service_exception.dart';
 export 'src/exception/validation_exception.dart';
 export 'src/l10n/domain_localizations.dart';
 export 'src/layer/domain_layer.dart';

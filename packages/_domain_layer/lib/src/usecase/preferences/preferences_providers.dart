@@ -1,5 +1,9 @@
 part of 'preferences_usecase.dart';
 
+/// PreferencesUsecase singleton provider
+final preferencesUsecaseProvider =
+    Provider<PreferencesUsecase>((ref) => ref.watch(domainLayerProvider).preferencesUsecase);
+
 final _preferencesScopeProvider = StateProvider<PreferencesScope>((_) => PreferencesScope());
 
 /// DisplayOption provider
