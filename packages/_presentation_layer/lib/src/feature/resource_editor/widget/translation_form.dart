@@ -23,8 +23,8 @@ abstract class TranslationForm extends StatefulWidget {
   final VoidCallback onDiscardChanges;
 }
 
-class TextTranslationForm extends TranslationForm {
-  const TextTranslationForm({
+class PlaceholdersTranslationForm extends TranslationForm {
+  const PlaceholdersTranslationForm({
     super.key,
     required super.locale,
     required super.current,
@@ -35,7 +35,7 @@ class TextTranslationForm extends TranslationForm {
   });
 
   @override
-  State<TextTranslationForm> createState() => TextTranslationFormState();
+  State<PlaceholdersTranslationForm> createState() => TextTranslationFormState();
 }
 
 class PluralTranslationForm extends TranslationForm {
@@ -121,7 +121,7 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
   Widget form(BuildContext context, ColorScheme colors);
 }
 
-class TextTranslationFormState extends TranslationFormState<TextTranslationForm> {
+class TextTranslationFormState extends TranslationFormState<PlaceholdersTranslationForm> {
   TextEditingController translationTextController = TextEditingController();
 
   @override

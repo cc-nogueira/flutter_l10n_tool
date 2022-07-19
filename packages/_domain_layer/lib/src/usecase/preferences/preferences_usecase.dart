@@ -1,3 +1,4 @@
+import 'package:_core_layer/notifiers.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod/riverpod.dart';
@@ -8,9 +9,8 @@ import '../../entity/preferences/preference.dart';
 import '../../provider/providers.dart';
 import '../../repository/preferences_repository.dart';
 
-part 'notifier/display_option_notifier.dart';
-part 'notifier/language_option_notifier.dart';
-part 'notifier/theme_mode_notifier.dart';
+part 'preferences_providers.dart';
+part 'preferences_scope.dart';
 
 /// PreferencesUsecase manages a well defined domain of preferences.
 ///
@@ -56,7 +56,7 @@ class PreferencesUsecase {
   /// This setter will trigger this preference change notification through the correpondent provider.
   set displayOption(DisplayOption displayOption) {
     repository.saveByKey(Preference(key: _displayOptionKey, value: displayOption.name));
-    _displayOptionNotifier()._displayOption = displayOption;
+    _displayOptionNotifier().option = displayOption;
   }
 
   /// Internal getter for [DisplayOption] preference.
@@ -76,7 +76,7 @@ class PreferencesUsecase {
   set languageOption(LanguageOption languageOption) {
     final optionStr = '${languageOption.languageCode}_${languageOption.countryCode ?? ''}';
     repository.saveByKey(Preference(key: _languageOptionKey, value: optionStr));
-    _languageOptionNotifier()._languageOption = languageOption;
+    _languageOptionNotifier().option = languageOption;
   }
 
   /// Internal getter for [LanguageOption] preference.
@@ -97,7 +97,7 @@ class PreferencesUsecase {
   /// This setter will trigger this preference change notification through the correpondent provider.
   set themeMode(ThemeMode themeMode) {
     repository.saveByKey(Preference(key: _themeKey, value: themeMode.name));
-    _themeModeNotifier()._themeMode = themeMode;
+    _themeModeNotifier().option = themeMode;
   }
 
   /// Internal getter for [ThemeMode] preference.
@@ -112,11 +112,20 @@ class PreferencesUsecase {
   }
 
   /// Internal getter for this usecase [DisplayOptionNotifier]
-  DisplayOptionNotifier _displayOptionNotifier() => read(displayOptionProvider.notifier);
+  DisplayOptionNotifier _displayOptionNotifier() {
+    final scope = read(_preferencesScopeProvider);
+    return read(scope.displayOptionProvider.notifier);
+  }
 
   /// Internal getter for this usecase [LanguageOptionNotifier]
-  LanguageOptionNotifier _languageOptionNotifier() => read(languageOptionProvider.notifier);
+  LanguageOptionNotifier _languageOptionNotifier() {
+    final scope = read(_preferencesScopeProvider);
+    return read(scope.languageOptionProvider.notifier);
+  }
 
   /// Internal getter for this usecase [ThemeModeNotifier]
-  ThemeModeNotifier _themeModeNotifier() => read(themeModeProvider.notifier);
+  ThemeModeNotifier _themeModeNotifier() {
+    final scope = read(_preferencesScopeProvider);
+    return read(scope.themeModeProvider.notifier);
+  }
 }

@@ -1,13 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'arb_key_mixin.dart';
+
 part 'arb_placeholder.freezed.dart';
-
-mixin ArbKeyMixin {
-  String get key;
-
-  /// Value of key must conform to /[_a-zA-z]\w*/ and will never contain spaces.
-  bool get hasKey => key.isNotEmpty;
-}
 
 mixin ArbHasDetailsMixin {
   String get description;
@@ -18,7 +13,7 @@ mixin ArbHasDetailsMixin {
 }
 
 @freezed
-abstract class ArbPlaceholder with _$ArbPlaceholder implements ArbHasDetailsMixin {
+class ArbPlaceholder with _$ArbPlaceholder {
   @With<ArbKeyMixin>()
   @With<ArbHasDetailsMixin>()
   @Assert('type == ArbPlaceholderType.genericType')

@@ -35,12 +35,12 @@ class TranslationWidget extends ConsumerWidget {
   }
 
   Widget _tile(Reader read, DisplayOption displayOption, {required ArbTranslation? current}) {
-    if (definition is ArbTextDefinition) {
+    if (definition is ArbPlaceholdersDefinition) {
       return TextTranslationTile(
         displayOption: displayOption,
         locale: locale,
         translation: current,
-        definition: definition as ArbTextDefinition,
+        definition: definition as ArbPlaceholdersDefinition,
         onEdit: () => _edit(read, current),
       );
     } else if (definition is ArbSelectDefinition) {
@@ -70,35 +70,32 @@ class TranslationWidget extends ConsumerWidget {
     required ArbTranslation? current,
     required ArbTranslation beingEdited,
   }) {
-    switch (definition.type) {
-      case ArbDefinitionType.plural:
-        return PluralTranslationForm(
-          locale: locale,
-          current: current,
-          beingEdited: beingEdited,
-          onUpdate: (value) => _updateBeingEdited(read, value),
-          onSaveChanges: (value) => _saveChanges(read, value),
-          onDiscardChanges: () => _discardChanges(read),
-        );
-      case ArbDefinitionType.select:
-        return SelectTranslationForm(
-          locale: locale,
-          current: current,
-          beingEdited: beingEdited,
-          onUpdate: (value) => _updateBeingEdited(read, value),
-          onSaveChanges: (value) => _saveChanges(read, value),
-          onDiscardChanges: () => _discardChanges(read),
-        );
-      default:
-        return TextTranslationForm(
-          locale: locale,
-          current: current,
-          beingEdited: beingEdited,
-          onUpdate: (value) => _updateBeingEdited(read, value),
-          onSaveChanges: (value) => _saveChanges(read, value),
-          onDiscardChanges: () => _discardChanges(read),
-        );
-    }
+    return definition.map<TranslationForm>(
+      placeholders: (_) => PlaceholdersTranslationForm(
+        locale: locale,
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      ),
+      plural: (_) => PluralTranslationForm(
+        locale: locale,
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      ),
+      select: (_) => SelectTranslationForm(
+        locale: locale,
+        current: current,
+        beingEdited: beingEdited,
+        onUpdate: (value) => _updateBeingEdited(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      ),
+    );
   }
 
   Widget _withBorder(ColorScheme colors, Widget child) => Container(

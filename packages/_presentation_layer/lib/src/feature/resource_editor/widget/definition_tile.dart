@@ -90,8 +90,8 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
   }
 }
 
-class TextDefinitionTile extends DefinitionTile<ArbTextDefinition> {
-  const TextDefinitionTile({
+class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinition> {
+  const PlaceholdersDefinitionTile({
     super.key,
     required super.definition,
     required super.isOriginal,

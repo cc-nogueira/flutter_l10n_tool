@@ -154,19 +154,12 @@ class RecentProjectsWidget extends ConsumerWidget {
     RecentProject project,
     bool isCurrent,
   ) async {
-    if (isCurrent) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.message_project_already_selected)),
-      );
-    } else {
-      // read(projectUsecaseProvider).closeProject();
-      read(projectUsecaseProvider).loadProject(projectPath: project.path);
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const ShowProjectLoadingDialog(),
-      );
-    }
+    read(projectUsecaseProvider).loadProject(projectPath: project.path);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const ShowProjectLoadingDialog(),
+    );
   }
 
   void _toggleShowRecent(Reader read) =>

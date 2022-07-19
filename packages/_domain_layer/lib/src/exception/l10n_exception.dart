@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../l10n/domain_localizations.dart';
@@ -30,6 +32,12 @@ class L10nInvalidConfigurationFileException extends L10nException {
   String message(BuildContext context) => loc(context).error_invalid_configuration_file;
 }
 
+class L10nMissingArbFolderError extends L10nException {
+  L10nMissingArbFolderError(this.dir);
+
+  final Directory dir;
+}
+
 class L10nMissingArbFolderException extends L10nException {
   const L10nMissingArbFolderException(
     this.path, {
@@ -47,6 +55,12 @@ class L10nMissingArbFolderException extends L10nException {
 
   @override
   String message(BuildContext context) => loc(context).error_missing_arb_folder(path);
+}
+
+class L10nMissingArbTemplateError extends L10nException {
+  L10nMissingArbTemplateError(this.file);
+
+  final File file;
 }
 
 class L10nMissingArbTemplateFileException extends L10nException {

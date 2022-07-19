@@ -27,8 +27,8 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   final VoidCallback onDiscardChanges;
 }
 
-class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
-  const TextDefinitionForm({
+class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinition> {
+  const PlaceholdersDefinitionForm({
     super.key,
     required super.originalDefinition,
     required super.currentDefinition,
@@ -39,7 +39,8 @@ class TextDefinitionForm extends DefinitionForm<ArbTextDefinition> {
   });
 
   @override
-  State<DefinitionForm<ArbTextDefinition>> createState() => TextDefinitionFormState();
+  State<DefinitionForm<ArbPlaceholdersDefinition>> createState() =>
+      PlaceholdersDefinitionFormState();
 }
 
 class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
@@ -124,7 +125,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
   Widget form(BuildContext context, AppLocalizations loc, ColorScheme colors);
 }
 
-class TextDefinitionFormState extends DefinitionFormState<ArbTextDefinition> {
+class PlaceholdersDefinitionFormState extends DefinitionFormState<ArbPlaceholdersDefinition> {
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
 

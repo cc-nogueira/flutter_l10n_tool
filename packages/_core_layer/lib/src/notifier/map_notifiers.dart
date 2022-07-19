@@ -1,6 +1,8 @@
-part of '../arb_usecase.dart';
+import 'dart:collection';
 
-abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
+import 'package:riverpod/riverpod.dart';
+
+class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
   /// Constructor that initialized the state to an empty map.
   MapNotifier() : super({});
 
@@ -8,12 +10,12 @@ abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
   @override
   UnmodifiableMapView<T, U> get state => UnmodifiableMapView(super.state);
 
-  void _edit(T key, U value) {
+  void edit(T key, U value) {
     super.state[key] = value;
     _updateState();
   }
 
-  void _discardChanges(T key) {
+  void discardChanges(T key) {
     final value = super.state.remove(key);
     if (value != null) {
       _updateState();
@@ -32,18 +34,18 @@ abstract class MapNotifier<T, U> extends StateNotifier<Map<T, U>> {
   bool updateShouldNotify(old, current) => true;
 }
 
-abstract class MapOneToManyNotifier<T, U> extends StateNotifier<Map<T, Set<U>>> {
+class MapOneToManyNotifier<T, U> extends StateNotifier<Map<T, Set<U>>> {
   /// Constructor that initialized the state to an empty map.
   MapOneToManyNotifier() : super({});
 
-  void _add(T key, U value) {
+  void add(T key, U value) {
     final values = state[key] ?? <U>{};
     values.add(value);
     state[key] = values;
     _updateState();
   }
 
-  void _remove(T key, U value) {
+  void remove(T key, U value) {
     final values = state[key];
     if (values != null) {
       values.remove(value);

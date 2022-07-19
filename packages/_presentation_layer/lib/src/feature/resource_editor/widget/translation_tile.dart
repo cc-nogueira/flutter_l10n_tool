@@ -41,7 +41,7 @@ abstract class TranslationTile<T extends ArbDefinition> extends StatelessWidget
   Widget? tileContent(TextTheme theme, ColorScheme colors) => null;
 }
 
-class TextTranslationTile extends TranslationTile<ArbTextDefinition> {
+class TextTranslationTile extends TranslationTile<ArbPlaceholdersDefinition> {
   const TextTranslationTile({
     super.key,
     required super.displayOption,
@@ -66,7 +66,7 @@ class PluralTranslationTile extends TranslationTile<ArbPluralDefinition> {
   });
 }
 
-class SelectTranslationTile extends TranslationTile<ArbSelectDefinition> {
+class SelectTranslationTile extends TranslationTile<ArbSelectDefinition> with ArbMixin {
   const SelectTranslationTile({
     super.key,
     required super.displayOption,
@@ -97,7 +97,7 @@ class SelectTranslationTile extends TranslationTile<ArbSelectDefinition> {
         children: [
           Row(children: [
             Text('{ ', style: mStyle),
-            Text(definition.mainPlaceholder(), style: vStyle),
+            Text(definition.placeholder, style: vStyle),
             Text(', ', style: mStyle),
             Text('select', style: oStyle),
             Text(', ', style: mStyle),
@@ -120,7 +120,7 @@ class SelectTranslationTile extends TranslationTile<ArbSelectDefinition> {
     if (value.trim().isEmpty) {
       return const [Text('empty')];
     }
-    final options = ArbUtil.mainOptions(definition.type, value);
+    final options = inferArbOptionsFrom(ArbDefinitionType.select, value);
     return [
       for (final option in options.entries)
         Row(children: [

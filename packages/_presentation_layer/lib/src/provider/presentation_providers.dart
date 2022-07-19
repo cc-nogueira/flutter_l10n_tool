@@ -28,3 +28,5 @@ final themeProvider = Provider((ref) {
 /// Navigation rail/drawer
 final activeNavigationProvider =
     StateProvider<NavigationDrawerOption?>((_) => NavigationDrawerTopOption.projectSelector);
+
+final resetConfigurationProvider = StateProvider<bool>((_) => false);

@@ -13,6 +13,14 @@ class L10nMissingPubspecException extends L10nPubspecException {
   String message(BuildContext context) => loc(context).error_missing_pubspec;
 }
 
+class L10nMissingDependencyError extends L10nPubspecException {
+  L10nMissingDependencyError(this.depName, {required this.projectPath, required this.isSDK});
+
+  final String depName;
+  final String projectPath;
+  final bool isSDK;
+}
+
 class L10nMissingDependencyException extends L10nPubspecException {
   const L10nMissingDependencyException(
     this.name, {

@@ -31,8 +31,8 @@ class DefinitionWidget extends ConsumerWidget {
   }
 
   Widget _tile(Reader read, {required ArbDefinition definition, required bool isOriginal}) {
-    if (definition is ArbTextDefinition) {
-      return TextDefinitionTile(
+    if (definition is ArbPlaceholdersDefinition) {
+      return PlaceholdersDefinitionTile(
         definition: definition,
         isOriginal: isOriginal,
         onEdit: () => _edit(read, definition),
@@ -60,8 +60,9 @@ class DefinitionWidget extends ConsumerWidget {
     required ArbDefinition currentDefinition,
     required ArbDefinition definitionBeingEdited,
   }) {
-    if (currentDefinition is ArbTextDefinition && definitionBeingEdited is ArbTextDefinition) {
-      return TextDefinitionForm(
+    if (currentDefinition is ArbPlaceholdersDefinition &&
+        definitionBeingEdited is ArbPlaceholdersDefinition) {
+      return PlaceholdersDefinitionForm(
         originalDefinition: original,
         currentDefinition: currentDefinition,
         definitionBeingEdited: definitionBeingEdited,

@@ -1,11 +1,9 @@
-import '../entity/project/l10n_configuration.dart';
-import '../exception/l10n_arb_exception.dart';
-import '../util/arb_util.dart';
+import '../../../entity/project/l10n_configuration.dart';
+import '../../../exception/l10n_arb_exception.dart';
+import 'arb_mixin.dart';
 
-class ArbValidator {
-  const ArbValidator();
-
-  void validate({
+mixin ArbValidationMixin {
+  void arbValidation({
     required L10nConfiguration configuration,
     required Map<String, String> translations,
     required Map<String, dynamic> definitions,
@@ -39,7 +37,7 @@ class ArbValidator {
     required Map<String, dynamic> definitions,
   }) {
     for (final entry in translations.entries) {
-      final key = pluralKey(entry.value);
+      final key = arbPluralKey(entry.value);
       if (key != null) {
         final attributeKey = '@${entry.key}';
         final definition = definitions[attributeKey];
@@ -70,7 +68,7 @@ class ArbValidator {
     required Map<String, dynamic> definitions,
   }) {
     for (final entry in translations.entries) {
-      final key = selectKey(entry.value);
+      final key = arbSelectKey(entry.value);
       if (key != null) {
         final attributeKey = '@${entry.key}';
         final definition = definitions[attributeKey];
@@ -105,13 +103,13 @@ class ArbValidator {
     }
   }
 
-  String? pluralKey(String value) {
-    final match = ArbUtil.pluralRegExp.firstMatch(value);
+  String? arbPluralKey(String value) {
+    final match = ArbMixin.pluralRegExp.firstMatch(value);
     return match?.group(1);
   }
 
-  String? selectKey(String value) {
-    final match = ArbUtil.selectRegExp.firstMatch(value);
+  String? arbSelectKey(String value) {
+    final match = ArbMixin.selectRegExp.firstMatch(value);
     return match?.group(1);
   }
 }

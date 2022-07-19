@@ -1,372 +1,198 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:yaml/yaml.dart';
 import 'package:yaml_writer/yaml_writer.dart';
 
-import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_locale_translations.dart';
-import '../../entity/arb/arb_placeholder.dart';
-import '../../entity/arb/arb_template.dart';
-import '../../entity/arb/arb_translation.dart';
 import '../../entity/project/l10n_configuration.dart';
 import '../../entity/project/load_stage.dart';
 import '../../entity/project/project.dart';
 import '../../entity/project/recent_project.dart';
-import '../../exception/l10n_arb_exception.dart';
 import '../../exception/l10n_exception.dart';
 import '../../exception/l10n_fix_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
 import '../../provider/providers.dart';
-import '../../validator/arb_validator.dart';
-import 'recent_projects_usecase.dart';
+import '../recent_projects/recent_projects_usecase.dart';
+import 'mixin/arb_mixin.dart';
+import 'mixin/arb_template_mixin.dart';
+import 'mixin/arb_validation_mixin.dart';
+import 'mixin/l10n_configuration_mixin.dart';
+import 'mixin/pubspec_mixin.dart';
+import 'notifier/project_notifier.dart';
+import 'project_scope.dart';
 
-part 'notifier/project_notifier.dart';
+part 'project_providers.dart';
 
-class ProjectUsecase {
+/// Use case for managing the project under edition.
+///
+/// Responsible for loading the localization for a Flutter project.
+/// The configuration is extracted from the project's pubspec and from the optional l10n.yaml file.
+///
+/// The location of files defining the localization template and translation files is defined in this
+/// loaded configuration.
+///
+/// The localization template is read into [ArbDefinition] objects, an union of possible types.
+/// Translations are loaded for all translation files found in the above mentioned configuration dir.
+///
+/// The loading process fills a [Project] contains the [L10nConfiguration] and is stored in the
+/// [ProjectScope] instance.
+///
+/// [ProjectScope] contains all
+///
+class ProjectUsecase
+    with PubspecMixin, L10nConfigurationMixin, ArbMixin, ArbTemplateMixin, ArbValidationMixin {
   const ProjectUsecase({required this.read, required this.recentProjectsUsecase});
 
-  static final _localeFromFileNameRegExp = RegExp(r'^\w+_(\w\w).arb$');
   static const asyncDelay = Duration(milliseconds: 100);
 
   final Reader read;
   final RecentProjectsUsecase recentProjectsUsecase;
 
-  void closeProject() => read(projectProvider.notifier)._close();
+  void initScope() {
+    read(_projectScopeProvider.notifier).state = ProjectScope();
+    read(arbUsecaseProvider).initScope();
+  }
 
-  void cancelLoading() => read(projectProvider.notifier)._loadStage(LoadStage.canceled);
+  /// Creates a new [ProjectScope] for runtime execution.
+  void closeProject() {
+    initScope();
+  }
 
+  /// Stops loading, leaving the project loading state as canceled.
+  void cancelLoading() {
+    _projectNotifier().loadStage(LoadStage.canceled);
+  }
+
+  /// Loading of the whole project.
+  ///
+  /// The loading process is initializes a new [ProjectScope] for execution and
+  /// goes through several async steps to load a project.
+  ///
+  /// The project and the project scope will then be edited (managed) by the user.
   Future<void> loadProject({required String projectPath}) async {
-    final projectNotifier = read(projectProvider.notifier);
+    initScope();
+    final projectNotifier = _projectNotifier();
     try {
-      await _initProject(projectPath: projectPath);
+      await _initProject(projectNotifier, projectPath: projectPath);
+      if (read(projectProvider).loadStage.isFinished) return;
+      await _loadPubspec(projectNotifier);
 
       if (read(projectProvider).loadStage.isFinished) return;
-      await _loadPubspec();
+      await _defineConfiguration(projectNotifier);
 
       if (read(projectProvider).loadStage.isFinished) return;
-      await _defineConfiguration();
+      await _readTemplateFile(projectNotifier);
 
       if (read(projectProvider).loadStage.isFinished) return;
-      await _readTemplateFile();
+      await _readTranslationFiles(projectNotifier);
 
       if (read(projectProvider).loadStage.isFinished) return;
-      await _readTranslationFiles();
+      await _saveToRecentProjects(projectNotifier);
 
       if (read(projectProvider).loadStage.isFinished) return;
-      await _saveToRecentProjects();
-
-      if (read(projectProvider).loadStage.isFinished) return;
-      await _setLoaded();
+      await _setLoaded(projectNotifier);
     } on L10nException catch (e) {
-      projectNotifier._l10nException(e);
+      projectNotifier.l10nException(e);
     } catch (e) {
-      projectNotifier._l10nException(L10nGenericError(e));
+      projectNotifier.l10nException(L10nGenericError(e));
     }
   }
 
-  Future<void> _initProject({required String projectPath}) async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.initial);
+  Future<void> _initProject(ProjectNotifier projectNotifier, {required String projectPath}) async {
+    projectNotifier.loadStage(LoadStage.initial);
     await Future.delayed(asyncDelay);
 
     read(arbUsecaseProvider).clearSelection();
-    read(projectProvider.notifier)._init(projectPath);
+    projectNotifier.init(projectPath);
   }
 
-  Future<void> _loadPubspec() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.readingPubspec);
+  Future<void> _loadPubspec(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.readingPubspec);
     await Future.delayed(asyncDelay);
 
     final project = read(projectProvider);
-    final file = File('${project.path}/pubspec.yaml');
-    if (!await file.exists()) {
-      throw const L10nMissingPubspecException();
-    }
+    final pubspec = await readPubspec(project);
+    projectNotifier.name(pubspec.name);
 
-    final content = await file.readAsString();
-    final pubspec = Pubspec.parse(content);
-    projectNotifier._name(pubspec.name);
-
-    const localizationsDepName = 'flutter_localizations';
-    var dep = pubspec.dependencies[localizationsDepName];
-    if (dep == null) {
-      throwMissingDependency(localizationsDepName, projectPath: project.path, isSDK: true);
-    }
-    if (dep is! SdkDependency) {
-      throw const L10nIncompleteDependencyException(localizationsDepName);
-    }
-
-    const intlDepName = 'intl';
-    dep = pubspec.dependencies[intlDepName];
-    if (dep == null) {
-      throwMissingDependency(intlDepName, projectPath: project.path);
+    try {
+      checkPubspecDependency(project, pubspec, 'flutter_localizations', isSdk: true);
+      checkPubspecDependency(project, pubspec, 'intl');
+    } on L10nMissingDependencyError catch (e) {
+      throwMissingDependency(e.depName, projectPath: e.projectPath, isSDK: e.isSDK);
     }
 
     final generate = pubspec.flutter?['generate'] == true;
-    projectNotifier._generateFlag(generate);
+    projectNotifier.generateFlag(generate);
   }
 
-  Future<void> _defineConfiguration() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.definingConfiguration);
+  Future<void> _defineConfiguration(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.definingConfiguration);
     await Future.delayed(asyncDelay);
 
     final project = read(projectProvider);
-    final file = File('${project.path}/l10n.yaml');
-
-    late L10nConfiguration configuration;
-    if (!await file.exists()) {
-      configuration = const L10nConfiguration(usingYamlFile: false);
-    } else {
-      final content = await file.readAsString();
-      final yaml = loadYaml(content) ?? <String, dynamic>{};
-      if (yaml is! Map) {
-        throw const L10nInvalidConfigurationFileException();
-      }
-
-      configuration = L10nConfiguration(
-        usingYamlFile: true,
-        arbDir: yaml['arb-dir'] ?? '',
-        templateArbFile: yaml['template-arb-file'] ?? '',
-        syntheticPackage: yaml['synthetic-package'] ?? L10nConfiguration.defaultSyntheticPackage,
-        outputDir: yaml['output-dir'] ?? '',
-        outputLocalizationFile: yaml['output-localization-file'] ?? '',
-        outputClass: yaml['output-class'] ?? '',
-        header: yaml['header'] ?? '',
-        requiredResourceAttributes: yaml['required-resource-attributes'] ??
-            L10nConfiguration.defaultRequiredResourceAttributes,
-        nullableGetter: yaml['nullable-getter'] ?? L10nConfiguration.defaultNullableGetter,
-      );
-    }
-    projectNotifier._configuration(configuration);
+    final configuration = await readL10nConfiguration(project);
+    projectNotifier.configuration(configuration);
   }
 
-  Future<void> _readTemplateFile() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.readingDefinitions);
+  Future<void> _readTemplateFile(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.readingDefinitions);
     await Future.delayed(asyncDelay);
 
     final project = read(projectProvider);
     final config = project.configuration;
-    final dir = Directory('${project.path}/${config.effectiveArbDir}');
-    if (!await dir.exists()) {
-      throwMissingArbFolder(dir, config.effectiveArbDir);
+    late final Map<String, dynamic> arb;
+    try {
+      arb = await readArbTemplateMap(project);
+    } on L10nMissingArbFolderError catch (e) {
+      throwMissingArbFolder(e.dir, config);
+    } on L10nMissingArbTemplateError catch (e) {
+      throwMissingTemplateFile(e.file, config);
     }
 
-    final path = '${project.path}/${config.effectiveArbDir}/${config.effectiveTemplateArbFile}';
-    final file = File(path);
-    if (!await file.exists()) {
-      throwMissingTemplateFile(file, config);
-    }
-
-    final content = await file.readAsString();
-    final global = <String, String>{};
-    final translations = <String, String>{};
+    final globals = <String, String>{};
     final definitions = <String, dynamic>{};
-    final arb = jsonDecode(content);
-    if (arb is! Map<String, dynamic>) {
-      throw L10nArbFileFormatException(config.effectiveTemplateArbFile);
-    }
+    final translations = <String, String>{};
+    parserArbGlobalsDefinitionsAndTranslationsFromTemplateMap(
+      arb,
+      globals: globals,
+      definitions: definitions,
+      translations: translations,
+    );
 
-    for (final entry in arb.entries) {
-      if (entry.key.startsWith('@@')) {
-        if (entry.value is String) {
-          global[entry.key] = entry.value;
-        } else {
-          throw L10nArbGlobalDefinitionException(entry.key);
-        }
-      } else if (entry.key.startsWith('@')) {
-        definitions[entry.key] = entry.value;
-      } else {
-        if (entry.value is String) {
-          translations[entry.key] = entry.value;
-        } else {
-          throw L10nArbDefinitionException(entry.key);
-        }
-      }
-    }
-
-    const validator = ArbValidator();
-    validator.validate(
-      configuration: project.configuration,
+    arbValidation(
+      configuration: config,
       translations: translations,
       definitions: definitions,
     );
 
-    final locale = _locale(config.effectiveTemplateArbFile, arb);
-    final template = _arbTemplate(global: global, translations: translations, meta: definitions);
-    projectNotifier._template(template);
-    projectNotifier._localeTranslations(_localeTranslations(locale, translations));
-  }
-
-  ArbTemplate _arbTemplate({
-    required Map<String, String> global,
-    required Map<String, String> translations,
-    required Map<String, dynamic> meta,
-  }) {
-    final globalResources = global.entries.map((e) => ArbTranslation(key: e.key, value: e.value));
-    final definitions =
-        translations.entries.map((keyValue) => _definition(keyValue.key, keyValue.value, meta));
-    return ArbTemplate(
-      globalResources: globalResources.toList(growable: false),
-      definitions: definitions.toList(growable: false),
+    final locale = arbLocaleFromMap(config.effectiveTemplateArbFile, arb);
+    final template = arbTemplateFromMap(
+      globals: globals,
+      meta: definitions,
+      translations: translations,
     );
+    projectNotifier.template(template);
+    projectNotifier.localeTranslations(arbLocaleTranslations(locale, translations));
   }
 
-  ArbDefinition _definition(String key, String value, Map<String, dynamic> meta) {
-    final definitionKey = '@$key';
-    final definitionMap = meta[definitionKey];
-    return ArbDefinition(
-      key: key,
-      value: value,
-      context: definitionMap?['context'] as String?,
-      description: definitionMap?['description'] as String?,
-      placeholders: _placeholders(definitionMap?['placeholders'] as Map<String, dynamic>?),
-    );
-  }
-
-  List<ArbPlaceholder> _placeholders(Map<String, dynamic>? placeholders) {
-    if (placeholders == null) {
-      return [];
-    }
-    final arbPlaceholders = <ArbPlaceholder>[];
-    for (final entry in placeholders.entries) {
-      if (entry.value is! Map<String, dynamic>) {
-        throw L10nArbPlaceholdersFormatException(entry.key);
-      }
-      final key = entry.key;
-      final type = entry.value['type'] as String?;
-      final desc = entry.value['description'] as String? ?? '';
-      final example = entry.value['example'] as String? ?? '';
-      if (type == null) {
-        arbPlaceholders.add(ArbPlaceholder.generic(key: key, description: desc, example: example));
-      } else if (type == 'String') {
-        arbPlaceholders.add(ArbPlaceholder.string(key: key, description: desc, example: example));
-      } else if (type == 'DateTime') {
-        final formatString = entry.value['format'] as String? ?? '';
-        final format = ArbIcuDatePlaceholderFormat.forSkeleton(formatString) ??
-            ArbIcuDatePlaceholderFormat.yearMonthDay;
-        final useCustomFormat = entry.value['isCustomDateFormat'] == 'true';
-        arbPlaceholders.add(
-          ArbPlaceholder.dateTime(
-            key: key,
-            description: desc,
-            example: example,
-            icuFormat: format,
-            useCustomFormat: useCustomFormat,
-            customFormat: useCustomFormat ? formatString : '',
-          ),
-        );
-      } else if (type == 'num' || type == 'int' || type == 'double') {
-        final formatName = entry.value['format'] as String?;
-        final format = formatName == null ? null : ArbNumberPlaceholderFormat.forName(formatName);
-        final optionalParamsMap = entry.value['optionalParameters'] as Map<String, dynamic>?;
-        final optionalParameters = <String, String>{};
-        if (format != null && optionalParamsMap != null) {
-          for (final entry in optionalParamsMap.entries) {
-            try {
-              final parameter = ArbNumberPlaceholderParameter.forName(entry.key);
-              if (format.optionalParameters.contains(parameter)) {
-                optionalParameters[entry.key] = entry.value;
-              }
-            } catch (e) {
-              throw const L10nException();
-            }
-          }
-        }
-        arbPlaceholders.add(
-          ArbPlaceholder.number(
-            key: key,
-            description: desc,
-            example: example,
-            type: ArbPlaceholderType.forType(type),
-            format: format,
-            optionalParameters: optionalParameters,
-          ),
-        );
-      }
-    }
-    return arbPlaceholders;
-  }
-
-  Future<void> _readTranslationFiles() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.readingTranslations);
+  Future<void> _readTranslationFiles(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.readingTranslations);
     await Future.delayed(asyncDelay);
 
     final project = read(projectProvider);
-    final configuration = project.configuration;
-    final dir = Directory('${project.path}/${configuration.effectiveArbDir}');
-    if (!await dir.exists()) {
-      throwMissingArbFolder(dir, configuration.effectiveArbDir);
+    late final List<ArbLocaleTranslations> allLocalesTranslations;
+    try {
+      allLocalesTranslations = await readArbTranslations(project);
+    } on L10nMissingArbFolderError catch (e) {
+      throwMissingArbFolder(e.dir, project.configuration);
     }
-
-    final languageFiles = <File>[];
-    final dirList = dir.listSync();
-    for (final file in dirList) {
-      if (file is File) {
-        final name = file.uri.pathSegments.last;
-        if (name.endsWith('.arb')) {
-          if (name != configuration.effectiveTemplateArbFile) {
-            languageFiles.add(file);
-          }
-        }
-      }
-    }
-    for (final file in languageFiles) {
-      final localeTranslations = await _readTranslationFile(file);
-      projectNotifier._localeTranslations(localeTranslations);
+    for (final localeTranslations in allLocalesTranslations) {
+      projectNotifier.localeTranslations(localeTranslations);
     }
   }
 
-  Future<ArbLocaleTranslations> _readTranslationFile(File file) async {
-    final name = file.uri.pathSegments.last;
-    final content = await file.readAsString();
-    final arb = json.decode(content);
-    if (arb is! Map<String, dynamic>) {
-      throw L10nArbFileFormatException(name);
-    }
-
-    final locale = _locale(name, arb);
-    final translationsMap = <String, String>{};
-    for (final entry in arb.entries) {
-      if (!entry.key.startsWith('@')) {
-        if (entry.value is String) {
-          translationsMap[entry.key] = entry.value;
-        } else {
-          throw L10nArbDefinitionException(entry.key);
-        }
-      }
-    }
-    return _localeTranslations(locale, translationsMap);
-  }
-
-  ArbLocaleTranslations _localeTranslations(String locale, Map<String, String> translationsMap) {
-    final translations = <String, ArbTranslation>{};
-    for (final entry in translationsMap.entries) {
-      translations[entry.key] = ArbTranslation(key: entry.key, value: entry.value);
-    }
-    return ArbLocaleTranslations(locale: locale, translations: translations);
-  }
-
-  String _locale(String fileName, Map<String, dynamic> arb) =>
-      arb['@@locale'] ?? _matchLocaleFromFileName(fileName);
-
-  String _matchLocaleFromFileName(String name) {
-    final match = _localeFromFileNameRegExp.firstMatch(name);
-    if (match == null) {
-      throw L10nFileMissingLocaleException(name);
-    }
-    return match.group(1)!;
-  }
-
-  Future<void> _saveToRecentProjects() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.savingToRecentProjects);
+  Future<void> _saveToRecentProjects(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.savingToRecentProjects);
     await Future.delayed(asyncDelay);
 
     final project = read(projectProvider);
@@ -374,9 +200,8 @@ class ProjectUsecase {
     recentProjectsUsecase.setFirst(recentProject);
   }
 
-  Future<void> _setLoaded() async {
-    final projectNotifier = read(projectProvider.notifier);
-    projectNotifier._loadStage(LoadStage.loaded);
+  Future<void> _setLoaded(ProjectNotifier projectNotifier) async {
+    projectNotifier.loadStage(LoadStage.loaded);
     await Future.delayed(asyncDelay);
   }
 
@@ -412,32 +237,8 @@ class ProjectUsecase {
     );
   }
 
-  Future<void> _addDependency(
-    String depName, {
-    required String projectPath,
-    bool isSDK = false,
-    bool isDev = false,
-  }) async {
-    final result = await Process.run(
-      'flutter',
-      [
-        'pub',
-        'add',
-        if (isDev) '--dev',
-        depName,
-        if (isSDK) '--sdk=flutter',
-      ],
-      workingDirectory: projectPath,
-      runInShell: true,
-    );
-    if (result.exitCode != 0) {
-      final exception = L10nAddDependencyError(depName);
-      read(projectProvider.notifier)._l10nException(exception);
-      throw exception;
-    }
-  }
-
-  void throwMissingArbFolder(Directory dir, String folderName) {
+  void throwMissingArbFolder(Directory dir, L10nConfiguration configuration) {
+    final folderName = configuration.effectiveArbDir;
     throw L10nMissingArbFolderException(
       folderName,
       fixActionLabel: 'Create Folder',
@@ -445,16 +246,6 @@ class ProjectUsecase {
       fixActionInfo: 'Create missing folder in this project structure.',
       fixActionCallback: () => _createFolder(dir, folderName),
     );
-  }
-
-  Future<void> _createFolder(Directory dir, String folderName) async {
-    try {
-      await dir.create(recursive: true);
-    } catch (e) {
-      final exception = L10nCreateFolderError(folderName);
-      read(projectProvider.notifier)._l10nException(exception);
-      throw exception;
-    }
   }
 
   void throwMissingTemplateFile(File file, L10nConfiguration configuration) {
@@ -469,13 +260,32 @@ class ProjectUsecase {
     );
   }
 
+  Future<void> _addDependency(String depName, {required String projectPath, bool isSDK = false}) {
+    try {
+      return addPubspecDependency(depName, projectPath: projectPath, isSDK: isSDK);
+    } on L10nException catch (e) {
+      _projectNotifier().l10nException(e);
+      rethrow;
+    }
+  }
+
+  Future<void> _createFolder(Directory dir, String folderName) async {
+    try {
+      await dir.create(recursive: true);
+    } catch (e) {
+      final exception = L10nCreateFolderError(folderName);
+      _projectNotifier().l10nException(exception);
+      throw exception;
+    }
+  }
+
   Future<void> _createTemplateFile(File file, String fileName) async {
     late final String locale;
     try {
-      locale = _matchLocaleFromFileName(fileName);
+      locale = matchArbLocaleFromFileName(fileName);
     } on L10nFileMissingLocaleException {
       final exception = L10nCreateTemplateFileWithoutLocaleSufixError(fileName);
-      read(projectProvider.notifier)._l10nException(exception);
+      _projectNotifier().l10nException(exception);
       throw exception;
     }
     try {
@@ -483,8 +293,13 @@ class ProjectUsecase {
       await file.writeAsString('{\n  "@@locale": "$locale"\n}\n');
     } catch (e) {
       final exception = L10nCreateTemplateFileError(fileName);
-      read(projectProvider.notifier)._l10nException(exception);
+      _projectNotifier().l10nException(exception);
       throw exception;
     }
+  }
+
+  ProjectNotifier _projectNotifier() {
+    final scope = read(_projectScopeProvider);
+    return read(scope.projectProvider.notifier);
   }
 }

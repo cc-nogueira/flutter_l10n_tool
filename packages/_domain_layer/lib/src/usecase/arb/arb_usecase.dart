@@ -1,56 +1,54 @@
-import 'dart:collection';
-
 import 'package:riverpod/riverpod.dart';
 
 import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
-import '../../provider/providers.dart';
+import 'arb_scope.dart';
 
-part 'notifier/definitions_notifier.dart';
-part 'notifier/map_notifiers.dart';
-part 'notifier/placeholders_notifier.dart';
-part 'notifier/selected_definition_notifier.dart';
-part 'notifier/translations_notifier.dart';
+part 'arb_providers.dart';
 
 class ArbUsecase {
   ArbUsecase(this.read);
 
   final Reader read;
 
+  void initScope() {
+    read(_arbScopeProvider.notifier).state = ArbScope();
+  }
+
   void select(ArbDefinition? definition) {
-    _selectedDefinitionNotifier()._select(definition);
+    _selectedDefinitionNotifier().select(definition);
   }
 
   void toggle(ArbDefinition? definition) {
-    _selectedDefinitionNotifier()._toggle(definition);
+    _selectedDefinitionNotifier().toggle(definition);
   }
 
   void clearSelection() {
-    _selectedDefinitionNotifier()._clearSelection();
+    _selectedDefinitionNotifier().clear();
   }
 
   void editDefinition({required ArbDefinition original, required ArbDefinition current}) {
-    _beingEditedDefinitionsNotifier()._edit(original, current);
+    _beingEditedDefinitionsNotifier().edit(original, current);
   }
 
   void discardDefinitionChanges({required ArbDefinition original}) {
-    _beingEditedDefinitionsNotifier()._discardChanges(original);
-    _existingPlaceholdersBeingEditedNotifier()._discardChanges(original);
-    _formPlaceholdersNotifier()._discardChanges(original);
+    _beingEditedDefinitionsNotifier().discardChanges(original);
+    _existingPlaceholdersBeingEditedNotifier().discardChanges(original);
+    _formPlaceholdersNotifier().discardChanges(original);
   }
 
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
     if (original == value) {
-      _currentDefinitionsNotifier()._discardChanges(original);
+      _currentDefinitionsNotifier().discardChanges(original);
     } else {
-      _currentDefinitionsNotifier()._edit(original, value);
+      _currentDefinitionsNotifier().edit(original, value);
     }
     discardDefinitionChanges(original: original);
   }
 
   void rollbackDefinition({required ArbDefinition original}) {
-    _currentDefinitionsNotifier()._discardChanges(original);
+    _currentDefinitionsNotifier().discardChanges(original);
   }
 
   /// Track the placeholder being edited.
@@ -65,9 +63,9 @@ class ArbUsecase {
     required ArbPlaceholder? placeholder,
   }) {
     if (placeholder == null) {
-      _existingPlaceholdersBeingEditedNotifier()._discardChanges(definition);
+      _existingPlaceholdersBeingEditedNotifier().discardChanges(definition);
     } else {
-      _existingPlaceholdersBeingEditedNotifier()._edit(definition, placeholder);
+      _existingPlaceholdersBeingEditedNotifier().edit(definition, placeholder);
     }
   }
 
@@ -88,9 +86,9 @@ class ArbUsecase {
     required ArbPlaceholder? placeholder,
   }) {
     if (placeholder == null) {
-      _formPlaceholdersNotifier()._discardChanges(definition);
+      _formPlaceholdersNotifier().discardChanges(definition);
     } else {
-      _formPlaceholdersNotifier()._edit(definition, placeholder);
+      _formPlaceholdersNotifier().edit(definition, placeholder);
     }
   }
 
@@ -99,16 +97,16 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation current,
   }) {
-    _beingEditedTranslationsForLanguageNotifier(locale)._edit(definition, current);
-    _beingEditedTranslationLocalesNotifier()._add(definition, locale);
+    _beingEditedTranslationsForLanguageNotifier(locale).edit(definition, current);
+    _beingEditedTranslationLocalesNotifier().add(definition, locale);
   }
 
   void discardTranslationChanges({
     required String locale,
     required ArbDefinition definition,
   }) {
-    _beingEditedTranslationsForLanguageNotifier(locale)._discardChanges(definition);
-    _beingEditedTranslationLocalesNotifier()._remove(definition, locale);
+    _beingEditedTranslationsForLanguageNotifier(locale).discardChanges(definition);
+    _beingEditedTranslationLocalesNotifier().remove(definition, locale);
   }
 
   void saveTranslation({
@@ -116,33 +114,51 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation value,
   }) {
-    _currentTranslationsForLanguageNotifier(locale)._edit(definition, value);
+    _currentTranslationsForLanguageNotifier(locale).edit(definition, value);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
-  SelectedDefinitionNotifier _selectedDefinitionNotifier() =>
-      read(selectedDefinitionProvider.notifier);
+  SelectedDefinitionNotifier _selectedDefinitionNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.selectedDefinitionProvider.notifier);
+  }
 
-  DefinitionsNotifier _beingEditedDefinitionsNotifier() =>
-      read(beingEditedDefinitionsProvider.notifier);
+  DefinitionsNotifier _beingEditedDefinitionsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.beingEditedDefinitionsProvider.notifier);
+  }
 
   /// Return the [existingPlaceholdersBeingEditedProvider] notifier.
-  PlaceholdersNotifier _existingPlaceholdersBeingEditedNotifier() =>
-      read(existingPlaceholdersBeingEditedProvider.notifier);
+  PlaceholdersNotifier _existingPlaceholdersBeingEditedNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.existingPlaceholdersBeingEditedProvider.notifier);
+  }
 
   ///Return the [formPlaceholdersProvider] notifier.
-  PlaceholdersNotifier _formPlaceholdersNotifier() => read(formPlaceholdersProvider.notifier);
+  PlaceholdersNotifier _formPlaceholdersNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.formPlaceholdersProvider.notifier);
+  }
 
   ///Return the [currentDefinitionsProvider] notifier.
-  DefinitionsNotifier _currentDefinitionsNotifier() => read(currentDefinitionsProvider.notifier);
+  DefinitionsNotifier _currentDefinitionsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.currentDefinitionsProvider.notifier);
+  }
 
   ///Return the [beingEditedTranslationLocalesProvider] notifier.
-  TranslationLocalesNotifier _beingEditedTranslationLocalesNotifier() =>
-      read(beingEditedTranslationLocalesProvider.notifier);
+  TranslationLocalesNotifier _beingEditedTranslationLocalesNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.beingEditedTranslationLocalesProvider.notifier);
+  }
 
-  TranslationsForLanguageNotifier _currentTranslationsForLanguageNotifier(String locale) =>
-      read(currentTranslationsForLanguageProvider(locale).notifier);
+  TranslationsForLanguageNotifier _currentTranslationsForLanguageNotifier(String locale) {
+    final scope = read(_arbScopeProvider);
+    return read(scope.currentTranslationsForLanguageProvider(locale).notifier);
+  }
 
-  TranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(String locale) =>
-      read(beingEditedTranslationsForLanguageProvider(locale).notifier);
+  TranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(String locale) {
+    final scope = read(_arbScopeProvider);
+    return read(scope.beingEditedTranslationsForLanguageProvider(locale).notifier);
+  }
 }

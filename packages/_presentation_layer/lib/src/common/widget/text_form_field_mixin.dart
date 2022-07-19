@@ -82,7 +82,7 @@ mixin TextFormFieldMixin {
 
   TextEditingValue _keyFormatterFunction(TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
-    final match = ArbUtil.keyRegExp.firstMatch(text);
+    final match = ArbMixin.keyRegExp.firstMatch(text);
     if (match == null) return const TextEditingValue();
     if (match.start == 0 && match.end == text.length) return newValue;
 

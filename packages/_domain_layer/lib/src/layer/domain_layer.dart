@@ -9,7 +9,7 @@ import '../repository/preferences_repository.dart';
 import '../repository/recent_projects_repository.dart';
 import '../usecase/preferences/preferences_usecase.dart';
 import '../usecase/project/project_usecase.dart';
-import '../usecase/project/recent_projects_usecase.dart';
+import '../usecase/recent_projects/recent_projects_usecase.dart';
 
 /// Function definition for Domain Layer dependencies
 typedef DomainConfiguration = void Function({

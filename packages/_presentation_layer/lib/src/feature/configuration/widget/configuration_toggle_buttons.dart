@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
+import '../../../provider/presentation_providers.dart';
 
 class ConfigurationToggleButtons extends ConsumerWidget {
   const ConfigurationToggleButtons({super.key});

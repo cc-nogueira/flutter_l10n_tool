@@ -1,6 +1,17 @@
 {
   "@@locale": "en",
 
+  "test": "Testing with placeholders {jack} and {joe}",
+  "@test": {
+    "placeholders": {
+      "jack": {
+        "type": "DateTime",
+        "format": "H"
+      },
+      "joe": {}
+    }
+  },
+
   "title_home_page": "Localization App",
 
   "title_error_page": "Error",

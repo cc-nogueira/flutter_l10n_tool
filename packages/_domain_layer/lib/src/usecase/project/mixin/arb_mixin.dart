@@ -1,30 +1,30 @@
 enum ArbDefinitionType {
+  placeholder,
   plural,
-  text,
   select;
 
+  bool get isPlaceholder => this == placeholder;
   bool get isPlural => this == plural;
   bool get isSelect => this == select;
-  bool get isText => this == text;
 }
 
-class ArbUtil {
+mixin ArbMixin {
   static final keyRegExp = RegExp(r'[_a-zA-Z]\w*');
   static final pluralRegExp = RegExp(r'{\s*(\w+)\s*,\s*plural\s*,(.*)}');
   static final selectRegExp = RegExp(r'{\s*(\w+)\s*,\s*select\s*,(.*)}');
   static final optionsRegExp = RegExp(r'(\w+){([^}]*)}');
 
-  static ArbDefinitionType typeForValue(String value) {
+  ArbDefinitionType arbDefinitionTypeForValue(String value) {
     if (pluralRegExp.hasMatch(value)) {
       return ArbDefinitionType.plural;
     }
     if (selectRegExp.hasMatch(value)) {
       return ArbDefinitionType.select;
     }
-    return ArbDefinitionType.text;
+    return ArbDefinitionType.placeholder;
   }
 
-  static String mainPlaceholder(ArbDefinitionType type, String value) {
+  String arbPlaceholderName(ArbDefinitionType type, String value) {
     final rx = type.isPlural ? pluralRegExp : (type.isSelect ? selectRegExp : null);
     if (rx == null) {
       throw ArgumentError('There is no main placeholder for ArbDefinition of type $type');
@@ -36,7 +36,7 @@ class ArbUtil {
     return match.group(1)!;
   }
 
-  static Map<String, String> mainOptions(ArbDefinitionType type, String value) {
+  Map<String, String> inferArbOptionsFrom(ArbDefinitionType type, String value) {
     final rx = type.isPlural ? pluralRegExp : (type.isSelect ? selectRegExp : null);
     if (rx == null) {
       throw ArgumentError('There is no main options for ArbDefinition of type $type');

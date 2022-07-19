@@ -32,7 +32,7 @@ class PlaceholdersAndForm extends ConsumerWidget {
   /// Original definition is used as Key to placeholders providers.
   final ArbDefinition originalDefinition;
 
-  final StateController<ArbTextDefinition> definitionController;
+  final StateController<ArbPlaceholdersDefinition> definitionController;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
 
   /// Build method read placeholders providers (without watching them) and renders
@@ -94,7 +94,7 @@ class _PlaceholdersAndForm extends StatefulWidget {
   /// The color schem is "cached" here because it is used many times by the state object.
   final ColorScheme colors;
 
-  final StateController<ArbTextDefinition> definitionController;
+  final StateController<ArbPlaceholdersDefinition> definitionController;
   final StateController<ArbPlaceholder?> formPlaceholderController;
   final StateController<ArbPlaceholder?> existingPlaceholderBeingEditedController;
   final ValueChanged<ArbDefinition> onUpdateDefinition;
@@ -324,7 +324,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   final ValueChanged<ArbPlaceholder> addCallback;
   final ValueChanged<ArbPlaceholder> replaceCallback;
   final ValueChanged<ArbPlaceholder> deleteCallback;
-  final StateController<ArbTextDefinition> definitionController;
+  final StateController<ArbPlaceholdersDefinition> definitionController;
   final StateController<ArbPlaceholder?> formPlaceholderController;
   final StateController<ArbPlaceholder?> existingPlaceholderBeingEditedController;
   final StateController<Offset> startTargetOffset = StateController(Offset.zero);
