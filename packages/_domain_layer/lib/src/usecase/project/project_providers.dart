@@ -1,10 +1,10 @@
 part of 'project_usecase.dart';
 
-/// ProjectUsecase singleton provider
+/// [ProjectUsecase] singleton provider.
 final projectUsecaseProvider =
     Provider<ProjectUsecase>((ref) => ref.watch(domainLayerProvider).projectUsecase);
 
-/// Current project scope provider
+/// Internal - provider for the current [ProjectScope].
 final _projectScopeProvider = StateProvider((ref) => ProjectScope());
 
 /// This is a exporting provider to forward [ProjectScope] instance internal provider.

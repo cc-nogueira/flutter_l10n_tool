@@ -11,19 +11,33 @@ typedef PlaceholdersNotifier = MapNotifier<ArbDefinition, ArbPlaceholder>;
 typedef TranslationsForLanguageNotifier = MapNotifier<ArbDefinition, ArbTranslation>;
 typedef TranslationLocalesNotifier = MapOneToManyNotifier<ArbDefinition, String>;
 
-/// Project Scope is a collection of [StateNotificationProvider] that are part of [ArbUsecase].
+/// Arb Scope is a collection of [StateNotificationProvider] internal to [ArbUsecase].
 ///
-/// These scoped providers are all recreated when a new project is loaded.
-/// All are available as exported providers - simple Providers that export value of these Notifiers.
+/// This scope is recreated when a new project is loaded.
+///
+/// All these notifiers are available as exported providers (simple providers that export the value
+/// of each Notifier).
 class ArbScope {
+  /// Represents the current selected definition for the user interface.
+  ///
+  /// This value is changed when the user selects/deselects a resource in the list.
   final selectedDefinitionProvider =
       StateNotifierProvider<SelectedDefinitionNotifier, ArbDefinition?>(
           (_) => SelectedDefinitionNotifier());
 
+  /// Represents the current [ArbDefinition] modified and saved by the user.
+  ///
+  /// It may differ from the original definition loaded from project files.
+  /// It may also differ from the version being edited by the user (not saved).
   final currentDefinitionsProvider =
       StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
           (_) => DefinitionsNotifier());
 
+  /// Represents a definition being edited by the user.
+  ///
+  /// This correnponds to the current form values for each definition currently being edited.
+  /// The user interface may show one entry of this provider, and all definitions currently being
+  /// edited are stored here.
   final beingEditedDefinitionsProvider =
       StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
           (_) => DefinitionsNotifier());
@@ -57,17 +71,32 @@ class ArbScope {
       StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
           (_) => PlaceholdersNotifier());
 
+  /// Represents the current [ArbTranslation] modified and saved by the user.
+  /// This is a family provider to store all current ArbTranslations for each locale.
+  ///
+  /// It may differ from the original translation loaded from project files.
+  /// It may also differ from the version being edited by the user (not saved).
   final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
       TranslationsForLanguageNotifier,
       Map<ArbDefinition, ArbTranslation>,
       String>((_, locale) => TranslationsForLanguageNotifier());
 
-  final beingEditedTranslationLocalesProvider =
-      StateNotifierProvider<TranslationLocalesNotifier, Map<ArbDefinition, Set<String>>>(
-          (_) => TranslationLocalesNotifier());
-
-  final beingEditedTranslationsForLanguageProvider = StateNotifierProvider.family<
+  /// Represents a translation being edited by the user.
+  /// This is a family provider to store all ArbTranslations being edited for each locale.
+  ///
+  /// This correnponds to the current form values for each translation currently being edited.
+  /// The user interface may show entries for one locale of this provider, and all translations
+  /// currently being edited are stored here.
+  final beingEditedTranslationsForLocaleProvider = StateNotifierProvider.family<
       TranslationsForLanguageNotifier,
       Map<ArbDefinition, ArbTranslation>,
       String>((_, locale) => TranslationsForLanguageNotifier());
+
+  /// Represents the list of locales currently being edited for each ArbDefinition.
+  ///
+  /// It is useful to be able to signal wich definitions are being edited by the user (either by
+  /// a ArbDefintion being edited or having a locale translation being edited).
+  final beingEditedTranslationLocalesProvider =
+      StateNotifierProvider<TranslationLocalesNotifier, Map<ArbDefinition, Set<String>>>(
+          (_) => TranslationLocalesNotifier());
 }

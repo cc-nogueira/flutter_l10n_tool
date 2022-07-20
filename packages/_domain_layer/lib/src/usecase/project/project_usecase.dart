@@ -38,8 +38,9 @@ part 'project_providers.dart';
 /// The loading process fills a [Project] contains the [L10nConfiguration] and is stored in the
 /// [ProjectScope] instance.
 ///
-/// [ProjectScope] contains all
-///
+/// Later user edition of any [ArbDefinition] or [ArbTranslation] is performed by [ArbUsecase] and
+/// stored at [ArbScope], preserving the [ProjectScope] for the original values loaded from disk.
+/// These original values may be used to rollback changes performed by the user.
 class ProjectUsecase
     with PubspecMixin, L10nConfigurationMixin, ArbMixin, ArbTemplateMixin, ArbValidationMixin {
   const ProjectUsecase({required this.read, required this.recentProjectsUsecase});
@@ -49,27 +50,34 @@ class ProjectUsecase
   final Reader read;
   final RecentProjectsUsecase recentProjectsUsecase;
 
+  /// Creates a new [ProjectScope] to load a new project.
+  /// Also triggers the creation of a new ArbScope through [ArbUsecase.initScope].
   void initScope() {
     read(_projectScopeProvider.notifier).state = ProjectScope();
     read(arbUsecaseProvider).initScope();
   }
 
-  /// Creates a new [ProjectScope] for runtime execution.
+  /// Closes the open project by re initializing execution scopes.
   void closeProject() {
     initScope();
   }
 
-  /// Stops loading, leaving the project loading state as canceled.
+  /// Stops loading, leaving the project loading stage as canceled.
   void cancelLoading() {
     _projectNotifier().loadStage(LoadStage.canceled);
   }
 
   /// Loading of the whole project.
   ///
-  /// The loading process is initializes a new [ProjectScope] for execution and
+  /// The loading process is initializes a new [ProjectScope] and [ArbScope] for execution and
   /// goes through several async steps to load a project.
   ///
-  /// The project and the project scope will then be edited (managed) by the user.
+  /// After loading [ProjectScope] is changed only to retain changes in project configuration.
+  /// All user editing on [ArbDefinition] and [ArbTranslation] is done through [ArbUsecase] changing
+  /// its [ArbScope].
+  ///
+  /// The original definitions and translations kept in [ProjectScope] can be used to compare [ArbScope]
+  /// values to their original or to allow user rollback actions.
   Future<void> loadProject({required String projectPath}) async {
     initScope();
     final projectNotifier = _projectNotifier();
@@ -99,6 +107,10 @@ class ProjectUsecase
     }
   }
 
+  /// Internal - async method to init the loading process.
+  ///
+  /// Set the project load stage to [LoadStage.initial].
+  /// Set the project path.
   Future<void> _initProject(ProjectNotifier projectNotifier, {required String projectPath}) async {
     projectNotifier.loadStage(LoadStage.initial);
     await Future.delayed(asyncDelay);
@@ -107,6 +119,14 @@ class ProjectUsecase
     projectNotifier.init(projectPath);
   }
 
+  /// Internal - async method to load the pubspec file.
+  ///
+  /// - Set the project load stage to [LoadStage.readingPubspec].
+  /// - Read the pubspec.yaml file.
+  /// - Set project name.
+  /// - Check required dependencies.
+  /// - Set if the generate flag is set.
+  ///   This flag is required if the configuration uses synthetic packages.
   Future<void> _loadPubspec(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.readingPubspec);
     await Future.delayed(asyncDelay);
@@ -119,13 +139,18 @@ class ProjectUsecase
       checkPubspecDependency(project, pubspec, 'flutter_localizations', isSdk: true);
       checkPubspecDependency(project, pubspec, 'intl');
     } on L10nMissingDependencyError catch (e) {
-      throwMissingDependency(e.depName, projectPath: e.projectPath, isSDK: e.isSDK);
+      _throwMissingDependency(e.depName, projectPath: e.projectPath, isSDK: e.isSDK);
     }
 
     final generate = pubspec.flutter?['generate'] == true;
     projectNotifier.generateFlag(generate);
   }
 
+  /// Internal - async method to define the localization configuration.
+  ///
+  /// - Set the project load stage to [LoadStage.definingConfiguration].
+  /// - Read the l10n.yaml file if it exists.
+  /// - Define the configuration from this file and the default values for Flutter localization.
   Future<void> _defineConfiguration(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.definingConfiguration);
     await Future.delayed(asyncDelay);
@@ -135,6 +160,21 @@ class ProjectUsecase
     projectNotifier.configuration(configuration);
   }
 
+  /// Internal - async method to read the template file.
+  ///
+  /// The template file is the localization file for the main locale, as defined in the configuration.
+  ///
+  /// From this file it is read all global options, [ArbDefinition]s and the translations for this
+  /// main locale.
+  ///
+  /// - Set the project load stage to [LoadStage.readingDefinitions].
+  /// - Read the main locale localization file (as defined in the configuration).
+  /// - Parse this file as Map with String keys and dynamic values.
+  /// - Extract globals, definitions and translations from this file.
+  /// - Validate these values in light of ARB rules.
+  /// - Defines the locale from this main file (either from the content or from the name).
+  /// - Define the [ArbTemplate] object in the [Project].
+  /// - Define the first [ArbLocaleTranslations] object in the [Project].
   Future<void> _readTemplateFile(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.readingDefinitions);
     await Future.delayed(asyncDelay);
@@ -145,15 +185,15 @@ class ProjectUsecase
     try {
       arb = await readArbTemplateMap(project);
     } on L10nMissingArbFolderError catch (e) {
-      throwMissingArbFolder(e.dir, config);
+      _throwMissingArbFolder(e.dir, config);
     } on L10nMissingArbTemplateError catch (e) {
-      throwMissingTemplateFile(e.file, config);
+      _throwMissingTemplateFile(e.file, config);
     }
 
     final globals = <String, String>{};
     final definitions = <String, dynamic>{};
     final translations = <String, String>{};
-    parserArbGlobalsDefinitionsAndTranslationsFromTemplateMap(
+    parseArbGlobalsDefinitionsAndTranslationsFromTemplateMap(
       arb,
       globals: globals,
       definitions: definitions,
@@ -176,6 +216,11 @@ class ProjectUsecase
     projectNotifier.localeTranslations(arbLocaleTranslations(locale, translations));
   }
 
+  /// Internal - async method to read all remaining translation files.
+  ///
+  /// - Set the project load stage to [LoadStage.readingTranslations].
+  /// - Read all locale translations, one for each translation file found in the ArbDirectory.
+  /// - Store all [ArbLocaleTranslations] objects in the [Project].
   Future<void> _readTranslationFiles(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.readingTranslations);
     await Future.delayed(asyncDelay);
@@ -185,13 +230,20 @@ class ProjectUsecase
     try {
       allLocalesTranslations = await readArbTranslations(project);
     } on L10nMissingArbFolderError catch (e) {
-      throwMissingArbFolder(e.dir, project.configuration);
+      _throwMissingArbFolder(e.dir, project.configuration);
     }
     for (final localeTranslations in allLocalesTranslations) {
       projectNotifier.localeTranslations(localeTranslations);
     }
   }
 
+  /// Save the current loading project to the list of [RecentProject]s.
+  ///
+  /// This list is saved to the repository store to be retrieved in a next application execution.
+  ///
+  /// - Set the project load stage to [LoadStage.savingToRecentProjects].
+  /// - Set the current project as the first project in the recent list through
+  ///   [RecentProjectsUsecase] that will also store the new list to storage.
   Future<void> _saveToRecentProjects(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.savingToRecentProjects);
     await Future.delayed(asyncDelay);
@@ -201,11 +253,21 @@ class ProjectUsecase
     recentProjectsUsecase.setFirst(recentProject);
   }
 
+  /// Notifies the project is fully loaded.
+  ///
+  /// - Set the project load stage to [LoadStage.loaded].
   Future<void> _setLoaded(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.loaded);
     await Future.delayed(asyncDelay);
   }
 
+  /// Save a user changed [L10nConfiguration].
+  ///
+  /// It is expected that the project will be reloaded after this configuration is saved to disk,
+  /// and that the user interface will display the new loading process.
+  ///
+  /// - Generates a YAML content from this configuration.
+  /// - Write to l10n.yaml file.
   Future<void> saveConfiguration(L10nConfiguration conf) async {
     final project = read(projectProvider);
     final writer = YAMLWriter();
@@ -228,7 +290,10 @@ class ProjectUsecase
     await file.writeAsString(content);
   }
 
-  void throwMissingDependency(String depName, {required String projectPath, bool isSDK = false}) {
+  /// Internal - thow the fixable exception [L10nMissingDependencyException].
+  ///
+  /// The fix action is defined in [_addDependency].
+  void _throwMissingDependency(String depName, {required String projectPath, bool isSDK = false}) {
     throw L10nMissingDependencyException(
       depName,
       fixActionLabel: 'Add Dependency',
@@ -238,7 +303,10 @@ class ProjectUsecase
     );
   }
 
-  void throwMissingArbFolder(Directory dir, L10nConfiguration configuration) {
+  /// Internal - thow the fixable exception [L10nMissingArbFolderException].
+  ///
+  /// The fix action is defined in [_createFolder].
+  void _throwMissingArbFolder(Directory dir, L10nConfiguration configuration) {
     final folderName = configuration.effectiveArbDir;
     throw L10nMissingArbFolderException(
       folderName,
@@ -249,7 +317,10 @@ class ProjectUsecase
     );
   }
 
-  void throwMissingTemplateFile(File file, L10nConfiguration configuration) {
+  /// Internal - thow the fixable exception [L10nMissingArbTemplateFileException].
+  ///
+  /// The fix action is defined in [_createTemplateFile].
+  void _throwMissingTemplateFile(File file, L10nConfiguration configuration) {
     final path = '${configuration.effectiveArbDir}/${configuration.effectiveTemplateArbFile}';
     throw L10nMissingArbTemplateFileException(
       path,
@@ -261,6 +332,9 @@ class ProjectUsecase
     );
   }
 
+  /// Fix action for [L10nMissingDependencyException].
+  ///
+  /// See [_throwMissingDependency] above.
   Future<void> _addDependency(String depName, {required String projectPath, bool isSDK = false}) {
     try {
       return addPubspecDependency(depName, projectPath: projectPath, isSDK: isSDK);
@@ -270,6 +344,9 @@ class ProjectUsecase
     }
   }
 
+  /// Fix action for [L10nMissingArbFolderException].
+  ///
+  /// See [_throwMissingArbFolder] above.
   Future<void> _createFolder(Directory dir, String folderName) async {
     try {
       await dir.create(recursive: true);
@@ -280,6 +357,9 @@ class ProjectUsecase
     }
   }
 
+  /// Fix action for [L10nMissingArbTemplateFileException].
+  ///
+  /// See [_throwMissingTemplateFile] above.
   Future<void> _createTemplateFile(File file, String fileName) async {
     late final String locale;
     try {
@@ -299,6 +379,9 @@ class ProjectUsecase
     }
   }
 
+  /// Internal - project notifier that updates the current project and notifies changes.
+  ///
+  /// This [ProjectNotifier] is part of this usecase [ProjectScope].
   ProjectNotifier _projectNotifier() {
     final scope = read(_projectScopeProvider);
     return read(scope.projectProvider.notifier);

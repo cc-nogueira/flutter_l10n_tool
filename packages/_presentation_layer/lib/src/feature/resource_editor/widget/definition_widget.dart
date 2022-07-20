@@ -100,7 +100,7 @@ class DefinitionWidget extends ConsumerWidget {
   }
 
   void _updateDefinition(Reader read, ArbDefinition beingEdited) {
-    read(arbUsecaseProvider).editDefinition(original: original, current: beingEdited);
+    read(arbUsecaseProvider).updateDefinitionBeingEdited(original: original, current: beingEdited);
   }
 
   void _discardChanges(Reader read) {

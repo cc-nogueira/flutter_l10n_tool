@@ -63,7 +63,7 @@ class PreferencesUsecase {
   ///
   /// This method reads the preference from the [PreferencesRepository] with a default initialValue.
   /// Use the correspondent public provider instead.
-  DisplayOption get _displayOption {
+  DisplayOption get _storedOrInitialDisplayOption {
     final pref = repository.getByKey(_displayOptionKey);
     if (pref?.value == DisplayOption.compact.name) return DisplayOption.compact;
     if (pref?.value == DisplayOption.expanded.name) return DisplayOption.expanded;
@@ -83,7 +83,7 @@ class PreferencesUsecase {
   ///
   /// This method reads the preference from the [PreferencesRepository] with a default initialValue.
   /// Use the correspondent public provider instead.
-  LanguageOption get _languageOption {
+  LanguageOption get _storedOrInitialLanguageOption {
     final pref = repository.getByKey(_languageOptionKey);
     if (pref == null) return LanguageOption.none;
     final split = pref.value.split('_');
@@ -104,7 +104,7 @@ class PreferencesUsecase {
   ///
   /// This method reads the preference from the [PreferencesRepository] with a default initialValue.
   /// Use the correspondent public provider instead.
-  ThemeMode get _themeMode {
+  ThemeMode get _storedOrInitialThemeMode {
     final pref = repository.getByKey(_themeKey);
     if (pref?.value == ThemeMode.light.name) return ThemeMode.light;
     if (pref?.value == ThemeMode.dark.name) return ThemeMode.dark;

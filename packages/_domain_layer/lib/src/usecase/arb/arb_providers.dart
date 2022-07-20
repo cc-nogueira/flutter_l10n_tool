@@ -1,9 +1,9 @@
 part of 'arb_usecase.dart';
 
-/// ArbUsecase singleton provider
+/// [ArbUsecase] singleton provider.
 final arbUsecaseProvider = Provider<ArbUsecase>((ref) => ArbUsecase(ref.read));
 
-/// Internal - provider of the current arb scope.
+/// Internal - provider of the current [ArbScope].
 final _arbScopeProvider = StateProvider((ref) => ArbScope());
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
@@ -57,9 +57,9 @@ final beingEditedTranslationLocalesProvider = Provider((ref) {
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
-/// See [ArbScope.beingEditedTranslationsForLanguageProvider].
+/// See [ArbScope.beingEditedTranslationsForLocaleProvider].
 final beingEditedTranslationsForLanguageProvider =
     Provider.family<Map<ArbDefinition, ArbTranslation>, String>((ref, locale) {
   final scope = ref.watch(_arbScopeProvider);
-  return ref.watch(scope.beingEditedTranslationsForLanguageProvider(locale));
+  return ref.watch(scope.beingEditedTranslationsForLocaleProvider(locale));
 });

@@ -7,37 +7,71 @@ import 'arb_scope.dart';
 
 part 'arb_providers.dart';
 
+/// Use case for [ArbDefinition] and [ArbTranlations] modified or being edited by the user.
+///
+/// All changes in localization performed by the user is processed through this use case and stored
+/// in the [ArbScope]. This scope is private to the Usecase an only exported state is notified outside
+/// through export providers that forward changes to the user interface listeners.
+///
+/// At any time this scope contains all definitions and translations saved and being edited,
+/// allowing the comparisson of current, being edited and original versions (from the load [Project]).
+///
+/// When saved definitions or translations are discarded the effect is that we will know that only the
+/// original (loaded) version exists.
+/// It is thus possible to indicate in the user interface what definitions and translations are
+/// currently being edited and witch have been modified by the user since the project was loaded.
 class ArbUsecase {
   ArbUsecase(this.read);
 
   final Reader read;
 
+  /// Creates a new [ArbScope] to load a project without any modifications.
   void initScope() {
     read(_arbScopeProvider.notifier).state = ArbScope();
   }
 
+  /// Defines which [ArbDefinition] is currently being selected by the user.
   void select(ArbDefinition? definition) {
     _selectedDefinitionNotifier().select(definition);
   }
 
+  /// Toggle the selection of a [ArbDefinition].
   void toggle(ArbDefinition? definition) {
     _selectedDefinitionNotifier().toggleSelect(definition);
   }
 
+  /// Clear the current [ArbDefinition] selection.
   void clearSelection() {
     _selectedDefinitionNotifier().clearSelection();
   }
 
-  void editDefinition({required ArbDefinition original, required ArbDefinition current}) {
+  /// Update the value of a [ArbDefinition] being edtited.
+  void updateDefinitionBeingEdited({
+    required ArbDefinition original,
+    required ArbDefinition current,
+  }) {
     _beingEditedDefinitionsNotifier().update(original, current);
   }
 
+  /// Discard changes to an [ArbDefinition] that was being edited.
+  ///
+  /// This will remove this definition from edition tracking.
+  /// Will remove any placeholder edition being held for this definition.
+  /// Will remove the current edition of any placeholder for this definition.
   void discardDefinitionChanges({required ArbDefinition original}) {
     _beingEditedDefinitionsNotifier().remove(original);
     _existingPlaceholdersBeingEditedNotifier().remove(original);
     _formPlaceholdersNotifier().remove(original);
   }
 
+  /// Makes this [ArbDefinition] the current value.
+  ///
+  /// Test this [ArbDefinition] agains the original definition (in the loaded [Project]).
+  /// If it is equal to the original just remove any saved definition from
+  /// [ArbScope.currentDefinitionsProvider].
+  /// If it is different from the original then store it in [ArbScope.currentDefinitionsProvider].
+  ///
+  /// Will also remove this definition from the definitions being edited.
   void saveDefinition({required ArbDefinition original, required ArbDefinition value}) {
     if (original == value) {
       _currentDefinitionsNotifier().remove(original);
@@ -47,6 +81,10 @@ class ArbUsecase {
     discardDefinitionChanges(original: original);
   }
 
+  /// Rollback a [ArbDefinition] to the original value.
+  ///
+  /// Just remove any [ArbDefinition] from [ArbScope.currentDefinitionsProvider] and the original
+  /// one will become the available definition.
   void rollbackDefinition({required ArbDefinition original}) {
     _currentDefinitionsNotifier().remove(original);
   }
@@ -159,6 +197,6 @@ class ArbUsecase {
 
   TranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(String locale) {
     final scope = read(_arbScopeProvider);
-    return read(scope.beingEditedTranslationsForLanguageProvider(locale).notifier);
+    return read(scope.beingEditedTranslationsForLocaleProvider(locale).notifier);
   }
 }

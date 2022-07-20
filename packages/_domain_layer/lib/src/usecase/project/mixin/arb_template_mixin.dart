@@ -103,7 +103,7 @@ mixin ArbTemplateMixin on ArbMixin {
     return match.group(1)!;
   }
 
-  void parserArbGlobalsDefinitionsAndTranslationsFromTemplateMap(
+  void parseArbGlobalsDefinitionsAndTranslationsFromTemplateMap(
     Map<String, dynamic> map, {
     required Map<String, String> globals,
     required Map<String, dynamic> definitions,

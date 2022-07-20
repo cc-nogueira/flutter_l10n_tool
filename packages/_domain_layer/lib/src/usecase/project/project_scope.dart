@@ -5,14 +5,18 @@ import 'notifier/project_notifier.dart';
 
 /// Project Scope is a collection of [StateNotificationProvider] that are part of [ProjectUsecase].
 ///
-/// These scoped providers are all recreated when a new project is loaded.
-/// All are available as exported providers - simple Providers that export value of these Notifiers.
+/// This scope is recreated when a new project is loaded.
+///
+/// All these notifiers are available as exported providers (simple providers that export the value
+/// of each Notifier).
 class ProjectScope {
   ProjectScope();
 
   /// Current project provider.
   ///
-  /// Project is managed by the [ProjectNotifier], which is part of [ProjectUsecase].
+  /// This is changed as the project is being loaded.
+  /// After loading all user edition is stored in [ArbScope], preserving this scope
+  /// for user opted rollbacks.
   final projectProvider =
       StateNotifierProvider<ProjectNotifier, Project>((ref) => ProjectNotifier());
 }
