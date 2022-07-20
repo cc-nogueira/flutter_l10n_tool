@@ -36,6 +36,7 @@ class DefinitionWidget extends ConsumerWidget {
         definition: definition,
         isOriginal: isOriginal,
         onEdit: () => _edit(read, definition),
+        onRollback: () => _rollback(read),
       );
     }
     if (definition is ArbSelectDefinition) {
@@ -43,6 +44,7 @@ class DefinitionWidget extends ConsumerWidget {
         definition: definition,
         isOriginal: isOriginal,
         onEdit: () => _edit(read, definition),
+        onRollback: () => _rollback(read),
       );
     }
     if (definition is ArbPluralDefinition) {
@@ -50,6 +52,7 @@ class DefinitionWidget extends ConsumerWidget {
         definition: definition,
         isOriginal: isOriginal,
         onEdit: () => _edit(read, definition),
+        onRollback: () => _rollback(read),
       );
     }
     throw StateError('Illegal ArbDefinition type');
@@ -97,6 +100,10 @@ class DefinitionWidget extends ConsumerWidget {
   void _edit(Reader read, ArbDefinition current) {
     _updateDefinition(read, current);
     _rebuild(read);
+  }
+
+  void _rollback(Reader read) {
+    read(arbUsecaseProvider).rollbackDefinition(original: original);
   }
 
   void _updateDefinition(Reader read, ArbDefinition beingEdited) {

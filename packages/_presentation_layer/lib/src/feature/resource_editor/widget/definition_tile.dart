@@ -10,11 +10,13 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
     required this.definition,
     required this.isOriginal,
     required this.onEdit,
+    required this.onRollback,
   });
 
   final T definition;
   final bool isOriginal;
-  final VoidCallback? onEdit;
+  final VoidCallback onEdit;
+  final VoidCallback onRollback;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +87,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
       ),
     );
     if (confirmRollback == true) {
-      return;
+      onRollback();
     }
   }
 }
@@ -96,6 +98,7 @@ class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinitio
     required super.definition,
     required super.isOriginal,
     required super.onEdit,
+    required super.onRollback,
   });
 
   @override
@@ -114,6 +117,7 @@ class PluralDefinitionTile extends DefinitionTile<ArbPluralDefinition> {
     required super.definition,
     required super.isOriginal,
     required super.onEdit,
+    required super.onRollback,
   });
 }
 
@@ -123,5 +127,6 @@ class SelectDefinitionTile extends DefinitionTile<ArbSelectDefinition> {
     required super.definition,
     required super.isOriginal,
     required super.onEdit,
+    required super.onRollback,
   });
 }

@@ -86,8 +86,11 @@ class ArbUsecase {
   ///
   /// Just remove any [ArbDefinition] from [ArbScope.currentDefinitionsProvider] and the original
   /// one will become the available definition.
+  ///
+  /// Also trigger discarDefinitionChanges to clear any edition being made data.
   void rollbackDefinition({required ArbDefinition original}) {
     _currentDefinitionsNotifier().remove(original);
+    discardDefinitionChanges(original: original);
   }
 
   /// Track the placeholder being edited.
