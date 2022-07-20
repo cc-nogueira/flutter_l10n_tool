@@ -18,6 +18,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);
     final definitions = project.template.definitions;
+
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final beingEditedTranslations = ref.watch(beingEditedTranslationLocalesProvider);
     final beingEditedDefinitions = ref.watch(beingEditedDefinitionsProvider);

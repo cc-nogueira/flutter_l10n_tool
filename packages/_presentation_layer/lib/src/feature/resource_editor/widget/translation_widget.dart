@@ -24,7 +24,7 @@ class TranslationWidget extends ConsumerWidget {
       currentTranslationsForLanguageProvider(locale).select((value) => value[definition]),
     );
     final currentOrOriginal = current ?? original;
-    final beingEdited = ref.read(beingEditedTranslationsForLanguageProvider(locale))[definition];
+    final beingEdited = ref.read(beingEditedTranslationsForLocaleProvider(locale))[definition];
 
     return beingEdited == null
         ? _withBorder(colors, _tile(ref.read, displayOption, current: currentOrOriginal))

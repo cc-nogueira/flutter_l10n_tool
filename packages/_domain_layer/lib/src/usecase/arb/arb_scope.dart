@@ -6,10 +6,10 @@ import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
 
 typedef SelectedDefinitionNotifier = SelectionNotifier<ArbDefinition>;
-typedef DefinitionsNotifier = MapNotifier<ArbDefinition, ArbDefinition>;
-typedef PlaceholdersNotifier = MapNotifier<ArbDefinition, ArbPlaceholder>;
-typedef TranslationsForLanguageNotifier = MapNotifier<ArbDefinition, ArbTranslation>;
-typedef TranslationLocalesNotifier = MapOneToManyNotifier<ArbDefinition, String>;
+typedef DefinitionEditionsNotifier = EditionsNotifier<ArbDefinition, ArbDefinition>;
+typedef PlaceholderEditionsNotifier = EditionsNotifier<ArbDefinition, ArbPlaceholder>;
+typedef TranslationForLanguageEditionsNotifier = EditionsNotifier<ArbDefinition, ArbTranslation>;
+typedef TranslationLocalesEditionsNotifier = EditionsOneToManyNotifier<ArbDefinition, String>;
 
 /// Arb Scope is a collection of [StateNotificationProvider] internal to [ArbUsecase].
 ///
@@ -29,18 +29,16 @@ class ArbScope {
   ///
   /// It may differ from the original definition loaded from project files.
   /// It may also differ from the version being edited by the user (not saved).
-  final currentDefinitionsProvider =
-      StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
-          (_) => DefinitionsNotifier());
+  final currentDefinitionsProvider = StateNotifierProvider<DefinitionEditionsNotifier,
+      EditionsState<ArbDefinition, ArbDefinition>>((_) => DefinitionEditionsNotifier());
 
   /// Represents a definition being edited by the user.
   ///
   /// This correnponds to the current form values for each definition currently being edited.
   /// The user interface may show one entry of this provider, and all definitions currently being
   /// edited are stored here.
-  final beingEditedDefinitionsProvider =
-      StateNotifierProvider<DefinitionsNotifier, Map<ArbDefinition, ArbDefinition>>(
-          (_) => DefinitionsNotifier());
+  final beingEditedDefinitionsProvider = StateNotifierProvider<DefinitionEditionsNotifier,
+      EditionsState<ArbDefinition, ArbDefinition>>((_) => DefinitionEditionsNotifier());
 
   /// Represents an existing placeholder currently being edited for a ArbDefinition.
   ///
@@ -51,9 +49,8 @@ class ArbScope {
   ///
   /// The value for a ArbDefinition will be null when no placeholder is being edited or when a new
   /// placeholder is being edited in the user's form.
-  final existingPlaceholdersBeingEditedProvider =
-      StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
-          (_) => PlaceholdersNotifier());
+  final existingPlaceholdersBeingEditedProvider = StateNotifierProvider<PlaceholderEditionsNotifier,
+      EditionsState<ArbDefinition, ArbPlaceholder>>((_) => PlaceholderEditionsNotifier());
 
   /// Form placeholders are the current value displayed and edited by the user for
   /// an [ArbDefinition].
@@ -67,9 +64,8 @@ class ArbScope {
   ///
   /// As the user form changes this provider is kept uptodate by the usecase,
   /// pending changes can be detected by comparintg with [existingPlaceholdersBeingEditedProvider] value.
-  final formPlaceholdersProvider =
-      StateNotifierProvider<PlaceholdersNotifier, Map<ArbDefinition, ArbPlaceholder>>(
-          (_) => PlaceholdersNotifier());
+  final formPlaceholdersProvider = StateNotifierProvider<PlaceholderEditionsNotifier,
+      EditionsState<ArbDefinition, ArbPlaceholder>>((_) => PlaceholderEditionsNotifier());
 
   /// Represents the current [ArbTranslation] modified and saved by the user.
   /// This is a family provider to store all current ArbTranslations for each locale.
@@ -77,9 +73,9 @@ class ArbScope {
   /// It may differ from the original translation loaded from project files.
   /// It may also differ from the version being edited by the user (not saved).
   final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
-      TranslationsForLanguageNotifier,
-      Map<ArbDefinition, ArbTranslation>,
-      String>((_, locale) => TranslationsForLanguageNotifier());
+      TranslationForLanguageEditionsNotifier,
+      EditionsState<ArbDefinition, ArbTranslation>,
+      String>((_, locale) => TranslationForLanguageEditionsNotifier());
 
   /// Represents a translation being edited by the user.
   /// This is a family provider to store all ArbTranslations being edited for each locale.
@@ -88,15 +84,15 @@ class ArbScope {
   /// The user interface may show entries for one locale of this provider, and all translations
   /// currently being edited are stored here.
   final beingEditedTranslationsForLocaleProvider = StateNotifierProvider.family<
-      TranslationsForLanguageNotifier,
-      Map<ArbDefinition, ArbTranslation>,
-      String>((_, locale) => TranslationsForLanguageNotifier());
+      TranslationForLanguageEditionsNotifier,
+      EditionsState<ArbDefinition, ArbTranslation>,
+      String>((_, locale) => TranslationForLanguageEditionsNotifier());
 
   /// Represents the list of locales currently being edited for each ArbDefinition.
   ///
   /// It is useful to be able to signal wich definitions are being edited by the user (either by
   /// a ArbDefintion being edited or having a locale translation being edited).
-  final beingEditedTranslationLocalesProvider =
-      StateNotifierProvider<TranslationLocalesNotifier, Map<ArbDefinition, Set<String>>>(
-          (_) => TranslationLocalesNotifier());
+  final beingEditedTranslationLocalesProvider = StateNotifierProvider<
+      TranslationLocalesEditionsNotifier,
+      EditionsOneToManyState<ArbDefinition, String>>((_) => TranslationLocalesEditionsNotifier());
 }

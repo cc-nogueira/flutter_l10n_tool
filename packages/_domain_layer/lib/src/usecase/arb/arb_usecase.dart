@@ -1,3 +1,4 @@
+import 'package:_core_layer/notifiers.dart';
 import 'package:riverpod/riverpod.dart';
 
 import '../../entity/arb/arb_definition.dart';
@@ -161,41 +162,42 @@ class ArbUsecase {
     return read(scope.selectedDefinitionProvider.notifier);
   }
 
-  DefinitionsNotifier _beingEditedDefinitionsNotifier() {
+  DefinitionEditionsNotifier _beingEditedDefinitionsNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.beingEditedDefinitionsProvider.notifier);
   }
 
   /// Return the [existingPlaceholdersBeingEditedProvider] notifier.
-  PlaceholdersNotifier _existingPlaceholdersBeingEditedNotifier() {
+  PlaceholderEditionsNotifier _existingPlaceholdersBeingEditedNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.existingPlaceholdersBeingEditedProvider.notifier);
   }
 
   ///Return the [formPlaceholdersProvider] notifier.
-  PlaceholdersNotifier _formPlaceholdersNotifier() {
+  PlaceholderEditionsNotifier _formPlaceholdersNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.formPlaceholdersProvider.notifier);
   }
 
   ///Return the [currentDefinitionsProvider] notifier.
-  DefinitionsNotifier _currentDefinitionsNotifier() {
+  DefinitionEditionsNotifier _currentDefinitionsNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.currentDefinitionsProvider.notifier);
   }
 
   ///Return the [beingEditedTranslationLocalesProvider] notifier.
-  TranslationLocalesNotifier _beingEditedTranslationLocalesNotifier() {
+  TranslationLocalesEditionsNotifier _beingEditedTranslationLocalesNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.beingEditedTranslationLocalesProvider.notifier);
   }
 
-  TranslationsForLanguageNotifier _currentTranslationsForLanguageNotifier(String locale) {
+  TranslationForLanguageEditionsNotifier _currentTranslationsForLanguageNotifier(String locale) {
     final scope = read(_arbScopeProvider);
     return read(scope.currentTranslationsForLanguageProvider(locale).notifier);
   }
 
-  TranslationsForLanguageNotifier _beingEditedTranslationsForLanguageNotifier(String locale) {
+  TranslationForLanguageEditionsNotifier _beingEditedTranslationsForLanguageNotifier(
+      String locale) {
     final scope = read(_arbScopeProvider);
     return read(scope.beingEditedTranslationsForLocaleProvider(locale).notifier);
   }
