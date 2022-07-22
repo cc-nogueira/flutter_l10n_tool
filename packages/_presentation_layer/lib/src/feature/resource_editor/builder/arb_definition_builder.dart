@@ -18,10 +18,31 @@ abstract class ArbDefinitionBuilder extends ArbBuilder {
 
   ArbDefinitionBuilder._({required this.displayOption, required this.definition});
 
+  static const tileIcon = SizedBox(
+      width: ArbBuilder.leadingSize,
+      height: ArbBuilder.leadingSize,
+      child: Center(child: Icon(Icons.key)));
+
   final DisplayOption displayOption;
-  final ArbDefinition definition;
+  ArbDefinition definition;
 
   Widget descriptorWidget();
+
+  Widget definitionTile({
+    CrossAxisAlignment align = CrossAxisAlignment.center,
+    required Widget content,
+    required Widget trailing,
+  }) {
+    return Row(
+      crossAxisAlignment: align,
+      children: [
+        tileIcon,
+        ArbBuilder.leadingSeparator,
+        Expanded(child: content),
+        trailing,
+      ],
+    );
+  }
 }
 
 class _ArbPlaceholdersDefinitionBuilder extends ArbDefinitionBuilder {

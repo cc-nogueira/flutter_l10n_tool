@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../../common/widget/arb_placeholder_chip.dart';
 import '../builder/arb_builder.dart';
-import 'definition_tile_mixin.dart';
 
-abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
-    with DefinitionTileMixin {
+abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
   DefinitionTile({
     super.key,
     required this.displayOption,
@@ -37,7 +35,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          definitionTile(
+          builder.definitionTile(
               content: titleContent(textTheme, colors), trailing: titleTrailing(context)),
           if (content != null) content,
         ],
@@ -120,7 +118,7 @@ class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinitio
       spacing: 8.0,
       children: [for (final each in definition.placeholders) ArbPlaceholderChip(each)],
     );
-    const leftPadding = DefinitionTileMixin.leadingSize + DefinitionTileMixin.leadingSeparation;
+    const leftPadding = ArbBuilder.leadingSize + ArbBuilder.leadingSeparation;
     return Padding(
       padding: const EdgeInsets.only(left: leftPadding, top: 8.0),
       child: Column(
@@ -150,7 +148,7 @@ abstract class DefinitionWithParameterTile<T extends ArbDefinition> extends Defi
 
   @override
   Widget? bodyContent(TextTheme theme, ColorScheme colors) {
-    const leftPadding = DefinitionTileMixin.leadingSize + DefinitionTileMixin.leadingSeparation;
+    const leftPadding = ArbBuilder.leadingSize + ArbBuilder.leadingSeparation;
     return Padding(
       padding: const EdgeInsets.only(left: leftPadding, top: 8.0),
       child: builder.descriptorWidget(),

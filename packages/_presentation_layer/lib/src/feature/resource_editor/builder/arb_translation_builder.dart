@@ -1,7 +1,10 @@
 part of 'arb_builder.dart';
 
 mixin ArbTranslationBuilderMixin {
-  static const leadingIcon = Icon(Icons.translate);
+  static const tileIcon = SizedBox(
+      width: ArbBuilder.leadingSize,
+      height: ArbBuilder.leadingSize,
+      child: Center(child: Icon(Icons.translate)));
 
   Widget tileTitle({required Widget title, Widget? subtitle, required Widget trailing}) {
     return Row(
@@ -10,7 +13,7 @@ mixin ArbTranslationBuilderMixin {
         const SizedBox(
             width: ArbBuilder.leadingSize,
             height: ArbBuilder.leadingSize,
-            child: Center(child: leadingIcon)),
+            child: Center(child: tileIcon)),
         ArbBuilder.leadingSeparator,
         Expanded(
           child: Column(
@@ -44,8 +47,6 @@ abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuild
   }
 
   ArbTranslationBuilder._({required this.displayOption, required this.translation});
-
-  static const leadingIcon = Icon(Icons.translate);
 
   final DisplayOption displayOption;
   final ArbTranslation translation;

@@ -22,17 +22,26 @@ class DefinitionWidget extends ConsumerWidget {
     final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
 
     return definitionBeingEdited == null
-        ? _tile(ref.read, displayOption,
-            definition: currentOrOriginalDefinition, isOriginal: currentDefinition == null)
+        ? _tile(
+            ref.read,
+            displayOption,
+            definition: currentOrOriginalDefinition,
+            isOriginal: currentDefinition == null,
+          )
         : _form(
             ref.read,
+            displayOption,
             currentDefinition: currentOrOriginalDefinition,
             definitionBeingEdited: definitionBeingEdited,
           );
   }
 
-  Widget _tile(Reader read, DisplayOption displayOption,
-      {required ArbDefinition definition, required bool isOriginal}) {
+  Widget _tile(
+    Reader read,
+    DisplayOption displayOption, {
+    required ArbDefinition definition,
+    required bool isOriginal,
+  }) {
     return definition.map<DefinitionTile>(
       placeholders: (def) => PlaceholdersDefinitionTile(
         displayOption: displayOption,
@@ -59,12 +68,14 @@ class DefinitionWidget extends ConsumerWidget {
   }
 
   Widget _form(
-    Reader read, {
+    Reader read,
+    DisplayOption displayOption, {
     required ArbDefinition currentDefinition,
     required ArbDefinition definitionBeingEdited,
   }) {
     return definitionBeingEdited.map<DefinitionForm>(
       placeholders: (def) => PlaceholdersDefinitionForm(
+        displayOption: displayOption,
         originalDefinition: original,
         currentDefinition: currentDefinition,
         definitionBeingEdited: def,
@@ -73,6 +84,7 @@ class DefinitionWidget extends ConsumerWidget {
         onDiscardChanges: () => _discardChanges(read),
       ),
       plural: (def) => PluralDefinitionForm(
+        displayOption: displayOption,
         originalDefinition: original,
         currentDefinition: currentDefinition,
         definitionBeingEdited: def,
@@ -81,6 +93,7 @@ class DefinitionWidget extends ConsumerWidget {
         onDiscardChanges: () => _discardChanges(read),
       ),
       select: (def) => SelectDefinitionForm(
+        displayOption: displayOption,
         originalDefinition: original,
         currentDefinition: currentDefinition,
         definitionBeingEdited: def,

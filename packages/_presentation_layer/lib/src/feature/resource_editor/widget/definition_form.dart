@@ -5,12 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'definition_tile_mixin.dart';
+import '../builder/arb_builder.dart';
 import 'placeholders_and_form.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
     super.key,
+    required this.displayOption,
     required this.originalDefinition,
     required this.currentDefinition,
     required this.definitionBeingEdited,
@@ -19,6 +20,7 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
     required this.onDiscardChanges,
   });
 
+  final DisplayOption displayOption;
   final ArbDefinition originalDefinition;
   final ArbDefinition currentDefinition;
   final T definitionBeingEdited;
@@ -30,6 +32,7 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
 class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinition> {
   const PlaceholdersDefinitionForm({
     super.key,
+    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -46,6 +49,7 @@ class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinitio
 class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   const PluralDefinitionForm({
     super.key,
+    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -61,6 +65,7 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
 class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   const SelectDefinitionForm({
     super.key,
+    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -74,7 +79,8 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
 }
 
 abstract class DefinitionFormState<T extends ArbDefinition> extends State<DefinitionForm<T>>
-    with DefinitionTileMixin, TextFormFieldMixin {
+    with TextFormFieldMixin {
+  late ArbDefinitionBuilder builder;
   late StateController<T> definitionController;
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
@@ -105,6 +111,10 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
     definitionController = StateController<T>(widget.definitionBeingEdited);
     keyTextController.text = definitionController.state.key;
     descTextController.text = definitionController.state.description ?? '';
+    builder = ArbDefinitionBuilder(
+      displayOption: widget.displayOption,
+      definition: definitionController.state,
+    );
   }
 
   @override
@@ -116,7 +126,7 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
       child: Container(
         decoration: BoxDecoration(color: colors.primaryContainer),
         padding: const EdgeInsets.all(8.0),
-        child: definitionTile(
+        child: builder.definitionTile(
           align: CrossAxisAlignment.start,
           content: form(context, loc, colors),
           trailing: trailing(),
@@ -148,10 +158,8 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
         label: 'Key',
         originalText: definitionController.state.key,
         textController: keyTextController,
-        onChanged: (value) => setState(() {
-          definitionController.update((state) => state.copyWith(key: value) as T);
-          widget.onUpdateDefinition(definitionController.state);
-        }),
+        onChanged: (value) =>
+            onUpdateDefinition(definitionController.state.copyWith(key: value) as T),
         inputFormatters: [textInputKeyFormatter],
       ),
       FormMixin.verticalSeparator,
@@ -160,12 +168,18 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
         label: 'Description',
         originalText: definitionController.state.description ?? '',
         textController: descTextController,
-        onChanged: (value) => setState(() {
-          definitionController.update((state) => state.copyWith(description: value) as T);
-          widget.onUpdateDefinition(definitionController.state);
-        }),
+        onChanged: (value) =>
+            onUpdateDefinition(definitionController.state.copyWith(description: value) as T),
       ),
     ];
+  }
+
+  void onUpdateDefinition(T definition) {
+    setState(() {
+      builder.definition = definition;
+      definitionController.state = definition;
+      widget.onUpdateDefinition(definition);
+    });
   }
 }
 
@@ -178,7 +192,7 @@ class PlaceholdersDefinitionFormState extends DefinitionFormState<ArbPlaceholder
       PlaceholdersAndForm(
         originalDefinition: widget.originalDefinition,
         definitionController: definitionController,
-        onUpdateDefinition: (value) => setState(() => widget.onUpdateDefinition(value)),
+        onUpdateDefinition: (value) => onUpdateDefinition(value as ArbPlaceholdersDefinition),
       ),
     ];
   }
@@ -213,10 +227,8 @@ class PluralDefinitionFormState extends DefinitionFormState<ArbPluralDefinition>
             label: 'Parameter',
             originalText: definitionController.state.parameterName,
             textController: placeholderNameTextController,
-            onChanged: (value) => setState(() {
-              definitionController.update((state) => state.copyWith(parameterName: value));
-              widget.onUpdateDefinition(definitionController.state);
-            }),
+            onChanged: (value) =>
+                onUpdateDefinition(definitionController.state.copyWith(parameterName: value)),
             inputFormatters: [textInputPublicVariableFormatter],
           ),
         ),
@@ -255,10 +267,8 @@ class SelectDefinitionFormState extends DefinitionFormState<ArbSelectDefinition>
             label: 'Parameter',
             originalText: definitionController.state.parameterName,
             textController: placeholderNameTextController,
-            onChanged: (value) => setState(() {
-              definitionController.update((state) => state.copyWith(parameterName: value));
-              widget.onUpdateDefinition(definitionController.state);
-            }),
+            onChanged: (value) =>
+                onUpdateDefinition(definitionController.state.copyWith(parameterName: value)),
             inputFormatters: [textInputPublicVariableFormatter],
           ),
         ),
