@@ -38,7 +38,7 @@ class PlaceholdersTranslationForm extends TranslationForm {
   });
 
   @override
-  State<PlaceholdersTranslationForm> createState() => TextTranslationFormState();
+  State<PlaceholdersTranslationForm> createState() => PlaceholdersTranslationFormState();
 }
 
 class PluralTranslationForm extends TranslationForm {
@@ -130,8 +130,13 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
   Widget form(BuildContext context, ColorScheme colors);
 }
 
-class TextTranslationFormState extends TranslationFormState<PlaceholdersTranslationForm> {
+class PlaceholdersTranslationFormState extends TranslationFormState<PlaceholdersTranslationForm>
+    with ArbMixin {
   TextEditingController translationTextController = TextEditingController();
+
+  @override
+  ArbPlaceholdersTranslation get formTranslation =>
+      super.formTranslation as ArbPlaceholdersTranslation;
 
   @override
   void dispose() {
@@ -146,7 +151,7 @@ class TextTranslationFormState extends TranslationFormState<PlaceholdersTranslat
   }
 
   @override
-  bool get hasChanges => formTranslation.value != (widget.current?.value ?? '');
+  bool get hasChanges => formTranslation != widget.current;
 
   @override
   Widget form(BuildContext context, ColorScheme colors) {
@@ -161,13 +166,18 @@ class TextTranslationFormState extends TranslationFormState<PlaceholdersTranslat
           label: 'Translation',
           originalText: formTranslation.value,
           textController: translationTextController,
-          onChanged: (value) => setState(() {
-            formTranslation = formTranslation.copyWith(value: value);
-            widget.onUpdate(formTranslation);
-          }),
+          onChanged: _onChangedValue,
         ),
       ),
     );
+  }
+
+  void _onChangedValue(String value) {
+    final placeholderNames = arbTranslationPlaceholderNames(value);
+    setState(() {
+      formTranslation = formTranslation.copyWith(value: value, placeholderNames: placeholderNames);
+      widget.onUpdate(formTranslation);
+    });
   }
 }
 
