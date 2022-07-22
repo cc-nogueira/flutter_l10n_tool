@@ -2,7 +2,7 @@ import '../../../entity/project/l10n_configuration.dart';
 import '../../../exception/l10n_arb_exception.dart';
 import 'arb_mixin.dart';
 
-mixin ArbValidationMixin {
+mixin ArbValidationMixin on ArbMixin {
   void arbValidation({
     required L10nConfiguration configuration,
     required Map<String, String> translations,
@@ -11,8 +11,7 @@ mixin ArbValidationMixin {
     if (configuration.requiredResourceAttributes) {
       _validateAllResourcesWithDefinitions(translations: translations, definitions: definitions);
     }
-    _validatePluralResources(translations: translations, definitions: definitions);
-    _validateSelectResources(translations: translations, definitions: definitions);
+    _validatePluralAndSelectPlaceholders(translations: translations, definitions: definitions);
     _validatePlaceholders(definitions);
   }
 
@@ -32,62 +31,35 @@ mixin ArbValidationMixin {
     }
   }
 
-  void _validatePluralResources({
+  void _validatePluralAndSelectPlaceholders({
     required Map<String, String> translations,
     required Map<String, dynamic> definitions,
   }) {
     for (final entry in translations.entries) {
-      final key = arbPluralKey(entry.value);
-      if (key != null) {
-        final attributeKey = '@${entry.key}';
-        final definition = definitions[attributeKey];
-        if (definition == null || definition is! Map<String, dynamic>) {
-          throw L10nMissingArbDefinitionException(attributeKey, type: 'plural');
-        }
-        final placeholders = definition['placeholders'];
-        if (placeholders == null) {
-          throw L10nMissingPlaceholdersException(entry.key, type: 'plural');
-        }
-        if (placeholders is! Map<String, dynamic>) {
-          throw L10nArbPlaceholdersFormatException(entry.key);
-        }
-        final placeholder = placeholders[key];
-        if (placeholder == null || placeholder is! Map) {
-          throw L10nMissingPlaceholderException(
-            entry.key,
-            type: 'plural',
-            placeholderName: key,
-          );
-        }
+      final type = arbDefinitionTypeForValue(entry.value);
+      if (type.isNotPlural && type.isNotSelect) {
+        continue;
       }
-    }
-  }
-
-  void _validateSelectResources({
-    required Map<String, String> translations,
-    required Map<String, dynamic> definitions,
-  }) {
-    for (final entry in translations.entries) {
-      final key = arbSelectKey(entry.value);
-      if (key != null) {
+      final parameter = arbTranslationParameter(type, entry.value);
+      if (parameter != null) {
         final attributeKey = '@${entry.key}';
         final definition = definitions[attributeKey];
         if (definition == null || definition is! Map<String, dynamic>) {
-          throw L10nMissingArbDefinitionException(attributeKey, type: 'select');
+          throw L10nMissingArbDefinitionException(attributeKey, type: type.name);
         }
         final placeholders = definition['placeholders'];
         if (placeholders == null) {
-          throw L10nMissingPlaceholdersException(entry.key, type: 'select');
+          throw L10nMissingPlaceholdersException(entry.key, type: type.name);
         }
         if (placeholders is! Map<String, dynamic>) {
           throw L10nArbPlaceholdersFormatException(entry.key);
         }
-        final placeholder = placeholders[key];
+        final placeholder = placeholders[parameter];
         if (placeholder == null || placeholder is! Map) {
           throw L10nMissingPlaceholderException(
             entry.key,
-            type: 'select',
-            placeholderName: key,
+            type: type.name,
+            placeholderName: parameter,
           );
         }
       }
@@ -101,15 +73,5 @@ mixin ArbValidationMixin {
         throw L10nArbPlaceholdersFormatException(entry.key);
       }
     }
-  }
-
-  String? arbPluralKey(String value) {
-    final match = ArbMixin.pluralRegExp.firstMatch(value);
-    return match?.group(1);
-  }
-
-  String? arbSelectKey(String value) {
-    final match = ArbMixin.selectRegExp.firstMatch(value);
-    return match?.group(1);
   }
 }

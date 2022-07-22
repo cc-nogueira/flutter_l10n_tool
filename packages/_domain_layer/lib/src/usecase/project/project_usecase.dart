@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:riverpod/riverpod.dart';
 import 'package:yaml_writer/yaml_writer.dart';
 
+import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_locale_translations.dart';
 import '../../entity/project/l10n_configuration.dart';
 import '../../entity/project/load_stage.dart';
@@ -212,8 +213,12 @@ class ProjectUsecase
       meta: definitions,
       translations: translations,
     );
+    final definitionsMap = <String, ArbDefinition>{};
+    for (final definition in template.definitions) {
+      definitionsMap[definition.key] = definition;
+    }
     projectNotifier.template(template);
-    projectNotifier.localeTranslations(arbLocaleTranslations(locale, translations));
+    projectNotifier.localeTranslations(arbLocaleTranslations(definitionsMap, locale, translations));
   }
 
   /// Internal - async method to read all remaining translation files.

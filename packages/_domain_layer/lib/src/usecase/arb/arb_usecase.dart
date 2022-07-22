@@ -160,6 +160,11 @@ class ArbUsecase {
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
+  void rollbackTranslation({required String locale, required ArbDefinition definition}) {
+    _currentTranslationsForLanguageNotifier(locale).remove(definition);
+    discardTranslationChanges(locale: locale, definition: definition);
+  }
+
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.selectedDefinitionProvider.notifier);

@@ -1,4 +1,5 @@
 export 'src/entity/arb/arb_definition.dart';
+export 'src/entity/arb/arb_global.dart';
 export 'src/entity/arb/arb_locale_translations.dart';
 export 'src/entity/arb/arb_placeholder.dart';
 export 'src/entity/arb/arb_template.dart';

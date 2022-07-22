@@ -7,15 +7,15 @@ class ArbPlaceholderChip extends StatelessWidget {
   const ArbPlaceholderChip(
     this.placeholder, {
     super.key,
-    required this.onPressed,
-    required this.onDelete,
+    this.onPressed,
+    this.onDelete,
     this.selected = false,
   });
 
   final ArbPlaceholder placeholder;
   final bool selected;
-  final ValueChanged<ArbPlaceholder> onPressed;
-  final ValueChanged<ArbPlaceholder> onDelete;
+  final ValueChanged<ArbPlaceholder>? onPressed;
+  final ValueChanged<ArbPlaceholder>? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -28,14 +28,14 @@ class ArbPlaceholderChip extends StatelessWidget {
       orElse: () => null,
     );
     return IgnorePointer(
-      ignoring: selected,
+      ignoring: selected || (onPressed == null && onDelete == null),
       child: inputChip(
         colors: colors,
         icon: icon,
         text: placeholder.key,
         selected: selected,
-        onPressed: () => onPressed(placeholder),
-        onDelete: () => onDelete(placeholder),
+        onPressed: () => onPressed?.call(placeholder),
+        onDelete: onDelete == null ? null : () => onDelete!(placeholder),
       ),
     );
   }

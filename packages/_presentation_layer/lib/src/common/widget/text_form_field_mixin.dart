@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 mixin TextFormFieldMixin {
   static final keyRegExp = RegExp(r'[_a-zA-Z]\w*');
+  static final publicVariableRegExp = RegExp(r'[a-zA-Z]\w*');
   static final wordRegExp = RegExp(r'\w+');
 
   Widget textField({
@@ -80,9 +80,45 @@ mixin TextFormFieldMixin {
   TextInputFormatter get textInputKeyFormatter =>
       TextInputFormatter.withFunction(_keyFormatterFunction);
 
+  TextInputFormatter get textInputPublicVariableFormatter =>
+      TextInputFormatter.withFunction(_publicVariableFormatterFunction);
+
   TextEditingValue _keyFormatterFunction(TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
-    final match = ArbMixin.keyRegExp.firstMatch(text);
+    final match = keyRegExp.firstMatch(text);
+    if (match == null) return const TextEditingValue();
+    if (match.start == 0 && match.end == text.length) return newValue;
+
+    final prefix = match.group(0)!;
+    final leftTrim = match.start;
+    final prefixEnd = leftTrim + prefix.length;
+    final remain = text.substring(prefixEnd);
+
+    final valueBuffer = StringBuffer(prefix);
+    final matches = wordRegExp.allMatches(remain);
+    var moreTrim = 0;
+    var prevEnd = 0;
+    for (final match in matches) {
+      if (prefixEnd + match.start <= newValue.selection.baseOffset) {
+        moreTrim += match.start - prevEnd;
+        prevEnd = match.end;
+      }
+      valueBuffer.write(match.group(0)!);
+    }
+
+    final newText = valueBuffer.toString();
+    final baseOffset = max(
+      min(newValue.selection.baseOffset - leftTrim - moreTrim, newText.length),
+      0,
+    );
+    final newSelection = TextSelection(baseOffset: baseOffset, extentOffset: baseOffset);
+    return TextEditingValue(text: newText, selection: newSelection);
+  }
+
+  TextEditingValue _publicVariableFormatterFunction(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final text = newValue.text;
+    final match = publicVariableRegExp.firstMatch(text);
     if (match == null) return const TextEditingValue();
     if (match.start == 0 && match.end == text.length) return newValue;
 

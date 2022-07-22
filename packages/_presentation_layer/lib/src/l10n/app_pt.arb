@@ -1,6 +1,8 @@
 {
   "@@locale": "pt",
 
+  "test_select": "Testando selects: {type, select, dark{escuro}, light{claro}} para o modo de exibição.",
+
   "title_home_page": "Localization App",
   "title_error_page": "Erro",
   "title_project_selector_drawer": "Selecionar Projeto",

@@ -15,6 +15,7 @@ dependencies:
 
   bitsdojo_window: 0.1.2
     
+  dotted_border: ^2.0.0+2
   extended_text: ^9.1.0
   file_selector: ^0.8.4+3
   flutter:

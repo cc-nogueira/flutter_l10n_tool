@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../../entity/arb/arb_definition.dart';
+import '../../../entity/arb/arb_global.dart';
 import '../../../entity/arb/arb_locale_translations.dart';
 import '../../../entity/arb/arb_placeholder.dart';
 import '../../../entity/arb/arb_template.dart';
@@ -56,13 +57,22 @@ mixin ArbTemplateMixin on ArbMixin {
       }
     }
     final translations = <ArbLocaleTranslations>[];
-    for (final file in languageFiles) {
-      translations.add(await readArbTranslationsFile(file));
+    if (languageFiles.isNotEmpty) {
+      final definitionsMap = <String, ArbDefinition>{};
+      for (final definition in project.template.definitions) {
+        definitionsMap[definition.key] = definition;
+      }
+      for (final file in languageFiles) {
+        translations.add(await readArbTranslationsFile(definitionsMap, file));
+      }
     }
     return translations;
   }
 
-  Future<ArbLocaleTranslations> readArbTranslationsFile(File file) async {
+  Future<ArbLocaleTranslations> readArbTranslationsFile(
+    Map<String, ArbDefinition> definitions,
+    File file,
+  ) async {
     final name = file.uri.pathSegments.last;
     final content = await file.readAsString();
     final arb = json.decode(content);
@@ -81,13 +91,57 @@ mixin ArbTemplateMixin on ArbMixin {
         }
       }
     }
-    return arbLocaleTranslations(locale, translationsMap);
+    return arbLocaleTranslations(definitions, locale, translationsMap);
   }
 
-  ArbLocaleTranslations arbLocaleTranslations(String locale, Map<String, String> translationsMap) {
+  ArbLocaleTranslations arbLocaleTranslations(
+      Map<String, ArbDefinition> definitions, String locale, Map<String, String> translationsMap) {
     final translations = <String, ArbTranslation>{};
     for (final entry in translationsMap.entries) {
-      translations[entry.key] = ArbTranslation(key: entry.key, value: entry.value);
+      final definition = definitions[entry.key];
+      if (definition == null) {
+        continue;
+      }
+      final translation = definition.map(
+        placeholders: (def) {
+          final placeholderNames = arbTranslationPlaceholderNames(entry.value);
+          return ArbTranslation.placeholders(
+              key: entry.key, value: entry.value, placeholderNames: placeholderNames);
+        },
+        plural: (def) {
+          final expressionParameterPrefixAndSuffix =
+              arbTranslationExpressionParameterPrefixAndSuffix(
+            ArbDefinitionType.plural,
+            entry.value,
+          );
+          return ArbTranslation.plural(
+            key: entry.key,
+            value: entry.value,
+            expression: expressionParameterPrefixAndSuffix.item1,
+            parameterName: expressionParameterPrefixAndSuffix.item2,
+            options: inferArbTranslationOptionsFrom(ArbDefinitionType.plural, entry.value),
+            prefix: expressionParameterPrefixAndSuffix.item3,
+            suffix: expressionParameterPrefixAndSuffix.item4,
+          );
+        },
+        select: (def) {
+          final expressionParameterPrefixAndSuffix =
+              arbTranslationExpressionParameterPrefixAndSuffix(
+            ArbDefinitionType.select,
+            entry.value,
+          );
+          return ArbTranslation.select(
+            key: entry.key,
+            value: entry.value,
+            expression: expressionParameterPrefixAndSuffix.item1,
+            parameterName: expressionParameterPrefixAndSuffix.item2,
+            options: inferArbTranslationOptionsFrom(ArbDefinitionType.select, entry.value),
+            prefix: expressionParameterPrefixAndSuffix.item3,
+            suffix: expressionParameterPrefixAndSuffix.item4,
+          );
+        },
+      );
+      translations[entry.key] = translation;
     }
     return ArbLocaleTranslations(locale: locale, translations: translations);
   }
@@ -133,7 +187,7 @@ mixin ArbTemplateMixin on ArbMixin {
     required Map<String, String> translations,
     required Map<String, dynamic> meta,
   }) {
-    final globalResources = globals.entries.map((e) => ArbTranslation(key: e.key, value: e.value));
+    final globalResources = globals.entries.map((e) => ArbGlobal(key: e.key, value: e.value));
     final definitions = translations.entries
         .map((keyValue) => arbDefinitionFromMap(keyValue.key, keyValue.value, meta));
     return ArbTemplate(
@@ -152,14 +206,14 @@ mixin ArbTemplateMixin on ArbMixin {
           key: key,
           context: definitionMap?['context'] as String?,
           description: definitionMap?['description'] as String?,
-          placeholder: arbPlaceholderName(type, value),
+          parameterName: arbTranslationParameterName(type, value),
         );
       case ArbDefinitionType.select:
         return ArbDefinition.select(
           key: key,
           context: definitionMap?['context'] as String?,
           description: definitionMap?['description'] as String?,
-          placeholder: arbPlaceholderName(type, value),
+          parameterName: arbTranslationParameterName(type, value),
         );
       default:
         return ArbDefinition.placeholders(

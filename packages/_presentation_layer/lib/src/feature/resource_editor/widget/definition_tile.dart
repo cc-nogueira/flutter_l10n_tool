@@ -1,18 +1,24 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
+import '../../../common/widget/arb_placeholder_chip.dart';
+import '../builder/arb_builder.dart';
 import 'definition_tile_mixin.dart';
 
 abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
     with DefinitionTileMixin {
-  const DefinitionTile({
+  DefinitionTile({
     super.key,
+    required this.displayOption,
     required this.definition,
     required this.isOriginal,
     required this.onEdit,
     required this.onRollback,
-  });
+  }) : builder = ArbDefinitionBuilder(displayOption: displayOption, definition: definition);
 
+  final ArbDefinitionBuilder builder;
+
+  final DisplayOption displayOption;
   final T definition;
   final bool isOriginal;
   final VoidCallback onEdit;
@@ -20,6 +26,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    builder.init(context);
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colors = theme.colorScheme;
@@ -30,19 +37,20 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          definitionTile(content: titleContent(textTheme), trailing: titleTrailing(context)),
+          definitionTile(
+              content: titleContent(textTheme, colors), trailing: titleTrailing(context)),
           if (content != null) content,
         ],
       ),
     );
   }
 
-  Widget titleContent(TextTheme theme) => Column(
+  Widget titleContent(TextTheme theme, ColorScheme colors) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SelectableText(definition.key, style: titleStyle(theme)),
-          if (definition.description != null)
-            SelectableText(definition.description!, style: subtitleStyle(theme)),
+          SelectableText(definition.key, style: builder.titleStyle),
+          if (definition.description != null && definition.description!.isNotEmpty)
+            SelectableText(definition.description!, style: builder.subtitleStyle),
         ],
       );
 
@@ -72,7 +80,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
         title: const Text('Please confirm'),
         content: const Text(
           'Definition has been modified.\n'
-          'Please confirm rollback or dismiss this dialog.',
+          'Please confirm rollback to origial value or dismiss this dialog.',
         ),
         actions: [
           TextButton(
@@ -93,8 +101,9 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget
 }
 
 class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinition> {
-  const PlaceholdersDefinitionTile({
+  PlaceholdersDefinitionTile({
     super.key,
+    required super.displayOption,
     required super.definition,
     required super.isOriginal,
     required super.onEdit,
@@ -107,13 +116,52 @@ class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinitio
     if (placeholders.isEmpty) {
       return null;
     }
-    return null;
+    final wrap = Wrap(
+      spacing: 8.0,
+      children: [for (final each in definition.placeholders) ArbPlaceholderChip(each)],
+    );
+    const leftPadding = DefinitionTileMixin.leadingSize + DefinitionTileMixin.leadingSeparation;
+    return Padding(
+      padding: const EdgeInsets.only(left: leftPadding, top: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (displayOption == DisplayOption.expanded)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Text('Placeholders:'),
+            ),
+          wrap,
+        ],
+      ),
+    );
   }
 }
 
-class PluralDefinitionTile extends DefinitionTile<ArbPluralDefinition> {
-  const PluralDefinitionTile({
+abstract class DefinitionWithParameterTile<T extends ArbDefinition> extends DefinitionTile<T> {
+  DefinitionWithParameterTile({
     super.key,
+    required super.displayOption,
+    required super.definition,
+    required super.isOriginal,
+    required super.onEdit,
+    required super.onRollback,
+  }) : assert(definition is ArbDefinitionWithParameter);
+
+  @override
+  Widget? bodyContent(TextTheme theme, ColorScheme colors) {
+    const leftPadding = DefinitionTileMixin.leadingSize + DefinitionTileMixin.leadingSeparation;
+    return Padding(
+      padding: const EdgeInsets.only(left: leftPadding, top: 8.0),
+      child: builder.descriptorWidget(),
+    );
+  }
+}
+
+class PluralDefinitionTile extends DefinitionWithParameterTile<ArbPluralDefinition> {
+  PluralDefinitionTile({
+    super.key,
+    required super.displayOption,
     required super.definition,
     required super.isOriginal,
     required super.onEdit,
@@ -121,9 +169,10 @@ class PluralDefinitionTile extends DefinitionTile<ArbPluralDefinition> {
   });
 }
 
-class SelectDefinitionTile extends DefinitionTile<ArbSelectDefinition> {
-  const SelectDefinitionTile({
+class SelectDefinitionTile extends DefinitionWithParameterTile<ArbSelectDefinition> {
+  SelectDefinitionTile({
     super.key,
+    required super.displayOption,
     required super.definition,
     required super.isOriginal,
     required super.onEdit,

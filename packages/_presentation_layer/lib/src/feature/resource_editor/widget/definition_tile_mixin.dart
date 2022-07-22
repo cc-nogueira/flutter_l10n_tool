@@ -10,11 +10,12 @@ mixin DefinitionTileMixin {
       const SizedBox(width: leadingSize, height: leadingSize, child: Center(child: leadingIcon));
 
   Widget definitionTile({
+    CrossAxisAlignment align = CrossAxisAlignment.center,
     required Widget content,
     required Widget trailing,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: align,
       children: [
         tileIcon(),
         leadingSeparator,
@@ -23,16 +24,4 @@ mixin DefinitionTileMixin {
       ],
     );
   }
-
-  TextStyle markingStyle(TextTheme theme) => subtitleStyle(theme);
-
-  TextStyle optionStyle(TextTheme theme, ColorScheme colors) =>
-      theme.bodyMedium!.copyWith(color: colors.primary);
-
-  TextStyle subtitleStyle(TextTheme theme) =>
-      theme.bodyMedium!.copyWith(color: theme.caption?.color);
-
-  TextStyle titleStyle(TextTheme theme) => theme.titleMedium!;
-
-  TextStyle valueStyle(TextTheme theme) => theme.bodyMedium!;
 }

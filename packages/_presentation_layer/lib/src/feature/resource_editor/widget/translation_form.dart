@@ -2,11 +2,12 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/widget/text_form_field_mixin.dart';
-import 'translation_tile_mixin.dart';
+import '../builder/arb_builder.dart';
 
 abstract class TranslationForm extends StatefulWidget {
   const TranslationForm({
     super.key,
+    required this.displayOption,
     required this.locale,
     required this.current,
     required this.beingEdited,
@@ -15,6 +16,7 @@ abstract class TranslationForm extends StatefulWidget {
     required this.onDiscardChanges,
   });
 
+  final DisplayOption displayOption;
   final String locale;
   final ArbTranslation? current;
   final ArbTranslation beingEdited;
@@ -26,6 +28,7 @@ abstract class TranslationForm extends StatefulWidget {
 class PlaceholdersTranslationForm extends TranslationForm {
   const PlaceholdersTranslationForm({
     super.key,
+    required super.displayOption,
     required super.locale,
     required super.current,
     required super.beingEdited,
@@ -41,6 +44,7 @@ class PlaceholdersTranslationForm extends TranslationForm {
 class PluralTranslationForm extends TranslationForm {
   const PluralTranslationForm({
     super.key,
+    required super.displayOption,
     required super.locale,
     required super.current,
     required super.beingEdited,
@@ -56,6 +60,7 @@ class PluralTranslationForm extends TranslationForm {
 class SelectTranslationForm extends TranslationForm {
   const SelectTranslationForm({
     super.key,
+    required super.displayOption,
     required super.locale,
     required super.current,
     required super.beingEdited,
@@ -69,8 +74,9 @@ class SelectTranslationForm extends TranslationForm {
 }
 
 abstract class TranslationFormState<T extends TranslationForm> extends State<T>
-    with TranslationTileMixin, TextFormFieldMixin {
+    with TextFormFieldMixin {
   late ArbTranslation formTranslation;
+  late ArbTranslationBuilder arbBuilder;
 
   @override
   void initState() {
@@ -89,24 +95,27 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
   @mustCallSuper
   void resetState() {
     formTranslation = widget.beingEdited;
+    arbBuilder =
+        ArbTranslationBuilder(displayOption: widget.displayOption, translation: formTranslation);
   }
 
   @override
   Widget build(BuildContext context) {
+    arbBuilder.init(context);
     final ThemeData theme = Theme.of(context);
+    final colors = theme.colorScheme;
     return Column(
       children: [
-        title(theme.textTheme),
+        title(theme.textTheme, colors),
         const SizedBox(height: 4.0),
         form(context, theme.colorScheme),
       ],
     );
   }
 
-  Widget title(TextTheme theme) {
-    return tileTitle(
-      theme,
-      title: widget.locale,
+  Widget title(TextTheme theme, ColorScheme colors) {
+    return arbBuilder.tileTitle(
+      title: Text(widget.locale, style: arbBuilder.titleStyle),
       trailing: Row(children: [
         IconButton(icon: const Icon(Icons.check), onPressed: hasChanges ? _saveChanges : null),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
@@ -144,8 +153,8 @@ class TextTranslationFormState extends TranslationFormState<PlaceholdersTranslat
     return Form(
       child: Padding(
         padding: const EdgeInsets.only(
-          left: TranslationTileMixin.leadingSize + TranslationTileMixin.leadingSeparation,
-          right: TranslationTileMixin.leadingSize,
+          left: ArbBuilder.leadingSize + ArbBuilder.leadingSeparation,
+          right: ArbBuilder.leadingSize,
         ),
         child: textField(
           context: context,
