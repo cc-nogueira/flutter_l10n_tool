@@ -9,6 +9,7 @@ abstract class TranslationForm extends StatefulWidget {
     super.key,
     required this.displayOption,
     required this.locale,
+    required this.definition,
     required this.current,
     required this.beingEdited,
     required this.onUpdate,
@@ -18,6 +19,7 @@ abstract class TranslationForm extends StatefulWidget {
 
   final DisplayOption displayOption;
   final String locale;
+  final ArbDefinition definition;
   final ArbTranslation? current;
   final ArbTranslation beingEdited;
   final ValueChanged<ArbTranslation> onUpdate;
@@ -30,6 +32,7 @@ class PlaceholdersTranslationForm extends TranslationForm {
     super.key,
     required super.displayOption,
     required super.locale,
+    required super.definition,
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
@@ -46,6 +49,7 @@ class PluralTranslationForm extends TranslationForm {
     super.key,
     required super.displayOption,
     required super.locale,
+    required super.definition,
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
@@ -62,6 +66,7 @@ class SelectTranslationForm extends TranslationForm {
     super.key,
     required super.displayOption,
     required super.locale,
+    required super.definition,
     required super.current,
     required super.beingEdited,
     required super.onUpdate,
@@ -95,8 +100,10 @@ abstract class TranslationFormState<T extends TranslationForm> extends State<T>
   @mustCallSuper
   void resetState() {
     formTranslation = widget.beingEdited;
-    arbBuilder =
-        ArbTranslationBuilder(displayOption: widget.displayOption, translation: formTranslation);
+    arbBuilder = ArbTranslationBuilder(
+        displayOption: widget.displayOption,
+        definition: widget.definition,
+        translation: formTranslation);
   }
 
   @override

@@ -7,12 +7,19 @@ import 'translation_form.dart';
 import 'translation_tile.dart';
 
 class TranslationWidget extends ConsumerWidget {
-  TranslationWidget(this.locale, this.definition, this.original, {super.key});
+  TranslationWidget(this.locale,
+      {required this.originalDefinition,
+      required this.currentDefinition,
+      this.originalTranslation,
+      super.key});
 
   final String locale;
-  final ArbDefinition definition;
-  final ArbTranslation? original;
+  final ArbDefinition originalDefinition;
+  final ArbDefinition? currentDefinition;
+  final ArbTranslation? originalTranslation;
   final _rebuildProvider = StateProvider<bool>((ref) => false);
+
+  ArbDefinition get currentOrOriginalDefinition => currentDefinition ?? originalDefinition;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,26 +28,32 @@ class TranslationWidget extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final displayOption = ref.watch(displayOptionProvider);
 
-    final current = ref.watch(
-      currentTranslationsForLanguageProvider(locale).select((value) => value[definition]),
+    final currentTranslation = ref.watch(
+      currentTranslationsForLanguageProvider(locale).select((value) => value[originalDefinition]),
     );
-    final currentOrOriginal = current ?? original;
-    final beingEdited = ref.read(beingEditedTranslationsForLocaleProvider(locale))[definition];
+    final currentOrOriginal = currentTranslation ?? originalTranslation;
+    final beingEdited =
+        ref.read(beingEditedTranslationsForLocaleProvider(locale))[originalDefinition];
 
     final tile = beingEdited != null
         ? _form(ref.read, displayOption, current: currentOrOriginal, beingEdited: beingEdited)
-        : _tile(ref.read, displayOption, current: currentOrOriginal, isOriginal: current == null);
+        : _tile(ref.read, displayOption,
+            current: currentOrOriginal, isOriginal: currentTranslation == null);
 
     return currentOrOriginal == null ? _withMissingBorder(colors, tile) : _withBorder(colors, tile);
   }
 
-  Widget _tile(Reader read, DisplayOption displayOption,
-      {required ArbTranslation? current, required bool isOriginal}) {
+  Widget _tile(
+    Reader read,
+    DisplayOption displayOption, {
+    required ArbTranslation? current,
+    required bool isOriginal,
+  }) {
     if (current == null) {
       return MissingTranslationTile(
         locale: locale,
         onEdit: () {
-          final empty = definition.map(
+          final empty = originalDefinition.map(
             placeholders: (def) => ArbTranslation.placeholders(key: def.key),
             plural: (def) => ArbTranslation.plural(key: def.key),
             select: (def) => ArbTranslation.select(key: def.key),
@@ -49,7 +62,7 @@ class TranslationWidget extends ConsumerWidget {
         },
       );
     }
-    return definition.map(
+    return currentOrOriginalDefinition.map(
       placeholders: (def) => PlaceholdersTranslationTile(
         displayOption: displayOption,
         locale: locale,
@@ -86,28 +99,31 @@ class TranslationWidget extends ConsumerWidget {
     required ArbTranslation? current,
     required ArbTranslation beingEdited,
   }) {
-    return definition.map<TranslationForm>(
-      placeholders: (_) => PlaceholdersTranslationForm(
+    return currentOrOriginalDefinition.map<TranslationForm>(
+      placeholders: (def) => PlaceholdersTranslationForm(
         displayOption: displayOption,
         locale: locale,
+        definition: def,
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       ),
-      plural: (_) => PluralTranslationForm(
+      plural: (def) => PluralTranslationForm(
         displayOption: displayOption,
         locale: locale,
+        definition: def,
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
       ),
-      select: (_) => SelectTranslationForm(
+      select: (def) => SelectTranslationForm(
         displayOption: displayOption,
         locale: locale,
+        definition: def,
         current: current,
         beingEdited: beingEdited,
         onUpdate: (value) => _updateBeingEdited(read, value),
@@ -139,24 +155,26 @@ class TranslationWidget extends ConsumerWidget {
   }
 
   void _rollback(Reader read) {
-    read(arbUsecaseProvider).rollbackTranslation(locale: locale, definition: definition);
+    read(arbUsecaseProvider).rollbackTranslation(locale: locale, definition: originalDefinition);
   }
 
   void _updateBeingEdited(Reader read, ArbTranslation beingEdited) {
     read(arbUsecaseProvider).editTranslation(
       locale: locale,
-      definition: definition,
+      definition: originalDefinition,
       current: beingEdited,
     );
   }
 
   void _discardChanges(Reader read) {
-    read(arbUsecaseProvider).discardTranslationChanges(locale: locale, definition: definition);
+    read(arbUsecaseProvider)
+        .discardTranslationChanges(locale: locale, definition: originalDefinition);
     _rebuild(read);
   }
 
   void _saveChanges(Reader read, ArbTranslation value) {
-    read(arbUsecaseProvider).saveTranslation(locale: locale, definition: definition, value: value);
+    read(arbUsecaseProvider)
+        .saveTranslation(locale: locale, definition: originalDefinition, value: value);
     _rebuild(read);
   }
 

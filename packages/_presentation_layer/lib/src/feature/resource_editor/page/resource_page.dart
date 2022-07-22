@@ -14,35 +14,40 @@ class ResourcePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
-    final definition = ref.watch(selectedDefinitionProvider);
+    final originalDefinition = ref.watch(selectedDefinitionProvider);
+    if (originalDefinition == null) {
+      return Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc));
+    }
+    final currentDefinition =
+        ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition]));
     final project = ref.watch(projectProvider);
     final translations = project.translations.values.toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          if (definition == null) Expanded(child: _noResourceSelected(context, loc)),
-          if (definition != null) ...[
-            const ResourceBar(),
-            DefinitionWidget(definition),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: false,
-                itemBuilder: (_, idx) => _itemBuilder(definition, translations[idx]),
-                itemCount: translations.length,
-              ),
+          const ResourceBar(),
+          DefinitionWidget(original: originalDefinition, current: currentDefinition),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: false,
+              itemBuilder: (_, idx) =>
+                  _itemBuilder(originalDefinition, currentDefinition, translations[idx]),
+              itemCount: translations.length,
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _itemBuilder(ArbDefinition definition, ArbLocaleTranslations localeTranslations) =>
+  Widget _itemBuilder(ArbDefinition originalDefinition, ArbDefinition? currentDefinition,
+          ArbLocaleTranslations localeTranslations) =>
       TranslationWidget(
         localeTranslations.locale,
-        definition,
-        localeTranslations.translations[definition.key],
+        originalDefinition: originalDefinition,
+        currentDefinition: currentDefinition,
+        originalTranslation: localeTranslations.translations[originalDefinition.key],
       );
 
   Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {

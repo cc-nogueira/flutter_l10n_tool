@@ -33,22 +33,30 @@ mixin ArbTranslationBuilderMixin {
 abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuilderMixin {
   factory ArbTranslationBuilder({
     required DisplayOption displayOption,
+    required ArbDefinition definition,
     required ArbTranslation translation,
   }) {
     return translation.maybeMap(
         placeholders: (trans) => _ArbPlaceholdersTranslationBuilder(
               displayOption: displayOption,
+              definition: definition as ArbPlaceholdersDefinition,
               translation: trans,
             ),
         orElse: () => _ArbTranslationWithParameterBuilder(
               displayOption: displayOption,
+              definition: definition,
               translation: translation,
             ));
   }
 
-  ArbTranslationBuilder._({required this.displayOption, required this.translation});
+  ArbTranslationBuilder._({
+    required this.displayOption,
+    required this.definition,
+    required this.translation,
+  });
 
   final DisplayOption displayOption;
+  final ArbDefinition definition;
   final ArbTranslation translation;
 
   Widget descriptorWidget();
@@ -58,20 +66,61 @@ abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuild
 class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
   _ArbPlaceholdersTranslationBuilder({
     required super.displayOption,
+    required ArbPlaceholdersDefinition definition,
     required ArbPlaceholdersTranslation translation,
-  }) : super._(translation: translation);
+  }) : super._(definition: definition, translation: translation);
+
+  @override
+  ArbPlaceholdersTranslation get translation => super.translation as ArbPlaceholdersTranslation;
+
+  @override
+  ArbPlaceholdersDefinition get definition => super.definition as ArbPlaceholdersDefinition;
 
   @override
   Widget descriptorWidget() {
-    return const Text('TODO');
+    if (translation.placeholderNames.isNotEmpty) {
+      final namesBuffer = StringBuffer();
+      for (final name in translation.placeholderNames) {
+        namesBuffer
+          ..write('{')
+          ..write(name)
+          ..write('}|');
+      }
+      final names = namesBuffer.toString().substring(0, namesBuffer.length - 1);
+      final rx = RegExp('(.*?)($names)');
+      final matches = rx.allMatches(translation.value);
+      if (matches.isNotEmpty) {
+        final validPlaceholders = {
+          for (final ph in definition.placeholders) '{${ph.key}}',
+        };
+        final children = <InlineSpan>[];
+        for (final match in matches) {
+          if (match.group(1)!.isNotEmpty) {
+            children.add(TextSpan(text: match.group(1)!, style: subtitleStyle));
+          }
+          final placeholder = match.group(2)!;
+          final style = validPlaceholders.contains(placeholder) ? optionStyle : invalidOptionStyle;
+          children.add(TextSpan(text: placeholder, style: style));
+        }
+        final idx = matches.last.end;
+        if (idx < translation.value.length) {
+          children.add(TextSpan(text: translation.value.substring(idx), style: subtitleStyle));
+        }
+        final textSpan = TextSpan(children: children);
+        return SelectableText.rich(textSpan);
+      }
+    }
+    return SelectableText(translation.value, style: subtitleStyle);
   }
 }
 
 class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
   _ArbTranslationWithParameterBuilder({
     required super.translation,
+    required super.definition,
     required super.displayOption,
-  })  : assert(translation is ArbTranslationWithParameter),
+  })  : assert(definition is ArbDefinitionWithParameter),
+        assert(translation is ArbTranslationWithParameter),
         super._();
 
   static const hSpace = SizedBox(width: 4);

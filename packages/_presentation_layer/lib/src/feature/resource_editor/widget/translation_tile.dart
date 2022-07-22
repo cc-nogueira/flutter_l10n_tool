@@ -50,7 +50,8 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
     required this.isOriginal,
     required this.onEdit,
     required this.onRollback,
-  }) : builder = ArbTranslationBuilder(displayOption: displayOption, translation: translation);
+  }) : builder = ArbTranslationBuilder(
+            displayOption: displayOption, definition: definition, translation: translation);
 
   final ArbTranslationBuilder builder;
 
@@ -74,15 +75,13 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
       children: [
         builder.tileTitle(
           title: Text(locale, style: builder.titleStyle),
-          subtitle: subtitle(textTheme, colors),
+          subtitle: builder.descriptorWidget(),
           trailing: titleTrailing(context),
         ),
         if (content != null) content,
       ],
     );
   }
-
-  Widget? subtitle(TextTheme theme, ColorScheme colors) => null;
 
   Widget titleTrailing(BuildContext context) => isOriginal
       ? _editButton()
@@ -142,10 +141,6 @@ class PlaceholdersTranslationTile
     required super.onEdit,
     required super.onRollback,
   });
-
-  @override
-  Widget? subtitle(TextTheme theme, ColorScheme colors) =>
-      Text(translation.value, style: builder.subtitleStyle);
 }
 
 abstract class TranslationWithParameterTile<D extends ArbDefinition, T extends ArbTranslation>
@@ -160,9 +155,6 @@ abstract class TranslationWithParameterTile<D extends ArbDefinition, T extends A
     required super.onEdit,
     required super.onRollback,
   }) : assert(translation is ArbTranslationWithParameter);
-
-  @override
-  Widget? subtitle(TextTheme theme, ColorScheme colors) => builder.descriptorWidget();
 
   @override
   Widget? tileContent(TextTheme theme, ColorScheme colors) {

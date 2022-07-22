@@ -6,32 +6,30 @@ import 'definition_form.dart';
 import 'definition_tile.dart';
 
 class DefinitionWidget extends ConsumerWidget {
-  DefinitionWidget(this.original, {super.key});
+  DefinitionWidget({required this.original, required this.current, super.key});
 
   final ArbDefinition original;
+  final ArbDefinition? current;
   final _rebuildProvider = StateProvider<bool>((ref) => false);
+
+  ArbDefinition get currentOrOriginal => current ?? original;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(_rebuildProvider);
 
     final displayOption = ref.watch(displayOptionProvider);
-    final currentDefinition =
-        ref.watch(currentDefinitionsProvider.select((value) => value[original]));
-    final currentOrOriginalDefinition = currentDefinition ?? original;
     final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
 
     return definitionBeingEdited == null
         ? _tile(
             ref.read,
             displayOption,
-            definition: currentOrOriginalDefinition,
-            isOriginal: currentDefinition == null,
+            isOriginal: current == null,
           )
         : _form(
             ref.read,
             displayOption,
-            currentDefinition: currentOrOriginalDefinition,
             definitionBeingEdited: definitionBeingEdited,
           );
   }
@@ -39,29 +37,28 @@ class DefinitionWidget extends ConsumerWidget {
   Widget _tile(
     Reader read,
     DisplayOption displayOption, {
-    required ArbDefinition definition,
     required bool isOriginal,
   }) {
-    return definition.map<DefinitionTile>(
+    return currentOrOriginal.map<DefinitionTile>(
       placeholders: (def) => PlaceholdersDefinitionTile(
         displayOption: displayOption,
         definition: def,
         isOriginal: isOriginal,
-        onEdit: () => _edit(read, definition),
+        onEdit: () => _edit(read, def),
         onRollback: () => _rollback(read),
       ),
       plural: (def) => PluralDefinitionTile(
         displayOption: displayOption,
         definition: def,
         isOriginal: isOriginal,
-        onEdit: () => _edit(read, definition),
+        onEdit: () => _edit(read, def),
         onRollback: () => _rollback(read),
       ),
       select: (def) => SelectDefinitionTile(
         displayOption: displayOption,
         definition: def,
         isOriginal: isOriginal,
-        onEdit: () => _edit(read, definition),
+        onEdit: () => _edit(read, def),
         onRollback: () => _rollback(read),
       ),
     );
@@ -70,14 +67,13 @@ class DefinitionWidget extends ConsumerWidget {
   Widget _form(
     Reader read,
     DisplayOption displayOption, {
-    required ArbDefinition currentDefinition,
     required ArbDefinition definitionBeingEdited,
   }) {
     return definitionBeingEdited.map<DefinitionForm>(
       placeholders: (def) => PlaceholdersDefinitionForm(
         displayOption: displayOption,
         originalDefinition: original,
-        currentDefinition: currentDefinition,
+        currentDefinition: currentOrOriginal,
         definitionBeingEdited: def,
         onUpdateDefinition: (value) => _updateDefinition(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
@@ -86,7 +82,7 @@ class DefinitionWidget extends ConsumerWidget {
       plural: (def) => PluralDefinitionForm(
         displayOption: displayOption,
         originalDefinition: original,
-        currentDefinition: currentDefinition,
+        currentDefinition: currentOrOriginal,
         definitionBeingEdited: def,
         onUpdateDefinition: (value) => _updateDefinition(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
@@ -95,7 +91,7 @@ class DefinitionWidget extends ConsumerWidget {
       select: (def) => SelectDefinitionForm(
         displayOption: displayOption,
         originalDefinition: original,
-        currentDefinition: currentDefinition,
+        currentDefinition: currentOrOriginal,
         definitionBeingEdited: def,
         onUpdateDefinition: (value) => _updateDefinition(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),

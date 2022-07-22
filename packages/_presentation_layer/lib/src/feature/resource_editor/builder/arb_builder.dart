@@ -29,4 +29,5 @@ class ArbBuilder {
   TextStyle get markingStyle => subtitleStyle;
   TextStyle get valueStyle => textTheme.bodyMedium!;
   TextStyle get optionStyle => textTheme.bodyMedium!.copyWith(color: colors.primary);
+  TextStyle get invalidOptionStyle => textTheme.bodyMedium!.copyWith(color: colors.error);
 }

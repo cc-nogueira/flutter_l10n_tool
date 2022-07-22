@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 mixin TextFormFieldMixin {
-  static final keyRegExp = RegExp(r'[_a-zA-Z]\w*');
-  static final publicVariableRegExp = RegExp(r'[a-zA-Z]\w*');
-  static final wordRegExp = RegExp(r'\w+');
+  static final _keyRegExp = RegExp(r'[_a-zA-Z]\w*');
+  static final _publicVariableRegExp = RegExp(r'[a-zA-Z]\w*');
+  static final _wordRegExp = RegExp(r'\w+');
+
+  TextInputFormatter get textInputKeyFormatter =>
+      TextInputFormatter.withFunction(_keyFormatterFunction);
+
+  TextInputFormatter get textInputPublicVariableFormatter =>
+      TextInputFormatter.withFunction(_publicVariableFormatterFunction);
 
   Widget textField({
     Key? key,
@@ -77,15 +83,9 @@ mixin TextFormFieldMixin {
       ? OutlineInputBorder(borderSide: BorderSide(color: colors.onPrimaryContainer, width: 2.0))
       : null;
 
-  TextInputFormatter get textInputKeyFormatter =>
-      TextInputFormatter.withFunction(_keyFormatterFunction);
-
-  TextInputFormatter get textInputPublicVariableFormatter =>
-      TextInputFormatter.withFunction(_publicVariableFormatterFunction);
-
   TextEditingValue _keyFormatterFunction(TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
-    final match = keyRegExp.firstMatch(text);
+    final match = _keyRegExp.firstMatch(text);
     if (match == null) return const TextEditingValue();
     if (match.start == 0 && match.end == text.length) return newValue;
 
@@ -95,7 +95,7 @@ mixin TextFormFieldMixin {
     final remain = text.substring(prefixEnd);
 
     final valueBuffer = StringBuffer(prefix);
-    final matches = wordRegExp.allMatches(remain);
+    final matches = _wordRegExp.allMatches(remain);
     var moreTrim = 0;
     var prevEnd = 0;
     for (final match in matches) {
@@ -118,7 +118,7 @@ mixin TextFormFieldMixin {
   TextEditingValue _publicVariableFormatterFunction(
       TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
-    final match = publicVariableRegExp.firstMatch(text);
+    final match = _publicVariableRegExp.firstMatch(text);
     if (match == null) return const TextEditingValue();
     if (match.start == 0 && match.end == text.length) return newValue;
 
@@ -128,7 +128,7 @@ mixin TextFormFieldMixin {
     final remain = text.substring(prefixEnd);
 
     final valueBuffer = StringBuffer(prefix);
-    final matches = wordRegExp.allMatches(remain);
+    final matches = _wordRegExp.allMatches(remain);
     var moreTrim = 0;
     var prevEnd = 0;
     for (final match in matches) {
