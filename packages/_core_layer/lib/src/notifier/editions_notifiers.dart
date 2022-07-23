@@ -200,3 +200,113 @@ class EditionsOneToManyNotifier<K, V> extends StateNotifier<EditionsOneToManySta
     state = state.stateWithout(key, value);
   }
 }
+
+/// This state object shares its internal map between instances.
+///
+/// Creating an ofspring element with copyWith or copyWithout will change the original
+/// content and create a "soft" copy.
+///
+/// This is only useful to avoid constant map recreation kwowing the original value is always discarded.
+/// It is also important that these changing methods are private to its Notifier owner.
+///
+/// The key idea is to create a new state object with minimum computation and deliver a new state that
+/// compares different to the original and is internally the same.
+class EditionsOneToMapState<K, VK, VV> {
+  EditionsOneToMapState([Map<K, Map<VK, VV>>? map]) : _map = map ?? {};
+
+  /// Internal map of editions
+  final Map<K, Map<VK, VV>> _map;
+
+  /// Getter for the set of values being edited for a key.
+  ///
+  /// Return an UnmodifiableSetView of values being edited or null if none is found for the given key.
+  UnmodifiableMapView<VK, VV>? operator [](K key) {
+    final values = _map[key];
+    if (values == null) {
+      return null;
+    }
+    return UnmodifiableMapView(values);
+  }
+
+  /// Test if the internal map contains editions for the given key.
+  bool containsKey(K key) => _map.containsKey(key);
+
+  /// Internal - create a new state object sharing the internal editions map including the given
+  /// value associated to the given key.
+  ///
+  /// This method modifies the receiver and creates a new [EditionState] with the same content.
+  /// The key idea is to create a new state object with minimum overhead adn deliver a new state that
+  /// compares different to the original while being internally equivalent.
+  ///
+  /// This is only useful/safe for a caller that discards the original state and will only be available
+  /// to the owning Notifier.
+  @internal
+  EditionsOneToMapState<K, VK, VV> stateWith(K key, VK valueKey, VV valueValue) {
+    final values = _map[key] ?? <VK, VV>{};
+    values[valueKey] = valueValue;
+    _map[key] = values;
+    return EditionsOneToMapState(_map);
+  }
+
+  /// Internal - returns a state object that does not contain the given value for a key.
+  ///
+  /// If the receiver does not contain such value for a key it will returned without modification.
+  ///
+  /// If the receiver does contain the value for that key this method will return a new [EditionState]
+  /// sharing the internal editions map now without the given value for that key. In this case this
+  /// method modifies the receiver.
+  /// If the set of values for a key becomes empty after this removal then the whole key will be
+  /// removed from the map. Thus the map will never contain values that are empty for a key.
+  ///
+  /// The key idea is to create a new state object with minimum overhead adn deliver a new state that
+  /// compares different to the original while being internally equivalent.
+  ///
+  /// This is only useful/safe for a caller that discards the original state and will only be available
+  /// to the owning Notifier.
+  @internal
+  EditionsOneToMapState<K, VK, VV> stateWithout(K key, VK valueKey) {
+    final values = _map[key];
+    if (values == null) {
+      return this;
+    }
+    final removed = values.remove(valueKey);
+    if (removed == null) {
+      return this;
+    }
+    if (values.isEmpty) {
+      _map.remove(key);
+    }
+    return EditionsOneToMapState(_map);
+  }
+}
+
+/// A Riverpod StateNotifier for a map of key to a set of values.
+///
+/// This state notifier will maintain the same state object through its lifetime, only updating
+/// map entries.
+///
+/// The state method is overriden to return un UnmodifiableMapView of my current state.
+class EditionsOneToMapNotifier<K, VK, VV> extends StateNotifier<EditionsOneToMapState<K, VK, VV>> {
+  /// Constructor that initialized to an empty state.
+  EditionsOneToMapNotifier() : super(EditionsOneToMapState());
+
+  /// Adds a value to the set associated to this key.
+  ///
+  /// If the key already exists it will add the value its correspondign set.
+  /// if the key does not exist it will be inserted with a new set containing the given value.
+  ///
+  /// Either case it will trigger state change notification.
+  void add(K key, VK valueKey, VV valueValue) {
+    state = state.stateWith(key, valueKey, valueValue);
+  }
+
+  /// Removes a value from the set of values for the given key.
+  ///
+  /// If the key already existis and the set contains this value then it will be removed and will
+  /// trigger a state change notification.
+  ///
+  /// If the key does not exist or if its set does not contain the given value then nothing happens.
+  void remove(K key, VK valueKey) {
+    state = state.stateWithout(key, valueKey);
+  }
+}
