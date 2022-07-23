@@ -106,7 +106,11 @@ mixin ArbTemplateMixin on ArbMixin {
         placeholders: (def) {
           final placeholderNames = arbTranslationPlaceholderNames(entry.value);
           return ArbTranslation.placeholders(
-              key: entry.key, value: entry.value, placeholderNames: placeholderNames);
+            locale: locale,
+            key: entry.key,
+            value: entry.value,
+            placeholderNames: placeholderNames,
+          );
         },
         plural: (def) {
           final expressionParameterPrefixAndSuffix =
@@ -115,6 +119,7 @@ mixin ArbTemplateMixin on ArbMixin {
             entry.value,
           );
           return ArbTranslation.plural(
+            locale: locale,
             key: entry.key,
             value: entry.value,
             expression: expressionParameterPrefixAndSuffix.item1,
@@ -131,6 +136,7 @@ mixin ArbTemplateMixin on ArbMixin {
             entry.value,
           );
           return ArbTranslation.select(
+            locale: locale,
             key: entry.key,
             value: entry.value,
             expression: expressionParameterPrefixAndSuffix.item1,

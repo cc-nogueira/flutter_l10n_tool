@@ -156,12 +156,12 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation value,
   }) {
-    _currentTranslationsForLanguageNotifier(locale).update(definition, value);
+    _currentTranslationsNotifier().add(definition, locale, value);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
   void rollbackTranslation({required String locale, required ArbDefinition definition}) {
-    _currentTranslationsForLanguageNotifier(locale).remove(definition);
+    _currentTranslationsNotifier().remove(definition, locale);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
@@ -199,9 +199,9 @@ class ArbUsecase {
     return read(scope.beingEditedTranslationLocalesProvider.notifier);
   }
 
-  TranslationForLanguageEditionsNotifier _currentTranslationsForLanguageNotifier(String locale) {
+  TranslationEditionsNotifier _currentTranslationsNotifier() {
     final scope = read(_arbScopeProvider);
-    return read(scope.currentTranslationsForLanguageProvider(locale).notifier);
+    return read(scope.currentTranslationsProvider.notifier);
   }
 
   TranslationForLanguageEditionsNotifier _beingEditedTranslationsForLanguageNotifier(

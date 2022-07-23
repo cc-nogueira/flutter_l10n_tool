@@ -42,11 +42,10 @@ final formPlaceholdersProvider = Provider((ref) {
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
-/// See [ArbScope.currentTranslationsForLanguageProvider].
-final currentTranslationsForLanguageProvider =
-    Provider.family<EditionsState<ArbDefinition, ArbTranslation>, String>((ref, locale) {
+/// See [ArbScope.currentTranslationsProvider].
+final currentTranslationsProvider = Provider((ref) {
   final scope = ref.watch(_arbScopeProvider);
-  return ref.watch(scope.currentTranslationsForLanguageProvider(locale));
+  return ref.watch(scope.currentTranslationsProvider);
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.

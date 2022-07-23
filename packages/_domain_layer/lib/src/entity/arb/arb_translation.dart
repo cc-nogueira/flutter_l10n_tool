@@ -22,6 +22,7 @@ class ArbTranslation with _$ArbTranslation {
   const ArbTranslation._();
 
   const factory ArbTranslation.placeholders({
+    required String locale,
     required String key,
     @Default('') String value,
     @Default([]) List<String> placeholderNames,
@@ -29,6 +30,7 @@ class ArbTranslation with _$ArbTranslation {
 
   @With<ArbTranslationWithParameter>()
   const factory ArbTranslation.plural({
+    required String locale,
     required String key,
     @Default('') String value,
     @Default('') String expression,
@@ -40,6 +42,7 @@ class ArbTranslation with _$ArbTranslation {
 
   @With<ArbTranslationWithParameter>()
   const factory ArbTranslation.select({
+    required String locale,
     required String key,
     @Default('') String value,
     @Default('') String expression,

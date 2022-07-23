@@ -20,6 +20,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final definitions = project.template.definitions;
 
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
+    final currentTranslations = ref.watch(currentTranslationsProvider);
     final beingEditedTranslations = ref.watch(beingEditedTranslationLocalesProvider);
     final beingEditedDefinitions = ref.watch(beingEditedDefinitionsProvider);
     final selected = ref.watch(selectedDefinitionProvider);
@@ -36,6 +37,7 @@ class ResourcesDrawer extends NavigationDrawer {
                 final current = currentDefinitions[definition];
                 final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
                     beingEditedDefinitions.containsKey(definition);
+                final hasModifiedTranslations = currentTranslations.containsKey(definition);
                 return _itemBuilder(
                   ctx,
                   ref.read,
@@ -44,6 +46,7 @@ class ResourcesDrawer extends NavigationDrawer {
                   current: current,
                   isBeingEdited: isBeingEdited,
                   isSelected: definition == selected,
+                  isModified: current != null || hasModifiedTranslations,
                 );
               },
             ),
@@ -61,6 +64,7 @@ class ResourcesDrawer extends NavigationDrawer {
     required ArbDefinition? current,
     required bool isSelected,
     required bool isBeingEdited,
+    required bool isModified,
   }) {
     return ListTile(
       dense: true,
@@ -70,7 +74,7 @@ class ResourcesDrawer extends NavigationDrawer {
       minLeadingWidth: 14,
       leading: isBeingEdited
           ? const Icon(Icons.edit, size: 14)
-          : current != null
+          : isModified
               ? const Icon(Icons.save, size: 14)
               : const SizedBox(width: 12),
       trailing: isSelected ? const Icon(Icons.keyboard_double_arrow_right) : null,

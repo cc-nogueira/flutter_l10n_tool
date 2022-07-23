@@ -8,6 +8,8 @@ import '../../entity/arb/arb_translation.dart';
 typedef SelectedDefinitionNotifier = SelectionNotifier<ArbDefinition>;
 typedef DefinitionEditionsNotifier = EditionsNotifier<ArbDefinition, ArbDefinition>;
 typedef PlaceholderEditionsNotifier = EditionsNotifier<ArbDefinition, ArbPlaceholder>;
+typedef TranslationEditionsNotifier
+    = EditionsOneToMapNotifier<ArbDefinition, String, ArbTranslation>;
 typedef TranslationForLanguageEditionsNotifier = EditionsNotifier<ArbDefinition, ArbTranslation>;
 typedef TranslationLocalesEditionsNotifier = EditionsOneToManyNotifier<ArbDefinition, String>;
 
@@ -67,15 +69,13 @@ class ArbScope {
   final formPlaceholdersProvider = StateNotifierProvider<PlaceholderEditionsNotifier,
       EditionsState<ArbDefinition, ArbPlaceholder>>((_) => PlaceholderEditionsNotifier());
 
-  /// Represents the current [ArbTranslation] modified and saved by the user.
-  /// This is a family provider to store all current ArbTranslations for each locale.
+  /// Represents the current [ArbTranslation]s modified and saved by the user.
   ///
   /// It may differ from the original translation loaded from project files.
   /// It may also differ from the version being edited by the user (not saved).
-  final currentTranslationsForLanguageProvider = StateNotifierProvider.family<
-      TranslationForLanguageEditionsNotifier,
-      EditionsState<ArbDefinition, ArbTranslation>,
-      String>((_, locale) => TranslationForLanguageEditionsNotifier());
+  final currentTranslationsProvider = StateNotifierProvider<TranslationEditionsNotifier,
+          EditionsOneToMapState<ArbDefinition, String, ArbTranslation>>(
+      (_) => TranslationEditionsNotifier());
 
   /// Represents a translation being edited by the user.
   /// This is a family provider to store all ArbTranslations being edited for each locale.

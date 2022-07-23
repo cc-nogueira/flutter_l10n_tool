@@ -28,9 +28,7 @@ class TranslationWidget extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final displayOption = ref.watch(displayOptionProvider);
 
-    final currentTranslation = ref.watch(
-      currentTranslationsForLanguageProvider(locale).select((value) => value[originalDefinition]),
-    );
+    final currentTranslation = ref.watch(currentTranslationsProvider)[originalDefinition]?[locale];
     final currentOrOriginal = currentTranslation ?? originalTranslation;
     final beingEdited =
         ref.read(beingEditedTranslationsForLocaleProvider(locale))[originalDefinition];
@@ -54,9 +52,9 @@ class TranslationWidget extends ConsumerWidget {
         locale: locale,
         onEdit: () {
           final empty = originalDefinition.map(
-            placeholders: (def) => ArbTranslation.placeholders(key: def.key),
-            plural: (def) => ArbTranslation.plural(key: def.key),
-            select: (def) => ArbTranslation.select(key: def.key),
+            placeholders: (def) => ArbTranslation.placeholders(locale: locale, key: def.key),
+            plural: (def) => ArbTranslation.plural(locale: locale, key: def.key),
+            select: (def) => ArbTranslation.select(locale: locale, key: def.key),
           );
           _edit(read, empty);
         },
