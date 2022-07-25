@@ -12,7 +12,7 @@
     }
   },
 
-  "test_plural": "Testing plurals: {count, plural, =0{no dogs} =1{a dog} =2{two dogs} few{few dogs} many{many dogs} other{a number of dogs}",
+  "test_plural": "Testing plurals: {count, plural, =0{no dogs} =1{a dog} =2{two dogs} many{many dogs} other{a number of dogs}",
   "@test_plural": {
     "placeholders": {
       "count": {}
@@ -102,16 +102,14 @@
   },
 
   "label_description": "Description",
-
   "label_example": "Example",
-
   "label_new": "New",
-
   "label_add_placeholder": "Add Placeholder",
-
   "label_update_placeholder": "Update Placeholder",
-
   "label_discard_placeholder_changes": "Discard Changes",
+  "label_add_plural": "Add Plural",
+  "label_update_plural": "Update Plural",
+  "label_discard_plural_changes": "Discard Changes",
 
   "message_loading": "Loading",
   "@message_loading": {

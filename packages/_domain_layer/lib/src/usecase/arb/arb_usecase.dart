@@ -149,6 +149,8 @@ class ArbUsecase {
   }) {
     _beingEditedTranslationsForLanguageNotifier(locale).remove(definition);
     _beingEditedTranslationLocalesNotifier().remove(definition, locale);
+    _existingPluralsBeingEditedNotifier().remove(definition, locale);
+    _formPluralsNotifier().remove(definition, locale);
   }
 
   void saveTranslation({
@@ -165,9 +167,58 @@ class ArbUsecase {
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
+  /// Track plural being edited.
+  ///
+  /// This method is called with an actual plural when the user starts editing an existing translation plural.
+  /// This method is called with a null String when the user discard plural edition and
+  /// no plurals are currently being edited for the corresponding [ArbDefintion]/locale.
+  ///
+  /// Note that this method is not invoked when a new plural is being edited.
+  void trackExistingPluralBeingEdited({
+    required ArbDefinition definition,
+    required String locale,
+    required ArbPlural? plural,
+  }) {
+    if (plural == null) {
+      _existingPluralsBeingEditedNotifier().remove(definition, locale);
+    } else {
+      _existingPluralsBeingEditedNotifier().add(definition, locale, plural);
+    }
+  }
+
+  /// Update the form plural provider to reflect the plural being edited by the user.
+  ///
+  /// This method is invoded with an empty String when the user starts the creation of a
+  /// new plural.
+  ///
+  /// This method is invoked with an existing plural when the user starts the edition of an
+  /// existing plural.
+  ///
+  /// This method is called for all subsequent changes ih the plural being edited (such as
+  /// typing on input field).
+  ///
+  /// This method is invoked with a null value when the user discard changes in the plural form.
+  void updateFormPlural({
+    required ArbDefinition definition,
+    required String locale,
+    required ArbPlural? plural,
+  }) {
+    if (plural == null) {
+      _formPluralsNotifier().remove(definition, locale);
+    } else {
+      _formPluralsNotifier().add(definition, locale, plural);
+    }
+  }
+
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.selectedDefinitionProvider.notifier);
+  }
+
+  ///Return the [currentDefinitionsProvider] notifier.
+  DefinitionEditionsNotifier _currentDefinitionsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.currentDefinitionsProvider.notifier);
   }
 
   DefinitionEditionsNotifier _beingEditedDefinitionsNotifier() {
@@ -187,21 +238,27 @@ class ArbUsecase {
     return read(scope.formPlaceholdersProvider.notifier);
   }
 
-  ///Return the [currentDefinitionsProvider] notifier.
-  DefinitionEditionsNotifier _currentDefinitionsNotifier() {
+  TranslationEditionsNotifier _currentTranslationsNotifier() {
     final scope = read(_arbScopeProvider);
-    return read(scope.currentDefinitionsProvider.notifier);
+    return read(scope.currentTranslationsProvider.notifier);
+  }
+
+  /// Return the [existingPluralsBeingEditedProvider] notifier.
+  PluralEditionsNotifier _existingPluralsBeingEditedNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.existingPluralsBeingEditedProvider.notifier);
+  }
+
+  ///Return the [formPluralsProvider] notifier.
+  PluralEditionsNotifier _formPluralsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.formPluralsProvider.notifier);
   }
 
   ///Return the [beingEditedTranslationLocalesProvider] notifier.
   TranslationLocalesEditionsNotifier _beingEditedTranslationLocalesNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.beingEditedTranslationLocalesProvider.notifier);
-  }
-
-  TranslationEditionsNotifier _currentTranslationsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.currentTranslationsProvider.notifier);
   }
 
   TranslationForLanguageEditionsNotifier _beingEditedTranslationsForLanguageNotifier(

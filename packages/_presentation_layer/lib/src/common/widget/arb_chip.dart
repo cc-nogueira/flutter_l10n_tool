@@ -29,13 +29,43 @@ class ArbPlaceholderChip extends StatelessWidget {
     );
     return IgnorePointer(
       ignoring: selected || (onPressed == null && onDelete == null),
-      child: inputChip(
+      child: textInputChip(
         colors: colors,
         icon: icon,
         text: placeholder.key,
         selected: selected,
         onPressed: () => onPressed?.call(placeholder),
         onDelete: onDelete == null ? null : () => onDelete!(placeholder),
+      ),
+    );
+  }
+}
+
+class ArbChip extends StatelessWidget {
+  const ArbChip(
+    this.child, {
+    super.key,
+    this.onPressed,
+    this.onDelete,
+    this.selected = false,
+  });
+
+  final Widget child;
+  final bool selected;
+  final VoidCallback? onPressed;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return IgnorePointer(
+      ignoring: selected || (onPressed == null && onDelete == null),
+      child: inputChip(
+        colors: colors,
+        child: child,
+        selected: selected,
+        onPressed: () => onPressed?.call(),
+        onDelete: onDelete == null ? null : () => onDelete!(),
       ),
     );
   }

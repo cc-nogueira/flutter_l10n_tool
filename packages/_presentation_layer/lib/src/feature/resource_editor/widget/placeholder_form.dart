@@ -6,7 +6,7 @@ import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'placeholder_button.dart';
+import 'form_button.dart';
 
 enum _PlaceholderDateFormatType {
   icu,
@@ -233,7 +233,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       _discardButton(loc),
       FormMixin.horizontalSeparator,
       FormMixin.horizontalSeparator,
-      PlaceholderButton(
+      FormButton(
         key: widget.addButtonKey,
         colors: colors,
         text: loc.label_add_placeholder,
@@ -250,7 +250,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
       _discardButton(loc),
       FormMixin.horizontalSeparator,
       FormMixin.horizontalSeparator,
-      PlaceholderButton(
+      FormButton(
         key: widget.addButtonKey,
         colors: colors,
         text: loc.label_add_placeholder,
@@ -259,7 +259,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
         hide: !widget.showAddButton,
       ),
       FormMixin.horizontalSeparator,
-      PlaceholderButton(
+      FormButton(
         colors: colors,
         text: loc.label_update_placeholder,
         onPressed: enableUpdate ? () => widget.replaceCallback(formPlaceholder) : null,

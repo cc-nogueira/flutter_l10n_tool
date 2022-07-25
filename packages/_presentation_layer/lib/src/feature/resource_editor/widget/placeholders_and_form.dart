@@ -4,10 +4,10 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../common/widget/arb_placeholder_chip.dart';
+import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
-import 'placeholder_button.dart';
+import 'form_button.dart';
 import 'placeholder_form.dart';
 
 GlobalKey _newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
@@ -380,7 +380,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
 
   Widget _flightWidget() {
     if (isEdition) {
-      return inputChip(
+      return textInputChip(
           colors: colors,
           text: existingPlaceholderBeingEditedController.state!.key,
           align: Alignment.centerLeft,
@@ -389,8 +389,8 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
     final showNewButton = animation.status == AnimationStatus.reverse && animation.value < 0.8 ||
         animation.value < 0.3;
     return showNewButton
-        ? PlaceholderButton(text: loc.label_new, colors: colors, onPressed: () {})
-        : PlaceholderButton(text: loc.label_add_placeholder, colors: colors, onPressed: null);
+        ? FormButton(text: loc.label_new, colors: colors, onPressed: () {})
+        : FormButton(text: loc.label_add_placeholder, colors: colors, onPressed: null);
   }
 
   void _readPositions() {
@@ -424,7 +424,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             children: [
               for (final each in arbDefinition.placeholders)
                 _placeholderTag(each, beingEdited: existingPlaceholderBeingEditedController.state),
-              PlaceholderButton(
+              FormButton(
                 key: _newPlaceholderKey,
                 colors: colors,
                 tonal: true,

@@ -121,10 +121,9 @@ mixin ArbTemplateMixin on ArbMixin {
           return ArbTranslation.plural(
             locale: locale,
             key: entry.key,
-            value: entry.value,
             expression: expressionParameterPrefixAndSuffix.item1,
             parameterName: expressionParameterPrefixAndSuffix.item2,
-            options: inferArbTranslationOptionsFrom(ArbDefinitionType.plural, entry.value),
+            options: inferArbTranslationPluralOptions(entry.value),
             prefix: expressionParameterPrefixAndSuffix.item3,
             suffix: expressionParameterPrefixAndSuffix.item4,
           );
@@ -138,10 +137,9 @@ mixin ArbTemplateMixin on ArbMixin {
           return ArbTranslation.select(
             locale: locale,
             key: entry.key,
-            value: entry.value,
             expression: expressionParameterPrefixAndSuffix.item1,
             parameterName: expressionParameterPrefixAndSuffix.item2,
-            options: inferArbTranslationOptionsFrom(ArbDefinitionType.select, entry.value),
+            options: inferArbTranslationSelectOptions(entry.value),
             prefix: expressionParameterPrefixAndSuffix.item3,
             suffix: expressionParameterPrefixAndSuffix.item4,
           );

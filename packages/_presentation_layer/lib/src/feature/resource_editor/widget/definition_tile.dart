@@ -1,7 +1,7 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
-import '../../../common/widget/arb_placeholder_chip.dart';
+import '../../../common/widget/arb_chip.dart';
 import '../builder/arb_builder.dart';
 
 abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {

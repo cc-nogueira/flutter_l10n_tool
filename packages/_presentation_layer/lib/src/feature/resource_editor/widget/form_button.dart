@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../common/widget/buttons.dart';
 
-class PlaceholderButton extends StatelessWidget {
-  const PlaceholderButton({
+class FormButton extends StatelessWidget {
+  const FormButton({
     super.key,
     required this.colors,
     required this.text,

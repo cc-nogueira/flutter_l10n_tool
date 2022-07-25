@@ -122,7 +122,7 @@ OutlinedButton segmentedButton({
         );
 }
 
-OutlinedButton inputChip({
+OutlinedButton textInputChip({
   Key? key,
   required ColorScheme colors,
   required String text,
@@ -182,6 +182,68 @@ OutlinedButton inputChip({
           onPressed: onPressed,
           icon: icon,
           label: child,
+        );
+}
+
+OutlinedButton inputChip({
+  Key? key,
+  required ColorScheme colors,
+  required Widget child,
+  double deleteSize = 18.0,
+  Size? minimumSize,
+  VoidCallback? onPressed,
+  VoidCallback? onDelete,
+  bool selected = false,
+  Icon? icon,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
+  Alignment? align,
+}) {
+  final chipChild = onDelete == null
+      ? child
+      : Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            child,
+            const SizedBox(width: 8),
+            InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
+          ],
+        );
+  return icon == null
+      ? OutlinedButton(
+          key: key,
+          style: chipButtonStyle(
+            colors,
+            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+            align: align,
+          ),
+          onPressed: onPressed,
+          child: chipChild,
+        )
+      : OutlinedButton.icon(
+          key: key,
+          style: chipButtonStyle(
+            colors,
+            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            selected: selected,
+            minimumSize: minimumSize,
+            backgroundColor: backgroundColor,
+            color: color,
+            selectedBackgroundColor: selectedBackgroundColor,
+            selectedColor: selectedColor,
+            align: align,
+          ),
+          onPressed: onPressed,
+          icon: icon,
+          label: chipChild,
         );
 }
 

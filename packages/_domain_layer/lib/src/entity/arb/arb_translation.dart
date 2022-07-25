@@ -4,13 +4,15 @@ import 'arb_definition.dart';
 
 part 'arb_translation.freezed.dart';
 
-mixin ArbTranslationWithParameter {
+mixin ArbTranslationWithParameter<T> {
   ArbDefinitionType get type;
-  String get expression;
-  String get parameterName;
-  Map<String, String> get options;
   String get prefix;
+  String get expression;
   String get suffix;
+  String get parameterName;
+  List<T> get options;
+
+  String get value => '$prefix$expression$suffix';
 }
 
 /// Entity for an ARB translation.
@@ -28,28 +30,26 @@ class ArbTranslation with _$ArbTranslation {
     @Default([]) List<String> placeholderNames,
   }) = ArbPlaceholdersTranslation;
 
-  @With<ArbTranslationWithParameter>()
+  @With<ArbTranslationWithParameter<ArbPlural>>()
   const factory ArbTranslation.plural({
     required String locale,
     required String key,
-    @Default('') String value,
-    @Default('') String expression,
-    @Default('') String parameterName,
-    @Default({}) Map<String, String> options,
     @Default('') String prefix,
+    @Default('') String expression,
     @Default('') String suffix,
+    @Default('') String parameterName,
+    @Default([ArbPlural(option: ArbPluralOption.other)]) List<ArbPlural> options,
   }) = ArbPluralTranslation;
 
-  @With<ArbTranslationWithParameter>()
+  @With<ArbTranslationWithParameter<ArbSelection>>()
   const factory ArbTranslation.select({
     required String locale,
     required String key,
-    @Default('') String value,
-    @Default('') String expression,
-    @Default('') String parameterName,
-    @Default({}) Map<String, String> options,
     @Default('') String prefix,
+    @Default('') String expression,
     @Default('') String suffix,
+    @Default('') String parameterName,
+    @Default([]) List<ArbSelection> options,
   }) = ArbSelectTranslation;
 
   ArbDefinitionType get type => map(
@@ -57,4 +57,41 @@ class ArbTranslation with _$ArbTranslation {
         plural: (_) => ArbDefinitionType.plural,
         select: (_) => ArbDefinitionType.select,
       );
+}
+
+@freezed
+class ArbPlural with _$ArbPlural {
+  const factory ArbPlural({
+    required ArbPluralOption option,
+    @Default('') String value,
+  }) = _ArbPlural;
+}
+
+enum ArbPluralOption {
+  zero('=0'),
+  one('=1'),
+  two('=2'),
+  few('few'),
+  many('many'),
+  other('other');
+
+  const ArbPluralOption(this.expression);
+
+  /// Enum factory to lookup for the right enum value for a named type.
+  factory ArbPluralOption.forExpression(String expression) {
+    return values.firstWhere(
+      (element) => element.expression == expression,
+      orElse: () => throw ArgumentError('Invalid match for ArbPlural with $expression'),
+    );
+  }
+
+  final String expression;
+}
+
+@freezed
+class ArbSelection with _$ArbSelection {
+  const factory ArbSelection({
+    required String option,
+    @Default('') String value,
+  }) = _ArbSelection;
 }

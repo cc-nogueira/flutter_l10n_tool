@@ -1,9 +1,10 @@
 import 'package:tuple/tuple.dart';
 
 import '../../../entity/arb/arb_definition.dart';
+import '../../../entity/arb/arb_translation.dart';
 
 mixin ArbMixin {
-  static final _pluralRegExp = RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*plural\s*,(.*)})([^}]*)');
+  static final _pluralRegExp = RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*plural\s*,(.*}))([^}]*)');
   static final _pluralOptionsRegExp = RegExp(r'(=0|=1|=2|few|many|other){([^}]*)}');
   static final _selectRegExp = RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*select\s*,(.*)})([^}]*)');
   static final _selectOptionsRegExp = RegExp(r'([a-zA-Z]\w*){([^}]*)}');
@@ -50,18 +51,31 @@ mixin ArbMixin {
     return match.group(3)!;
   }
 
-  Map<String, String> inferArbTranslationOptionsFrom(ArbDefinitionType type, String value) {
-    final rx = _translationRegExpFor(type);
-    final match = rx.firstMatch(value);
+  List<ArbPlural> inferArbTranslationPluralOptions(String value) {
+    final match = _pluralRegExp.firstMatch(value);
     if (match == null) {
-      throw ArgumentError('Invalid value "$value" for ArbDefinition of type $type');
+      throw ArgumentError('Invalid value "$value" for ArbPluralTranslation');
     }
     final options = match.group(4)!;
-    final optionsRegExp = type.isPlural ? _pluralOptionsRegExp : _selectOptionsRegExp;
+    final optionsRegExp = _pluralOptionsRegExp;
     final matches = optionsRegExp.allMatches(options);
-    return {
-      for (final each in matches) each.group(1)!: each.group(2)!,
-    };
+    return [
+      for (final each in matches)
+        ArbPlural(option: ArbPluralOption.forExpression(each.group(1)!), value: each.group(2)!),
+    ];
+  }
+
+  List<ArbSelection> inferArbTranslationSelectOptions(String value) {
+    final match = _selectRegExp.firstMatch(value);
+    if (match == null) {
+      throw ArgumentError('Invalid value "$value" for ArbSelectTranslation');
+    }
+    final options = match.group(4)!;
+    final optionsRegExp = _selectOptionsRegExp;
+    final matches = optionsRegExp.allMatches(options);
+    return [
+      for (final each in matches) ArbSelection(option: each.group(1)!, value: each.group(2)!),
+    ];
   }
 
   String? arbTranslationParameter(ArbDefinitionType type, String value) {

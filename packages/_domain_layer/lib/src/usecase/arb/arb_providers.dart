@@ -49,6 +49,20 @@ final currentTranslationsProvider = Provider((ref) {
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
+/// See [ArbScope.existingPluralsBeingEditedProvider].
+final existingPluralsBeingEditedProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.existingPluralsBeingEditedProvider);
+});
+
+/// This is a exporting provider to forward [ArbScope] instance internal provider.
+/// See [ArbScope.formPluralsProvider].
+final formPluralsProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.formPluralsProvider);
+});
+
+/// This is a exporting provider to forward [ArbScope] instance internal provider.
 /// See [ArbScope.beingEditedTranslationLocalesProvider].
 final beingEditedTranslationLocalesProvider = Provider((ref) {
   final scope = ref.watch(_arbScopeProvider);

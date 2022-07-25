@@ -12,6 +12,7 @@ typedef TranslationEditionsNotifier
     = EditionsOneToMapNotifier<ArbDefinition, String, ArbTranslation>;
 typedef TranslationForLanguageEditionsNotifier = EditionsNotifier<ArbDefinition, ArbTranslation>;
 typedef TranslationLocalesEditionsNotifier = EditionsOneToManyNotifier<ArbDefinition, String>;
+typedef PluralEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String, ArbPlural>;
 
 /// Arb Scope is a collection of [StateNotificationProvider] internal to [ArbUsecase].
 ///
@@ -56,9 +57,8 @@ class ArbScope {
 
   /// Form placeholders are the current value displayed and edited by the user for
   /// an [ArbDefinition].
-
+  ///
   /// There is a max of one [ArbPlaceholder] being edited per [ArbDefinition].
-  /// It is one of the markers of an [ArbDefinition] being edited.
   ///
   /// When editing a existing a placeholder this value starts with
   /// [existingPlaceholdersBeingEditedProvider] value.
@@ -76,6 +76,32 @@ class ArbScope {
   final currentTranslationsProvider = StateNotifierProvider<TranslationEditionsNotifier,
           EditionsOneToMapState<ArbDefinition, String, ArbTranslation>>(
       (_) => TranslationEditionsNotifier());
+
+  /// Represents an existing plurals currently being edited for a [ArbDefinition]/locale.
+  ///
+  /// It will be the initial value of the corresponding value in [formPluralsProvider] for an
+  /// edit plural action.
+  /// When the Form value changes by user interaction these two values may differ, representing
+  /// pending changes in the form.
+  ///
+  /// No entry will be found for an [ArbDefinition]/locale when no plurals are being edited or when a
+  /// new plural is being edited in the user's form.
+  final existingPluralsBeingEditedProvider = StateNotifierProvider<PluralEditionsNotifier,
+      EditionsOneToMapState<ArbDefinition, String, ArbPlural>>((_) => PluralEditionsNotifier());
+
+  /// Form plurals are the current plural value displayed and edited by the user for
+  /// an [ArbDefinition]/locale.
+  ///
+  /// There is a max of one [ArbPlaceholder] being edited per [ArbDefinition]/locale.
+  ///
+  /// When editing a existing a plural this value starts with
+  /// [existingPluralsBeingEditedProvider] value.
+  /// When creating a plural this value starts empty.
+  ///
+  /// As the user form changes this provider is kept uptodate by the usecase,
+  /// pending changes can be detected by comparintg with [existingPluralBeingEditedProvider] value.
+  final formPluralsProvider = StateNotifierProvider<PluralEditionsNotifier,
+      EditionsOneToMapState<ArbDefinition, String, ArbPlural>>((_) => PluralEditionsNotifier());
 
   /// Represents a translation being edited by the user.
   /// This is a family provider to store all ArbTranslations being edited for each locale.

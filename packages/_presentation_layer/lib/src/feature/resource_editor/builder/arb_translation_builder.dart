@@ -36,17 +36,23 @@ abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuild
     required ArbDefinition definition,
     required ArbTranslation translation,
   }) {
-    return translation.maybeMap(
-        placeholders: (trans) => _ArbPlaceholdersTranslationBuilder(
-              displayOption: displayOption,
-              definition: definition as ArbPlaceholdersDefinition,
-              translation: trans,
-            ),
-        orElse: () => _ArbTranslationWithParameterBuilder(
-              displayOption: displayOption,
-              definition: definition,
-              translation: translation,
-            ));
+    return translation.map(
+      placeholders: (trans) => _ArbPlaceholdersTranslationBuilder(
+        displayOption: displayOption,
+        definition: definition as ArbPlaceholdersDefinition,
+        translation: trans,
+      ),
+      plural: (trans) => ArbPluralTranslationBuilder(
+        displayOption: displayOption,
+        definition: definition as ArbPluralDefinition,
+        translation: trans,
+      ),
+      select: (trans) => ArbSelectTranslationBuilder(
+        displayOption: displayOption,
+        translation: trans,
+        definition: definition as ArbSelectDefinition,
+      ),
+    );
   }
 
   ArbTranslationBuilder._({
@@ -57,7 +63,7 @@ abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuild
 
   final DisplayOption displayOption;
   final ArbDefinition definition;
-  final ArbTranslation translation;
+  ArbTranslation translation;
 
   Widget descriptorWidget();
   List<Widget> optionsWidgets() => [];
@@ -114,7 +120,7 @@ class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
   }
 }
 
-class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
+abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
   _ArbTranslationWithParameterBuilder({
     required super.translation,
     required super.definition,
@@ -130,6 +136,7 @@ class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
   @override
   Widget descriptorWidget() {
     return Wrap(
+      runSpacing: 12.0,
       children: [
         if (transWithParam.prefix.isNotEmpty) Text(transWithParam.prefix, style: subtitleStyle),
         Text('{ ', style: markingStyle),
@@ -144,36 +151,73 @@ class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
     );
   }
 
-  @override
-  List<Widget> optionsWidgets() {
-    if (transWithParam.options.isEmpty) {
+  List<Widget> _optionsWidgets(List<Widget> options) {
+    if (options.isEmpty) {
       return const [Text('empty')];
     }
-    final options = [
-      for (final option in transWithParam.options.entries)
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (displayOption.isExpanded) ...[
-              const Icon(Icons.swap_horiz, size: 20),
-              hSpace,
-            ],
-            Text(option.key, style: valueStyle),
-            Text('{', style: markingStyle),
-            hSpace,
-            Text(option.value, style: optionStyle),
-            hSpace,
-            Text('}', style: markingStyle),
-          ],
-        ),
-    ];
+
     if (displayOption.isExpanded) {
       return options;
     } else {
       final optionsWithSpaces = [
-        for (final option in options) ...[option, hSpace],
+        for (final option in options) ...[option, _ArbTranslationWithParameterBuilder.hSpace],
       ];
-      return [Wrap(children: optionsWithSpaces)];
+      return [Wrap(runSpacing: 12.0, children: optionsWithSpaces)];
     }
   }
+
+  Widget _arbOptionWidget(String name, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (displayOption.isExpanded) ...[
+          const Icon(Icons.swap_horiz, size: 20),
+          hSpace,
+        ],
+        Text(name, style: valueStyle),
+        Text('{', style: markingStyle),
+        hSpace,
+        Text(value, style: optionStyle),
+        hSpace,
+        Text('}', style: markingStyle),
+      ],
+    );
+  }
+}
+
+class ArbPluralTranslationBuilder extends _ArbTranslationWithParameterBuilder {
+  ArbPluralTranslationBuilder({
+    required ArbPluralTranslation translation,
+    required ArbPluralDefinition definition,
+    required super.displayOption,
+  }) : super(translation: translation, definition: definition);
+
+  @override
+  ArbPluralTranslation get translation => super.translation as ArbPluralTranslation;
+
+  @override
+  List<Widget> optionsWidgets() => _optionsWidgets([
+        for (final option in translation.options) arbOptionWidget(option),
+      ]);
+
+  Widget arbOptionWidget(ArbPlural plural) => _arbOptionWidget(plural.option.name, plural.value);
+}
+
+class ArbSelectTranslationBuilder extends _ArbTranslationWithParameterBuilder {
+  ArbSelectTranslationBuilder({
+    required ArbSelectTranslation translation,
+    required ArbSelectDefinition definition,
+    required super.displayOption,
+  }) : super(translation: translation, definition: definition);
+
+  @override
+  ArbSelectTranslation get translation => super.translation as ArbSelectTranslation;
+
+  @override
+  List<Widget> optionsWidgets() => _optionsWidgets([
+        for (final option in translation.options) arbOptionWidget(option),
+      ]);
+
+  Widget arbOptionWidget(ArbSelection selection) =>
+      _arbOptionWidget(selection.option, selection.value);
 }

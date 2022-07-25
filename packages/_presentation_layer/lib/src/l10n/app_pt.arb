@@ -2,6 +2,7 @@
   "@@locale": "pt",
 
   "test_select": "Testando selects: {type, select, dark{escuro}, light{claro}} para o modo de exibição.",
+  "test_plural": "Testando plurais: {coun, plural, =0{nenhum} =1{um cachorro} few{alguns dogs} many{muitos cães} other{cães}",
 
   "title_home_page": "Localization App",
   "title_error_page": "Erro",
@@ -17,6 +18,17 @@
   "label_choose": "Selecionar",
   "label_close": "Fechar",
   "label_fix_action": "Ação Corretiva",
+
+  "label_description": "Descrição",
+  "label_example": "Exemplo",
+  "label_new": "Novo",
+  "label_add_placeholder": "Adicionar Placeholder",
+  "label_update_placeholder": "Atualizar Placeholder",
+  "label_discard_placeholder_changes": "Descartar Alterações",
+  "label_add_plural": "Adicionar Plural",
+  "label_update_plural": "Atualizar Plural",
+  "label_discard_plural_changes": "Descartar Alterações",
+
   "message_loading": "Carregando",
   "message_loading_with_yaml_conf": "Carregando projeto usando configuração yaml",
   "message_loading_without_yaml_conf": "Carregando project sem configuração yaml",
