@@ -4,6 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
+import '../project/project_usecase.dart';
 import 'arb_scope.dart';
 
 part 'arb_providers.dart';
@@ -158,7 +159,13 @@ class ArbUsecase {
     required ArbDefinition definition,
     required ArbTranslation value,
   }) {
-    _currentTranslationsNotifier().add(definition, locale, value);
+    final translations = read(projectProvider).translations[locale];
+    final original = translations?.translations[definition.key];
+    if (value == original) {
+      _currentTranslationsNotifier().remove(definition, locale);
+    } else {
+      _currentTranslationsNotifier().add(definition, locale, value);
+    }
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
