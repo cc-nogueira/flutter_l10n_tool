@@ -153,6 +153,7 @@ class _PluralsAndFormState extends State<_PluralsAndForm> with SingleTickerProvi
         _controller.value = 1.0;
       }
     }
+    widget.availablePluralOptionsController.state = _availableOptions();
   }
 
   @override
