@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../builder/arb_builder.dart';
+import 'placeholders_text_editing_controller.dart';
 import 'plurals_and_form.dart';
 
 abstract class TranslationForm<D extends ArbDefinition, T extends ArbTranslation>
@@ -151,12 +152,14 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
 class PlaceholdersTranslationFormState
     extends TranslationFormState<ArbPlaceholdersDefinition, ArbPlaceholdersTranslation>
     with ArbMixin {
-  TextEditingController translationTextController = TextEditingController();
+  late PlaceholdersTextEditingController translationTextController =
+      PlaceholdersTextEditingController(placeholders: widget.definition.placeholders);
 
   @override
   void resetState() {
     super.resetState();
     translationTextController.text = translationController.state.value;
+    translationTextController.arbBuilder = builder;
   }
 
   @override
