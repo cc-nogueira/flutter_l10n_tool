@@ -4,9 +4,11 @@ import '../../../entity/arb/arb_definition.dart';
 import '../../../entity/arb/arb_translation.dart';
 
 mixin ArbMixin {
-  static final _pluralRegExp = RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*plural\s*,(.*}))([^}]*)');
+  static final _pluralRegExp =
+      RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*plural\s*,([\s\S]*}))([^}]*)');
   static final _pluralOptionsRegExp = RegExp(r'(=0|=1|=2|few|many|other){([^}]*)}');
-  static final _selectRegExp = RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*select\s*,(.*)})([^}]*)');
+  static final _selectRegExp =
+      RegExp(r'([^{]*)({\s*([a-zA-Z]\w*)\s*,\s*select\s*,([\s\S]*)})([^}]*)');
   static final _selectOptionsRegExp = RegExp(r'([a-zA-Z]\w*){([^}]*)}');
   static final _placeholderNamesRegExp = RegExp(r'{([a-zA-Z]\w*)}');
 

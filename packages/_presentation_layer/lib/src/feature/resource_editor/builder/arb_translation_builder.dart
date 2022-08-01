@@ -93,7 +93,7 @@ class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
           ..write('}|');
       }
       final names = namesBuffer.toString().substring(0, namesBuffer.length - 1);
-      final rx = RegExp('(.*?)($names)');
+      final rx = RegExp('([\\s\\S]*?)($names)');
       final matches = rx.allMatches(translation.value);
       if (matches.isNotEmpty) {
         final validPlaceholders = {
@@ -113,10 +113,14 @@ class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
           children.add(TextSpan(text: translation.value.substring(idx), style: subtitleStyle));
         }
         final textSpan = TextSpan(children: children);
-        return SelectableText.rich(textSpan);
+        return SelectableText.rich(textSpan, maxLines: null);
       }
     }
-    return SelectableText(translation.value, style: subtitleStyle);
+    return SelectableText(
+      translation.value,
+      style: subtitleStyle,
+      maxLines: null,
+    );
   }
 }
 
