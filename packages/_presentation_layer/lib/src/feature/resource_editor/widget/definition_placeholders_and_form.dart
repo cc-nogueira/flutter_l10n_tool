@@ -7,16 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
-import 'form_button.dart';
-import 'placeholder_form.dart';
+import '../../../common/widget/form_button.dart';
+import 'definition_placeholder_form.dart';
 
 /// Show existing placeholders, actions and a dynamic form for placeholder edition.
 ///
 /// Interacts with [ArbUsecase] to update the placeholder under use interaction and to track the
 /// existing placeholder being edited (or none) for an ArbDefinition.
-class PlaceholdersAndForm extends ConsumerWidget {
+class DefinitionPlaceholdersAndForm extends ConsumerWidget {
   /// Const constructor.
-  const PlaceholdersAndForm({
+  const DefinitionPlaceholdersAndForm({
     super.key,
     required this.originalDefinition,
     required this.definitionController,
@@ -30,7 +30,7 @@ class PlaceholdersAndForm extends ConsumerWidget {
   final ValueChanged<ArbDefinition> onUpdateDefinition;
 
   /// Build method read placeholders providers (without watching them) and renders
-  /// the internal [_PlaceholdersAndForm] widget.
+  /// the internal [_DefinitionPlaceholdersAndForm] widget.
   ///
   /// Also register callbacks to interact with [ArbUsecase].
   @override
@@ -40,7 +40,7 @@ class PlaceholdersAndForm extends ConsumerWidget {
     final formPlaceholder = ref.read(formPlaceholdersProvider)[originalDefinition];
     final existingPlaceholderBeingEdited =
         ref.read(existingPlaceholdersBeingEditedProvider)[originalDefinition];
-    return _PlaceholdersAndForm(
+    return _DefinitionPlaceholdersAndForm(
       loc,
       colors,
       definitionController: definitionController,
@@ -65,9 +65,9 @@ class PlaceholdersAndForm extends ConsumerWidget {
   }
 }
 
-class _PlaceholdersAndForm extends StatefulWidget {
+class _DefinitionPlaceholdersAndForm extends StatefulWidget {
   /// Const constructor.
-  _PlaceholdersAndForm(
+  _DefinitionPlaceholdersAndForm(
     this.loc,
     this.colors, {
     required this.definitionController,
@@ -80,7 +80,7 @@ class _PlaceholdersAndForm extends StatefulWidget {
         existingPlaceholderBeingEditedController = StateController(existingPlaceholderBeingEdited);
 
   @override
-  State<_PlaceholdersAndForm> createState() => _PlaceholdersAndFormState();
+  State<_DefinitionPlaceholdersAndForm> createState() => _DefinitionPlaceholdersAndFormState();
 
   /// AppLocalizations is "cached" here because it is used many times by the state object.
   final AppLocalizations loc;
@@ -105,7 +105,7 @@ class _PlaceholdersAndForm extends StatefulWidget {
   }
 }
 
-class _PlaceholdersAndFormState extends State<_PlaceholdersAndForm>
+class _DefinitionPlaceholdersAndFormState extends State<_DefinitionPlaceholdersAndForm>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -119,7 +119,7 @@ class _PlaceholdersAndFormState extends State<_PlaceholdersAndForm>
   }
 
   @override
-  void didUpdateWidget(covariant _PlaceholdersAndForm oldWidget) {
+  void didUpdateWidget(covariant _DefinitionPlaceholdersAndForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget != oldWidget) {
       resetState();
@@ -443,7 +443,7 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
             sizeFactor: animation,
             child: Opacity(
               opacity: animation.value,
-              child: PlaceholderForm(
+              child: DefinitionPlaceholderForm(
                 original: existingPlaceholderBeingEditedController.state,
                 formPlaceholder: formPlaceholderController.state!,
                 onUpdate: updateCallback,

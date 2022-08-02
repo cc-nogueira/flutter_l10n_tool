@@ -6,7 +6,7 @@ import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'form_button.dart';
+import '../../../common/widget/form_button.dart';
 
 enum _PlaceholderDateFormatType {
   icu,
@@ -16,8 +16,8 @@ enum _PlaceholderDateFormatType {
   bool get isCustom => this == custom;
 }
 
-class PlaceholderForm extends StatefulWidget {
-  const PlaceholderForm({
+class DefinitionPlaceholderForm extends StatefulWidget {
+  const DefinitionPlaceholderForm({
     super.key,
     required this.original,
     required this.formPlaceholder,
@@ -43,12 +43,13 @@ class PlaceholderForm extends StatefulWidget {
   final Key? placeholderInputKey;
 
   @override
-  State<PlaceholderForm> createState() => _PlaceholderFormState();
+  State<DefinitionPlaceholderForm> createState() => _DefinitionPlaceholderFormState();
 
   bool get isEditing => original != null;
 }
 
-class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMixin {
+class _DefinitionPlaceholderFormState extends State<DefinitionPlaceholderForm>
+    with TextFormFieldMixin {
   late ArbPlaceholder formPlaceholder;
   late ArbDateTimePlaceholder formDatePlaceholder;
   late ArbNumberPlaceholder formNumberPlaceholder;
@@ -68,7 +69,7 @@ class _PlaceholderFormState extends State<PlaceholderForm> with TextFormFieldMix
   }
 
   @override
-  void didUpdateWidget(covariant PlaceholderForm oldWidget) {
+  void didUpdateWidget(covariant DefinitionPlaceholderForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget != widget) {
       resetState(true);

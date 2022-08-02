@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../builder/arb_builder.dart';
-import 'placeholders_text_editing_controller.dart';
-import 'plurals_and_form.dart';
+import 'placeholders_translation_text_editing_controller.dart';
+import 'translation_plurals_and_form.dart';
 
 abstract class TranslationForm<D extends ArbDefinition, T extends ArbTranslation>
     extends StatefulWidget {
@@ -152,8 +152,8 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
 class PlaceholdersTranslationFormState
     extends TranslationFormState<ArbPlaceholdersDefinition, ArbPlaceholdersTranslation>
     with ArbMixin {
-  late PlaceholdersTextEditingController translationTextController =
-      PlaceholdersTextEditingController(placeholders: widget.definition.placeholders);
+  late PlaceholdersTranslationTextEditingController translationTextController =
+      PlaceholdersTranslationTextEditingController(placeholders: widget.definition.placeholders);
 
   @override
   void resetState() {
@@ -262,7 +262,7 @@ class PluralTranslationFormState
               ],
             ),
             FormMixin.verticalSeparator,
-            PluralsAndForm(
+            TranslationPluralsAndForm(
               translationBuilder: builder,
               definition: widget.definition,
               locale: widget.current?.locale ?? widget.beingEdited.locale,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/widget/buttons.dart';
+import 'buttons.dart';
 
 class FormButton extends StatelessWidget {
   const FormButton({

@@ -8,16 +8,16 @@ import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../l10n/app_localizations.dart';
 import '../builder/arb_builder.dart';
-import 'form_button.dart';
-import 'plural_form.dart';
+import '../../../common/widget/form_button.dart';
+import 'translation_plural_form.dart';
 
 /// Show existing plurals, actions and a dynamic form for plurals edition.
 ///
 /// Interacts with [ArbUsecase] to update these plurals under use interaction and to track the
 /// existing plurals being edited (or none) for an [ArbPluralTranslation].
-class PluralsAndForm extends ConsumerWidget {
+class TranslationPluralsAndForm extends ConsumerWidget {
   /// Const constructor.
-  const PluralsAndForm({
+  const TranslationPluralsAndForm({
     super.key,
     required this.translationBuilder,
     required this.definition,
@@ -36,7 +36,7 @@ class PluralsAndForm extends ConsumerWidget {
   final ValueChanged<ArbTranslation> onUpdateTranslation;
 
   /// Build method read plural providers (without watching them) and renders
-  /// the internal [_PluralsAndForm] widget.
+  /// the internal [_TranslationPluralsAndForm] widget.
   ///
   /// Also register callbacks to interact with [ArbUsecase].
   @override
@@ -46,7 +46,7 @@ class PluralsAndForm extends ConsumerWidget {
     final formPlural = ref.read(formPluralsProvider)[definition]?[locale];
     final existingPluralBeingEdited =
         ref.read(existingPluralsBeingEditedProvider)[definition]?[locale];
-    return _PluralsAndForm(
+    return _TranslationPluralsAndForm(
       loc,
       colors,
       definition: definition,
@@ -73,9 +73,9 @@ class PluralsAndForm extends ConsumerWidget {
   }
 }
 
-class _PluralsAndForm extends StatefulWidget {
+class _TranslationPluralsAndForm extends StatefulWidget {
   /// Const constructor.
-  _PluralsAndForm(
+  _TranslationPluralsAndForm(
     this.loc,
     this.colors, {
     required this.definition,
@@ -91,7 +91,7 @@ class _PluralsAndForm extends StatefulWidget {
         existingPluralBeingEditedController = StateController(existingPluralBeingEdited);
 
   @override
-  State<_PluralsAndForm> createState() => _PluralsAndFormState();
+  State<_TranslationPluralsAndForm> createState() => _TranslationPluralsAndFormState();
 
   /// AppLocalizations is "cached" here because it is used many times by the state object.
   final AppLocalizations loc;
@@ -119,7 +119,8 @@ class _PluralsAndForm extends StatefulWidget {
   }
 }
 
-class _PluralsAndFormState extends State<_PluralsAndForm> with SingleTickerProviderStateMixin {
+class _TranslationPluralsAndFormState extends State<_TranslationPluralsAndForm>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   static const kFlightAnimationDuration = Duration(milliseconds: 300);
@@ -132,7 +133,7 @@ class _PluralsAndFormState extends State<_PluralsAndForm> with SingleTickerProvi
   }
 
   @override
-  void didUpdateWidget(covariant _PluralsAndForm oldWidget) {
+  void didUpdateWidget(covariant _TranslationPluralsAndForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget != oldWidget) {
       resetState();
@@ -489,7 +490,7 @@ class _AnimatedPluralsAndForm extends AnimatedWidget {
             sizeFactor: animation,
             child: Opacity(
               opacity: animation.value,
-              child: PluralForm(
+              child: TranslationPluralForm(
                 definition: definition,
                 availableOptions: availableOptions,
                 original: existingPluralBeingEditedController.state,

@@ -6,7 +6,7 @@ import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 import '../builder/arb_builder.dart';
-import 'placeholders_and_form.dart';
+import 'definition_placeholders_and_form.dart';
 
 abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   const DefinitionForm({
@@ -189,7 +189,7 @@ class PlaceholdersDefinitionFormState extends DefinitionFormState<ArbPlaceholder
     return [
       ...super.formChildren(context, loc, colors),
       FormMixin.verticalSeparator,
-      PlaceholdersAndForm(
+      DefinitionPlaceholdersAndForm(
         originalDefinition: widget.originalDefinition,
         definitionController: definitionController,
         onUpdateDefinition: (value) => onUpdateDefinition(value as ArbPlaceholdersDefinition),

@@ -6,10 +6,10 @@ import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import 'form_button.dart';
+import '../../../common/widget/form_button.dart';
 
-class PluralForm extends StatefulWidget {
-  const PluralForm({
+class TranslationPluralForm extends StatefulWidget {
+  const TranslationPluralForm({
     super.key,
     required this.definition,
     required this.availableOptions,
@@ -39,12 +39,12 @@ class PluralForm extends StatefulWidget {
   final Key? pluralInputKey;
 
   @override
-  State<PluralForm> createState() => _PluralFormState();
+  State<TranslationPluralForm> createState() => _TranslationPluralFormState();
 
   bool get isEditing => original != null;
 }
 
-class _PluralFormState extends State<PluralForm> with TextFormFieldMixin {
+class _TranslationPluralFormState extends State<TranslationPluralForm> with TextFormFieldMixin {
   late ArbPlural formPlural;
   late var valueTextController = _valueTC();
 
@@ -55,7 +55,7 @@ class _PluralFormState extends State<PluralForm> with TextFormFieldMixin {
   }
 
   @override
-  void didUpdateWidget(covariant PluralForm oldWidget) {
+  void didUpdateWidget(covariant TranslationPluralForm oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget != widget) {
       resetState(true);
