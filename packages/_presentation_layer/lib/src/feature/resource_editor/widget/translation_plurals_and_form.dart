@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
+import '../../../common/widget/form_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../builder/arb_builder.dart';
-import '../../../common/widget/form_button.dart';
 import 'translation_plural_form.dart';
 
 /// Show existing plurals, actions and a dynamic form for plurals edition.

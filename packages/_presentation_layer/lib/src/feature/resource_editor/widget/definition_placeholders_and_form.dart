@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
-import '../../../l10n/app_localizations.dart';
 import '../../../common/widget/form_button.dart';
+import '../../../l10n/app_localizations.dart';
 import 'definition_placeholder_form.dart';
 
 /// Show existing placeholders, actions and a dynamic form for placeholder edition.
