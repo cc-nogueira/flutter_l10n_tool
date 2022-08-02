@@ -10,12 +10,6 @@ import '../../../l10n/app_localizations.dart';
 import 'form_button.dart';
 import 'placeholder_form.dart';
 
-GlobalKey _newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
-GlobalKey _savePlaceholderKey = LabeledGlobalKey('savePlaceholderKey');
-GlobalKey _selectedPlaceholderKey = LabeledGlobalKey('selectedPlaceholderKey');
-GlobalKey _placeholderInputKey = LabeledGlobalKey('placeholderInputKey');
-GlobalKey _stackKey = LabeledGlobalKey('stackKey');
-
 /// Show existing placeholders, actions and a dynamic form for placeholder edition.
 ///
 /// Interacts with [ArbUsecase] to update the placeholder under use interaction and to track the
@@ -331,6 +325,13 @@ class _AnimatedPlaceholdersAndForm extends AnimatedWidget {
   final StateController<Offset> finalTargetOffset = StateController(Offset.zero);
   final StateController<RenderBox?> startTargetRenderBox = StateController(null);
   final StateController<RenderBox?> finalTargetRenderBox = StateController(null);
+
+  final _stackKey = LabeledGlobalKey('stackKey');
+  final _newPlaceholderKey = LabeledGlobalKey('newPlaceholderKey');
+  final _savePlaceholderKey = LabeledGlobalKey('savePlaceholderKey');
+  final _selectedPlaceholderKey = LabeledGlobalKey('selectedPlaceholderKey');
+  final _placeholderInputKey = LabeledGlobalKey('placeholderInputKey');
+
   Animation<double> get animation => listenable as Animation<double>;
 
   bool get isInitial => animation.value == 0.0;

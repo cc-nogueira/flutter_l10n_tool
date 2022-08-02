@@ -11,12 +11,6 @@ import '../builder/arb_builder.dart';
 import 'form_button.dart';
 import 'plural_form.dart';
 
-GlobalKey _newPluralKey = LabeledGlobalKey('newPluralKey');
-GlobalKey _savePluralKey = LabeledGlobalKey('savePluralKey');
-GlobalKey _selectedPlaceholderKey = LabeledGlobalKey('selectedPluralKey');
-GlobalKey _pluralInputKey = LabeledGlobalKey('pluralInputKey');
-GlobalKey _stackKey = LabeledGlobalKey('pluralStackKey');
-
 /// Show existing plurals, actions and a dynamic form for plurals edition.
 ///
 /// Interacts with [ArbUsecase] to update these plurals under use interaction and to track the
@@ -374,6 +368,13 @@ class _AnimatedPluralsAndForm extends AnimatedWidget {
   final StateController<Offset> finalTargetOffset = StateController(Offset.zero);
   final StateController<RenderBox?> startTargetRenderBox = StateController(null);
   final StateController<RenderBox?> finalTargetRenderBox = StateController(null);
+
+  final _stackKey = LabeledGlobalKey('pluralStackKey');
+  final _newPluralKey = LabeledGlobalKey('newPluralKey');
+  final _savePluralKey = LabeledGlobalKey('savePluralKey');
+  final _selectedPlaceholderKey = LabeledGlobalKey('selectedPluralKey');
+  final _pluralInputKey = LabeledGlobalKey('pluralInputKey');
+
   Animation<double> get animation => listenable as Animation<double>;
 
   bool get isInitial => animation.value == 0.0;
