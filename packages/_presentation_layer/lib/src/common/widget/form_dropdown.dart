@@ -24,6 +24,7 @@ class FormDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isModified = originalValue != formValue;
+    final containsValue = options.contains(formValue);
     return DropdownButtonFormField<T>(
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 12, right: 8.0),
@@ -37,7 +38,7 @@ class FormDropdown<T> extends StatelessWidget {
       alignment: AlignmentDirectional.bottomStart,
       focusColor: Colors.transparent,
       borderRadius: BorderRadius.circular(8.0),
-      value: formValue,
+      value: containsValue ? formValue : null,
       items: _items(value: formValue),
       selectedItemBuilder: (_) => _selectedItems(),
       focusNode: focusNode,
