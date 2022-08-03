@@ -226,7 +226,7 @@ abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder
 
   /// Private helper method to layout each sublass option.
   ///
-  /// Returns a SelectableText colorized with [ArbBuilder] styles.
+  /// Returns a colorized text with [ArbBuilder] styles.
   Widget _arbOptionWidget(String name, String value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -235,16 +235,10 @@ abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder
           const Icon(Icons.swap_horiz, size: 20),
           hSpace,
         ],
-        SelectableText.rich(
-          TextSpan(
-            children: [
-              TextSpan(text: name, style: valueStyle),
-              TextSpan(text: '{', style: markingStyle),
-              TextSpan(text: value, style: optionStyle),
-              TextSpan(text: '}', style: markingStyle),
-            ],
-          ),
-        ),
+        Text(name, style: valueStyle),
+        Text('{', style: markingStyle),
+        Text(value, style: optionStyle),
+        Text('}', style: markingStyle),
       ],
     );
   }

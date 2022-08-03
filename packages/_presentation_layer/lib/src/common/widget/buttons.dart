@@ -138,52 +138,23 @@ OutlinedButton textInputChip({
   Color? selectedBackgroundColor,
   Color? selectedColor,
   Alignment? align,
-}) {
-  final child = onDelete == null
-      ? Text(text, style: style)
-      : Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(text, style: style),
-            const SizedBox(width: 8),
-            InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
-          ],
-        );
-  return icon == null
-      ? OutlinedButton(
-          key: key,
-          style: chipButtonStyle(
-            colors,
-            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
-            selected: selected,
-            minimumSize: minimumSize,
-            backgroundColor: backgroundColor,
-            color: color,
-            selectedBackgroundColor: selectedBackgroundColor,
-            selectedColor: selectedColor,
-            align: align,
-          ),
-          onPressed: onPressed,
-          child: child,
-        )
-      : OutlinedButton.icon(
-          key: key,
-          style: chipButtonStyle(
-            colors,
-            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
-            selected: selected,
-            minimumSize: minimumSize,
-            backgroundColor: backgroundColor,
-            color: color,
-            selectedBackgroundColor: selectedBackgroundColor,
-            selectedColor: selectedColor,
-            align: align,
-          ),
-          onPressed: onPressed,
-          icon: icon,
-          label: child,
-        );
-}
+}) =>
+    inputChip(
+      key: key,
+      colors: colors,
+      child: Text(text, style: style),
+      deleteSize: deleteSize,
+      minimumSize: minimumSize,
+      onPressed: onPressed,
+      onDelete: onDelete,
+      selected: selected,
+      icon: icon,
+      backgroundColor: backgroundColor,
+      color: color,
+      selectedBackgroundColor: selectedBackgroundColor,
+      selectedColor: selectedColor,
+      align: align,
+    );
 
 OutlinedButton inputChip({
   Key? key,
