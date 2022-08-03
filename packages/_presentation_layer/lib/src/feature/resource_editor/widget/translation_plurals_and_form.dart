@@ -471,7 +471,7 @@ class _AnimatedPluralsAndForm extends AnimatedWidget {
             children: [
               for (final each in arbTranslation.options)
                 _pluralTag(each, beingEdited: existingPluralBeingEditedController.state),
-              if (availableOptions.isNotEmpty)
+              if (availableOptions.isNotEmpty && animation.value < 1.0)
                 FormButton(
                   key: _newPluralKey,
                   colors: colors,
