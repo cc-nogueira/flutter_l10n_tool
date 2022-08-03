@@ -1,5 +1,8 @@
 part of 'arb_builder.dart';
 
+/// This mixin externalize common functionality used by separate hierarchies.
+///
+/// Used by [ArbTranslationBuilder] and [MissingTranslationTile].
 mixin ArbTranslationBuilderMixin {
   static const tileIcon = SizedBox(
       width: ArbBuilder.leadingSize,
@@ -30,14 +33,22 @@ mixin ArbTranslationBuilderMixin {
   }
 }
 
+/// Translation builders are usually instantiated with this class factory constructor.
+///
+/// The factory constructor will deliver the proper ArbTranslationBuilder sublass implementation.
+/// It is expected that provided implementatios of ArbDefinition ArbTranslation do match.
 abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuilderMixin {
+  /// Factory constructor to instantiate the corresponding builder for the given translation type.
+  ///
+  /// Required that [definition] and [translation] are of the same type.
   factory ArbTranslationBuilder({
     required DisplayOption displayOption,
     required ArbDefinition definition,
     required ArbTranslation translation,
   }) {
+    assert(definition.type == translation.type);
     return translation.map(
-      placeholders: (trans) => _ArbPlaceholdersTranslationBuilder(
+      placeholders: (trans) => ArbPlaceholdersTranslationBuilder(
         displayOption: displayOption,
         definition: definition as ArbPlaceholdersDefinition,
         translation: trans,
@@ -55,22 +66,35 @@ abstract class ArbTranslationBuilder extends ArbBuilder with ArbTranslationBuild
     );
   }
 
+  /// Private constructor
   ArbTranslationBuilder._({
     required this.displayOption,
     required this.definition,
     required this.translation,
   });
 
+  /// Current display option ([DisplayOption.compact] or [DisplayOption.expanded]).
   final DisplayOption displayOption;
+
+  /// Arb definition (final)
   final ArbDefinition definition;
+
+  /// Arb translation may be updated during the lifetime of this builder.
   ArbTranslation translation;
 
+  /// API for sublasses to display a descriptor to present the translation in a tile.
   Widget descriptorWidget();
+
+  /// Options are only meaninful for [ArbPluralTranslation] and [ArbSelectTranslation].
   List<Widget> optionsWidgets() => [];
 }
 
-class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
-  _ArbPlaceholdersTranslationBuilder({
+/// Widget builder for [ArbPlaceholdersTranslation].
+///
+/// Defines the [descriptorWidget] for this specific type of translation.
+class ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
+  /// Constructor usually used by the super class factory.
+  ArbPlaceholdersTranslationBuilder({
     required super.displayOption,
     required ArbPlaceholdersDefinition definition,
     required ArbPlaceholdersTranslation translation,
@@ -82,6 +106,10 @@ class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
   @override
   ArbPlaceholdersDefinition get definition => super.definition as ArbPlaceholdersDefinition;
 
+  /// Generate the SelectableText widget with [ArbBuilder.subtitleStyle] and corolized placeholders.
+  ///
+  /// Valid placeholders are painted with [ArbBuilder.optionStyle] and invalid ones with
+  /// [ArbBuilder.invalidOptionStyle].
   @override
   Widget descriptorWidget() {
     if (translation.placeholderNames.isNotEmpty) {
@@ -124,6 +152,9 @@ class _ArbPlaceholdersTranslationBuilder extends ArbTranslationBuilder {
   }
 }
 
+/// Common Abstract class for builders with parameters [ArbPluralTranslation] and [ArbSelectTranslation].
+///
+/// Defines the [descriptorWidget] for sublasses and common layout for plurals and select options.
 abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder {
   _ArbTranslationWithParameterBuilder({
     required super.translation,
@@ -133,28 +164,51 @@ abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder
         assert(translation is ArbTranslationWithParameter),
         super._();
 
+  /// Horizonta spacing constant
   static const hSpace = SizedBox(width: 4);
 
+  /// Getter to return the common interface (mixin) of Plural and Select translations.
   ArbTranslationWithParameter get transWithParam => translation as ArbTranslationWithParameter;
 
+  ArbDefinitionWithParameter get defWithParam => definition as ArbDefinitionWithParameter;
+
+  /// Generate the translation type string representation widget with colored segments.
   @override
   Widget descriptorWidget() {
+    final paramName = transWithParam.parameterName;
+    final paramNameOK = paramName == defWithParam.parameterName;
+    final paramStyle = paramNameOK ? valueStyle : warningStyle;
     return Wrap(
-      runSpacing: 12.0,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 42.0,
       children: [
         if (transWithParam.prefix.isNotEmpty) Text(transWithParam.prefix, style: subtitleStyle),
         Text('{ ', style: markingStyle),
-        Text(transWithParam.parameterName.ifEmpty('??'), style: valueStyle),
+        Text(transWithParam.parameterName.ifEmpty('??'), style: paramStyle),
         Text(', ', style: markingStyle),
         Text(translation.type.name, style: optionStyle),
         Text(', ', style: markingStyle),
         Text('...', style: valueStyle),
         Text(' }', style: markingStyle),
         if (transWithParam.suffix.isNotEmpty) Text(transWithParam.suffix, style: subtitleStyle),
+        if (!paramNameOK)
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Tooltip(
+              triggerMode: TooltipTriggerMode.tap,
+              message: 'Current param name does not match param definition.\n'
+                  'This does not break Flutter L10N generation.\n'
+                  'It may be be fixed on file generation (configurable in options).',
+              child: Icon(Icons.error_outline, size: 20, color: Colors.amber),
+            ),
+          ),
       ],
     );
   }
 
+  /// Private helper method to layout sublass list of options.
+  ///
+  /// Returns a Wrap with all options.
   List<Widget> _optionsWidgets(List<Widget> options) {
     if (options.isEmpty) {
       return const [Text('empty')];
@@ -170,6 +224,9 @@ abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder
     }
   }
 
+  /// Private helper method to layout each sublass option.
+  ///
+  /// Returns a SelectableText colorized with [ArbBuilder] styles.
   Widget _arbOptionWidget(String name, String value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -178,18 +235,26 @@ abstract class _ArbTranslationWithParameterBuilder extends ArbTranslationBuilder
           const Icon(Icons.swap_horiz, size: 20),
           hSpace,
         ],
-        Text(name, style: valueStyle),
-        Text('{', style: markingStyle),
-        hSpace,
-        Text(value, style: optionStyle),
-        hSpace,
-        Text('}', style: markingStyle),
+        SelectableText.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: name, style: valueStyle),
+              TextSpan(text: '{', style: markingStyle),
+              TextSpan(text: value, style: optionStyle),
+              TextSpan(text: '}', style: markingStyle),
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
+/// Widget builder for [ArbPluralTranslation].
+///
+/// Defines optionsWidgets using the common superclass layout methods.
 class ArbPluralTranslationBuilder extends _ArbTranslationWithParameterBuilder {
+  /// Constructor usually used by the super class factory.
   ArbPluralTranslationBuilder({
     required ArbPluralTranslation translation,
     required ArbPluralDefinition definition,
@@ -199,15 +264,21 @@ class ArbPluralTranslationBuilder extends _ArbTranslationWithParameterBuilder {
   @override
   ArbPluralTranslation get translation => super.translation as ArbPluralTranslation;
 
+  /// Generate option widgets for this type of translation using the common superclass layout methods.
   @override
   List<Widget> optionsWidgets() => _optionsWidgets([
         for (final option in translation.options) arbOptionWidget(option),
       ]);
 
+  /// Generate the widget for one plural argument using common superclass layout method.
   Widget arbOptionWidget(ArbPlural plural) => _arbOptionWidget(plural.option.name, plural.value);
 }
 
+/// Widget builder for [ArbSelectTranslation].
+///
+/// Defines optionsWidgets using the common superclass layout methods.
 class ArbSelectTranslationBuilder extends _ArbTranslationWithParameterBuilder {
+  /// Constructor usually used by the super class factory.
   ArbSelectTranslationBuilder({
     required ArbSelectTranslation translation,
     required ArbSelectDefinition definition,
@@ -217,11 +288,13 @@ class ArbSelectTranslationBuilder extends _ArbTranslationWithParameterBuilder {
   @override
   ArbSelectTranslation get translation => super.translation as ArbSelectTranslation;
 
+  /// Generate option widgets for this type of translation using the common superclass layout methods.
   @override
   List<Widget> optionsWidgets() => _optionsWidgets([
         for (final option in translation.options) arbOptionWidget(option),
       ]);
 
+  /// Generate the widget for one selection argument using common superclass layout method.
   Widget arbOptionWidget(ArbSelection selection) =>
       _arbOptionWidget(selection.option, selection.value);
 }
