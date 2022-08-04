@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../builder/arb_builder.dart';
-import 'placeholders_translation_text_editing_controller.dart';
+import 'translation_placeholders_text_editing_controller.dart';
 import 'translation_plurals_and_form.dart';
 
 abstract class TranslationForm<D extends ArbDefinition, T extends ArbTranslation>
@@ -140,20 +140,28 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
     );
   }
 
-  void _saveChanges() => widget.onSaveChanges(translationController.state);
-
   bool get hasChanges => translationController.state != widget.current;
 
   Widget? subtitle() => null;
 
   Widget form(BuildContext context, ColorScheme colors);
+
+  void onChangedValue(T value) {
+    setState(() {
+      builder.translation = value;
+      translationController.state = value;
+      widget.onUpdate(value);
+    });
+  }
+
+  void _saveChanges() => widget.onSaveChanges(translationController.state);
 }
 
 class PlaceholdersTranslationFormState
     extends TranslationFormState<ArbPlaceholdersDefinition, ArbPlaceholdersTranslation>
     with ArbMixin {
-  late PlaceholdersTranslationTextEditingController translationTextController =
-      PlaceholdersTranslationTextEditingController(placeholders: widget.definition.placeholders);
+  late TranslationPlaceholdersTextEditingController translationTextController =
+      TranslationPlaceholdersTextEditingController(placeholders: widget.definition.placeholders);
 
   @override
   void resetState() {
@@ -181,29 +189,20 @@ class PlaceholdersTranslationFormState
           label: 'Translation',
           originalText: widget.current?.value ?? '',
           textController: translationTextController,
-          onChanged: _onChangedValue,
+          onChanged: (value) => onChangedValue(
+            translationController.state
+                .copyWith(value: value, placeholderNames: arbTranslationPlaceholderNames(value)),
+          ),
         ),
       ),
     );
   }
-
-  void _onChangedValue(String value) {
-    final placeholderNames = arbTranslationPlaceholderNames(value);
-    setState(() {
-      translationController
-          .update((state) => state.copyWith(value: value, placeholderNames: placeholderNames));
-      widget.onUpdate(translationController.state);
-    });
-  }
 }
 
-class PluralTranslationFormState
-    extends TranslationFormState<ArbPluralDefinition, ArbPluralTranslation> {
+abstract class TranslationWithParameterFormState<D extends ArbDefinitionWithParameter,
+    T extends ArbTranslationWithParameter> extends TranslationFormState<D, T> {
   TextEditingController prefixTextController = TextEditingController();
   TextEditingController suffixTextController = TextEditingController();
-
-  @override
-  ArbPluralTranslationBuilder get builder => super.builder as ArbPluralTranslationBuilder;
 
   @override
   void resetState() {
@@ -243,8 +242,7 @@ class PluralTranslationFormState
                     label: 'Prefix',
                     originalText: widget.current?.prefix ?? '',
                     textController: prefixTextController,
-                    onChanged: (value) =>
-                        _onChangedValue(translationController.state.copyWith(prefix: value)),
+                    onChanged: (value) => onChangedValue(copyWithPrefix(value)),
                   ),
                 ),
                 FormMixin.horizontalSeparator,
@@ -255,47 +253,63 @@ class PluralTranslationFormState
                     label: 'Suffix',
                     originalText: widget.current?.suffix ?? '',
                     textController: suffixTextController,
-                    onChanged: (value) =>
-                        _onChangedValue(translationController.state.copyWith(suffix: value)),
+                    onChanged: (value) => onChangedValue(copyWithSuffix(value)),
                   ),
                 ),
               ],
             ),
             FormMixin.verticalSeparator,
-            TranslationPluralsAndForm(
-              translationBuilder: builder,
-              definition: widget.definition,
-              locale: widget.current?.locale ?? widget.beingEdited.locale,
-              translationController: translationController,
-              onUpdateTranslation: (value) => _onChangedValue(value as ArbPluralTranslation),
-            ),
+            optionsAndForm(),
           ],
         ),
       ),
     );
   }
 
-  void _onChangedValue(ArbPluralTranslation value) {
-    setState(() {
-      builder.translation = value;
-      translationController.state = value;
-      widget.onUpdate(value);
-    });
-  }
+  T copyWithPrefix(String value);
+  T copyWithSuffix(String value);
+
+  Widget optionsAndForm();
+}
+
+class PluralTranslationFormState
+    extends TranslationWithParameterFormState<ArbPluralDefinition, ArbPluralTranslation> {
+  @override
+  ArbPluralTranslationBuilder get builder => super.builder as ArbPluralTranslationBuilder;
+
+  @override
+  Widget optionsAndForm() => TranslationPluralsAndForm(
+        translationBuilder: builder,
+        definition: widget.definition,
+        locale: widget.current?.locale ?? widget.beingEdited.locale,
+        translationController: translationController,
+        onUpdateTranslation: onChangedValue,
+      );
+
+  @override
+  ArbPluralTranslation copyWithPrefix(String value) =>
+      translationController.state.copyWith(prefix: value);
+
+  @override
+  ArbPluralTranslation copyWithSuffix(String value) =>
+      translationController.state.copyWith(suffix: value);
 }
 
 class SelectTranslationFormState
-    extends TranslationFormState<ArbSelectDefinition, ArbSelectTranslation> {
+    extends TranslationWithParameterFormState<ArbSelectDefinition, ArbSelectTranslation> {
   @override
-  Widget form(BuildContext context, ColorScheme colors) {
+  ArbSelectTranslationBuilder get builder => super.builder as ArbSelectTranslationBuilder;
+
+  @override
+  Widget optionsAndForm() {
     return Container();
   }
 
   @override
-  bool get hasChanges => false;
+  ArbSelectTranslation copyWithPrefix(String value) =>
+      translationController.state.copyWith(prefix: value);
 
   @override
-  void resetState() {
-    super.resetState();
-  }
+  ArbSelectTranslation copyWithSuffix(String value) =>
+      translationController.state.copyWith(suffix: value);
 }

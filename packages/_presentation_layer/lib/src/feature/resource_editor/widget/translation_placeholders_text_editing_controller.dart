@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../builder/arb_builder.dart';
 
-class PlaceholdersTranslationTextEditingController extends TextEditingController {
-  PlaceholdersTranslationTextEditingController(
+class TranslationPlaceholdersTextEditingController extends TextEditingController {
+  TranslationPlaceholdersTextEditingController(
       {String? text, required List<ArbPlaceholder> placeholders})
       : super(text: text) {
     _init(placeholders);

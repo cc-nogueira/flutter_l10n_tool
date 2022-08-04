@@ -33,7 +33,7 @@ class TranslationPluralsAndForm extends ConsumerWidget {
 
   final String locale;
   final StateController<ArbPluralTranslation> translationController;
-  final ValueChanged<ArbTranslation> onUpdateTranslation;
+  final ValueChanged<ArbPluralTranslation> onUpdateTranslation;
 
   /// Build method read plural providers (without watching them) and renders
   /// the internal [_TranslationPluralsAndForm] widget.
@@ -105,7 +105,7 @@ class _TranslationPluralsAndForm extends StatefulWidget {
   final StateController<ArbPlural?> formPluralController;
   final StateController<List<ArbPluralOption>> availablePluralOptionsController;
   final StateController<ArbPlural?> existingPluralBeingEditedController;
-  final ValueChanged<ArbTranslation> onUpdateTranslation;
+  final ValueChanged<ArbPluralTranslation> onUpdateTranslation;
   final ValueChanged<ArbPlural?> onUpdatePlural;
   final ValueChanged<ArbPlural?> onEditPlural;
 
