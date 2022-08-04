@@ -18,8 +18,7 @@ enum ArbDefinitionType {
   bool get isNotSelect => !isSelect;
 }
 
-mixin ArbDefinitionWithParameter {
-  ArbDefinitionType get type;
+mixin ArbDefinitionWithParameter on ArbDefinition {
   String get parameterName;
 }
 

@@ -4,8 +4,7 @@ import 'arb_definition.dart';
 
 part 'arb_translation.freezed.dart';
 
-mixin ArbTranslationWithParameter<T> {
-  ArbDefinitionType get type;
+mixin ArbTranslationWithParameter<T> on ArbTranslation {
   String get prefix;
   String get expression;
   String get suffix;
