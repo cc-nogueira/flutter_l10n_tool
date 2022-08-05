@@ -13,11 +13,30 @@ class ResourcePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = AppLocalizations.of(context);
     final originalDefinition = ref.watch(selectedDefinitionProvider);
     if (originalDefinition == null) {
+      final loc = AppLocalizations.of(context);
       return Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc));
     }
+    return originalDefinition.map(
+      placeholders: (def) => _PlaceholdersResourcePage(def),
+      plural: (def) => _PluralResourcePage(def),
+      select: (def) => _SelectResourcePage(def),
+    );
+  }
+
+  Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
+    return const MessageWidget('No resource selected');
+  }
+}
+
+abstract class _ResourcePage extends ConsumerWidget {
+  const _ResourcePage();
+
+  ArbDefinition get originalDefinition;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentDefinition =
         ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition]));
     final project = ref.watch(projectProvider);
@@ -27,7 +46,7 @@ class ResourcePage extends ConsumerWidget {
       child: Column(
         children: [
           const ResourceBar(),
-          DefinitionWidget(original: originalDefinition, current: currentDefinition),
+          definitionWidget(currentDefinition),
           Expanded(
             child: ListView.builder(
               shrinkWrap: false,
@@ -41,16 +60,66 @@ class ResourcePage extends ConsumerWidget {
     );
   }
 
-  Widget _itemBuilder(ArbDefinition originalDefinition, ArbDefinition? currentDefinition,
-          ArbLocaleTranslations localeTranslations) =>
-      TranslationWidget(
-        localeTranslations.locale,
-        originalDefinition: originalDefinition,
-        currentDefinition: currentDefinition,
-        originalTranslation: localeTranslations.translations[originalDefinition.key],
+  Widget definitionWidget(ArbDefinition? current) => originalDefinition.map(
+        placeholders: (original) => PlaceholdersDefinitionWidget(
+          original: original,
+          current: current as ArbPlaceholdersDefinition?,
+        ),
+        plural: (original) => PluralDefinitionWidget(
+          original: original,
+          current: current as ArbPluralDefinition?,
+        ),
+        select: (original) => SelectDefinitionWidget(
+          original: original,
+          current: current as ArbSelectDefinition?,
+        ),
       );
 
-  Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
-    return const MessageWidget('No resource selected');
-  }
+  Widget _itemBuilder(
+    ArbDefinition originalDefinition,
+    ArbDefinition? currentDefinition,
+    ArbLocaleTranslations localeTranslations,
+  ) =>
+      originalDefinition.map(
+        placeholders: (original) => PlaceholdersTranslationWidget(
+          localeTranslations.locale,
+          originalDefinition: original,
+          currentDefinition: currentDefinition as ArbPlaceholdersDefinition?,
+          originalTranslation: localeTranslations.translations[originalDefinition.key]
+              as ArbPlaceholdersTranslation?,
+        ),
+        plural: (original) => PluralTranslationWidget(
+          localeTranslations.locale,
+          originalDefinition: original,
+          currentDefinition: currentDefinition as ArbPluralDefinition?,
+          originalTranslation:
+              localeTranslations.translations[originalDefinition.key] as ArbPluralTranslation?,
+        ),
+        select: (original) => SelectTranslationWidget(localeTranslations.locale,
+            originalDefinition: original,
+            currentDefinition: currentDefinition as ArbSelectDefinition?,
+            originalTranslation:
+                localeTranslations.translations[originalDefinition.key] as ArbSelectTranslation?),
+      );
+}
+
+class _PlaceholdersResourcePage extends _ResourcePage {
+  const _PlaceholdersResourcePage(this.originalDefinition);
+
+  @override
+  final ArbPlaceholdersDefinition originalDefinition;
+}
+
+class _PluralResourcePage extends _ResourcePage {
+  const _PluralResourcePage(this.originalDefinition);
+
+  @override
+  final ArbPluralDefinition originalDefinition;
+}
+
+class _SelectResourcePage extends _ResourcePage {
+  const _SelectResourcePage(this.originalDefinition);
+
+  @override
+  final ArbSelectDefinition originalDefinition;
 }

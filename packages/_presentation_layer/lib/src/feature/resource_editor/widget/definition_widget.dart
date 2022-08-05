@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'definition_form.dart';
 import 'definition_tile.dart';
 
-class DefinitionWidget extends ConsumerWidget {
+abstract class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
   DefinitionWidget({required this.original, required this.current, super.key});
 
-  final ArbDefinition original;
-  final ArbDefinition? current;
+  final D original;
+  final D? current;
   final _rebuildProvider = StateProvider<bool>((ref) => false);
 
-  ArbDefinition get currentOrOriginal => current ?? original;
+  D get currentOrOriginal => current ?? original;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,83 +22,12 @@ class DefinitionWidget extends ConsumerWidget {
     final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
 
     return definitionBeingEdited == null
-        ? _tile(
-            ref.read,
-            displayOption,
-            isOriginal: current == null,
-          )
-        : _form(
-            ref.read,
-            displayOption,
-            definitionBeingEdited: definitionBeingEdited,
-          );
+        ? _tile(ref.read, displayOption, isOriginal: current == null)
+        : _form(ref.read, displayOption, definitionBeingEdited);
   }
 
-  Widget _tile(
-    Reader read,
-    DisplayOption displayOption, {
-    required bool isOriginal,
-  }) {
-    return currentOrOriginal.map<DefinitionTile>(
-      placeholders: (def) => PlaceholdersDefinitionTile(
-        displayOption: displayOption,
-        definition: def,
-        isOriginal: isOriginal,
-        onEdit: () => _edit(read, def),
-        onRollback: () => _rollback(read),
-      ),
-      plural: (def) => PluralDefinitionTile(
-        displayOption: displayOption,
-        definition: def,
-        isOriginal: isOriginal,
-        onEdit: () => _edit(read, def),
-        onRollback: () => _rollback(read),
-      ),
-      select: (def) => SelectDefinitionTile(
-        displayOption: displayOption,
-        definition: def,
-        isOriginal: isOriginal,
-        onEdit: () => _edit(read, def),
-        onRollback: () => _rollback(read),
-      ),
-    );
-  }
-
-  Widget _form(
-    Reader read,
-    DisplayOption displayOption, {
-    required ArbDefinition definitionBeingEdited,
-  }) {
-    return definitionBeingEdited.map<DefinitionForm>(
-      placeholders: (def) => PlaceholdersDefinitionForm(
-        displayOption: displayOption,
-        originalDefinition: original,
-        currentDefinition: currentOrOriginal,
-        definitionBeingEdited: def,
-        onUpdateDefinition: (value) => _updateDefinition(read, value),
-        onSaveChanges: (value) => _saveChanges(read, value),
-        onDiscardChanges: () => _discardChanges(read),
-      ),
-      plural: (def) => PluralDefinitionForm(
-        displayOption: displayOption,
-        originalDefinition: original,
-        currentDefinition: currentOrOriginal,
-        definitionBeingEdited: def,
-        onUpdateDefinition: (value) => _updateDefinition(read, value),
-        onSaveChanges: (value) => _saveChanges(read, value),
-        onDiscardChanges: () => _discardChanges(read),
-      ),
-      select: (def) => SelectDefinitionForm(
-        displayOption: displayOption,
-        originalDefinition: original,
-        currentDefinition: currentOrOriginal,
-        definitionBeingEdited: def,
-        onUpdateDefinition: (value) => _updateDefinition(read, value),
-        onSaveChanges: (value) => _saveChanges(read, value),
-        onDiscardChanges: () => _discardChanges(read),
-      ),
-    );
-  }
+  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal});
+  Widget _form(Reader read, DisplayOption displayOption, ArbDefinition definitionBeingEdited);
 
   void _edit(Reader read, ArbDefinition current) {
     _updateDefinition(read, current);
@@ -125,4 +54,82 @@ class DefinitionWidget extends ConsumerWidget {
   }
 
   void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
+}
+
+class PlaceholdersDefinitionWidget extends DefinitionWidget<ArbPlaceholdersDefinition> {
+  PlaceholdersDefinitionWidget({required super.original, required super.current, super.key});
+
+  @override
+  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal}) =>
+      PlaceholdersDefinitionTile(
+        displayOption: displayOption,
+        definition: currentOrOriginal,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, currentOrOriginal),
+        onRollback: () => _rollback(read),
+      );
+
+  @override
+  Widget _form(Reader read, DisplayOption displayOption, ArbDefinition definitionBeingEdited) =>
+      PlaceholdersDefinitionForm(
+        displayOption: displayOption,
+        originalDefinition: original,
+        currentDefinition: currentOrOriginal,
+        definitionBeingEdited: definitionBeingEdited as ArbPlaceholdersDefinition,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      );
+}
+
+class PluralDefinitionWidget extends DefinitionWidget<ArbPluralDefinition> {
+  PluralDefinitionWidget({required super.original, required super.current, super.key});
+
+  @override
+  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal}) =>
+      PluralDefinitionTile(
+        displayOption: displayOption,
+        definition: currentOrOriginal,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, currentOrOriginal),
+        onRollback: () => _rollback(read),
+      );
+
+  @override
+  Widget _form(Reader read, DisplayOption displayOption, ArbDefinition definitionBeingEdited) =>
+      PluralDefinitionForm(
+        displayOption: displayOption,
+        originalDefinition: original,
+        currentDefinition: currentOrOriginal,
+        definitionBeingEdited: definitionBeingEdited as ArbPluralDefinition,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      );
+}
+
+class SelectDefinitionWidget extends DefinitionWidget<ArbSelectDefinition> {
+  SelectDefinitionWidget({required super.original, required super.current, super.key});
+
+  @override
+  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal}) =>
+      SelectDefinitionTile(
+        displayOption: displayOption,
+        definition: currentOrOriginal,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, currentOrOriginal),
+        onRollback: () => _rollback(read),
+      );
+
+  @override
+  Widget _form(Reader read, DisplayOption displayOption, ArbDefinition definitionBeingEdited) =>
+      SelectDefinitionForm(
+        displayOption: displayOption,
+        originalDefinition: original,
+        currentDefinition: currentOrOriginal,
+        definitionBeingEdited: definitionBeingEdited as ArbSelectDefinition,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      );
 }

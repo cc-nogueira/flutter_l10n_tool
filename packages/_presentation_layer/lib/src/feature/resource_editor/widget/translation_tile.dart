@@ -21,13 +21,22 @@ class MissingTranslationTile extends StatelessWidget with ArbTranslationBuilderM
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colors = theme.colorScheme;
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        tileTitle(
-          title: Text(locale, style: builder.titleStyle),
-          subtitle: subtitle(textTheme, colors),
-          trailing: _editButton(),
+        Column(children: tileIcons()),
+        ArbBuilder.leadingSeparator,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              tileTitle(
+                title: Text(locale, style: builder.titleStyle),
+                subtitle: subtitle(textTheme, colors),
+                trailing: _editButton(),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -70,15 +79,24 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
     final textTheme = theme.textTheme;
     final colors = theme.colorScheme;
     final content = tileContent(textTheme, colors);
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        builder.tileTitle(
-          title: Text(locale, style: builder.titleStyle),
-          subtitle: builder.descriptorWidget(),
-          trailing: titleTrailing(context),
+        Column(children: builder.tileIcons()),
+        ArbBuilder.leadingSeparator,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              builder.tileTitle(
+                title: Text(locale, style: builder.titleStyle),
+                subtitle: builder.descriptorWidget(),
+                trailing: titleTrailing(context),
+              ),
+              if (content != null) content,
+            ],
+          ),
         ),
-        if (content != null) content,
       ],
     );
   }
@@ -159,10 +177,7 @@ abstract class TranslationWithParameterTile<D extends ArbDefinitionWithParameter
   @override
   Widget? tileContent(TextTheme theme, ColorScheme colors) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: ArbBuilder.leadingSize + ArbBuilder.leadingSeparation,
-        right: ArbBuilder.leadingSize,
-      ),
+      padding: const EdgeInsets.only(right: ArbBuilder.leadingSize),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -200,5 +215,17 @@ class SelectTranslationTile
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
+    required this.knownCases,
   });
+
+  final Set<String> knownCases;
+
+  @override
+  ArbSelectTranslationBuilder get builder => super.builder as ArbSelectTranslationBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    builder.knownCases = knownCases;
+    return super.build(context);
+  }
 }

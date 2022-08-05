@@ -9,15 +9,14 @@ mixin ArbTranslationBuilderMixin {
       height: ArbBuilder.leadingSize,
       child: Center(child: Icon(Icons.translate)));
 
+  List<Widget> tileIcons() {
+    return <Widget>[tileIcon];
+  }
+
   Widget tileTitle({required Widget title, Widget? subtitle, required Widget trailing}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(
-            width: ArbBuilder.leadingSize,
-            height: ArbBuilder.leadingSize,
-            child: Center(child: tileIcon)),
-        ArbBuilder.leadingSeparator,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,6 +267,44 @@ class ArbSelectTranslationBuilder
     required super.translation,
     required super.displayOption,
   });
+
+  var knownCases = <String>{};
+
+  static const missingCasesIcon = SizedBox(
+      width: ArbBuilder.leadingSize,
+      height: ArbBuilder.leadingSize,
+      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
+
+  @override
+  List<Widget> tileIcons() {
+    if (_hasMissingTranslations) {
+      return [
+        ...super.tileIcons(),
+        const Tooltip(
+          triggerMode: TooltipTriggerMode.tap,
+          message: 'Missing select cases.',
+          child: missingCasesIcon,
+        ),
+      ];
+    }
+    return super.tileIcons();
+  }
+
+  bool get _hasMissingTranslations {
+    if (knownCases.isEmpty) {
+      return false;
+    }
+    final existingCases = <String>{};
+    for (final arbSelect in translation.options) {
+      existingCases.add(arbSelect.option);
+    }
+    for (final known in knownCases) {
+      if (!existingCases.contains(known)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /// Generate option widgets for this type of translation using the common superclass layout methods.
   @override

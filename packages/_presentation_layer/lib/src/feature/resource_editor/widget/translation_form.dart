@@ -81,15 +81,17 @@ class SelectTranslationForm extends TranslationForm<ArbSelectDefinition, ArbSele
     required super.onUpdate,
     required super.onSaveChanges,
     required super.onDiscardChanges,
+    required this.knownCases,
   });
 
+  final Set<String> knownCases;
+
   @override
-  State<TranslationForm<ArbSelectDefinition, ArbSelectTranslation>> createState() =>
-      SelectTranslationFormState();
+  State<SelectTranslationForm> createState() => SelectTranslationFormState();
 }
 
-abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTranslation>
-    extends State<TranslationForm<D, T>> with TextFormFieldMixin {
+abstract class TranslationFormState<S extends TranslationForm<D, T>, D extends ArbDefinition,
+    T extends ArbTranslation> extends State<S> with TextFormFieldMixin {
   late ArbTranslationBuilder builder;
   late StateController<T> translationController;
 
@@ -100,7 +102,7 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
   }
 
   @override
-  void didUpdateWidget(covariant TranslationForm<D, T> oldWidget) {
+  void didUpdateWidget(covariant S oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget != widget) {
       resetState();
@@ -121,11 +123,21 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
     builder.init(context);
     final ThemeData theme = Theme.of(context);
     final colors = theme.colorScheme;
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        title(theme.textTheme, colors),
-        const SizedBox(height: 4.0),
-        form(context, theme.colorScheme),
+        Column(children: builder.tileIcons()),
+        ArbBuilder.leadingSeparator,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              title(theme.textTheme, colors),
+              const SizedBox(height: 4.0),
+              form(context, theme.colorScheme),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -158,9 +170,8 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
   void _saveChanges() => widget.onSaveChanges(translationController.state);
 }
 
-class PlaceholdersTranslationFormState
-    extends TranslationFormState<ArbPlaceholdersDefinition, ArbPlaceholdersTranslation>
-    with ArbMixin {
+class PlaceholdersTranslationFormState extends TranslationFormState<PlaceholdersTranslationForm,
+    ArbPlaceholdersDefinition, ArbPlaceholdersTranslation> with ArbMixin {
   late TranslationPlaceholdersTextEditingController translationTextController =
       TranslationPlaceholdersTextEditingController(placeholders: widget.definition.placeholders);
 
@@ -181,10 +192,7 @@ class PlaceholdersTranslationFormState
   Widget form(BuildContext context, ColorScheme colors) {
     return Form(
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: ArbBuilder.leadingSize + ArbBuilder.leadingSeparation,
-          right: ArbBuilder.leadingSize,
-        ),
+        padding: const EdgeInsets.only(right: ArbBuilder.leadingSize),
         child: textField(
           context: context,
           label: 'Translation',
@@ -200,8 +208,10 @@ class PlaceholdersTranslationFormState
   }
 }
 
-abstract class TranslationWithParameterFormState<D extends ArbDefinitionWithParameter,
-    T extends ArbTranslationWithParameter> extends TranslationFormState<D, T> {
+abstract class TranslationWithParameterFormState<
+    S extends TranslationForm<D, T>,
+    D extends ArbDefinitionWithParameter,
+    T extends ArbTranslationWithParameter> extends TranslationFormState<S, D, T> {
   TextEditingController prefixTextController = TextEditingController();
   TextEditingController suffixTextController = TextEditingController();
 
@@ -226,10 +236,7 @@ abstract class TranslationWithParameterFormState<D extends ArbDefinitionWithPara
   Widget form(BuildContext context, ColorScheme colors) {
     return Form(
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: ArbBuilder.leadingSize + ArbBuilder.leadingSeparation,
-          right: ArbBuilder.leadingSize,
-        ),
+        padding: const EdgeInsets.only(right: ArbBuilder.leadingSize),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -273,8 +280,8 @@ abstract class TranslationWithParameterFormState<D extends ArbDefinitionWithPara
   Widget optionsAndForm();
 }
 
-class PluralTranslationFormState
-    extends TranslationWithParameterFormState<ArbPluralDefinition, ArbPluralTranslation> {
+class PluralTranslationFormState extends TranslationWithParameterFormState<PluralTranslationForm,
+    ArbPluralDefinition, ArbPluralTranslation> {
   @override
   ArbPluralTranslationBuilder get builder => super.builder as ArbPluralTranslationBuilder;
 
@@ -296,10 +303,16 @@ class PluralTranslationFormState
       translationController.state.copyWith(suffix: value);
 }
 
-class SelectTranslationFormState
-    extends TranslationWithParameterFormState<ArbSelectDefinition, ArbSelectTranslation> {
+class SelectTranslationFormState extends TranslationWithParameterFormState<SelectTranslationForm,
+    ArbSelectDefinition, ArbSelectTranslation> {
   @override
   ArbSelectTranslationBuilder get builder => super.builder as ArbSelectTranslationBuilder;
+
+  @override
+  void resetState() {
+    super.resetState();
+    builder.knownCases = widget.knownCases;
+  }
 
   @override
   Widget optionsAndForm() => TranslationSelectsAndForm(
