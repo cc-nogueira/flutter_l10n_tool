@@ -217,7 +217,7 @@ abstract class _ArbTranslationWithParameterBuilder<D extends ArbDefinitionWithPa
   /// Private helper method to layout each sublass option.
   ///
   /// Returns a colorized text with [ArbBuilder] styles.
-  Widget _arbOptionWidget(String name, String value) {
+  Widget _arbOptionWidget(String name, String value, {bool missing = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -225,9 +225,9 @@ abstract class _ArbTranslationWithParameterBuilder<D extends ArbDefinitionWithPa
           const Icon(Icons.swap_horiz, size: 20),
           hSpace,
         ],
-        Text(name, style: valueStyle),
+        Text(name, style: missing ? warningStyle : valueStyle),
         Text('{', style: markingStyle),
-        Text(value, style: optionStyle),
+        Text(value, style: missing ? invalidOptionStyle : optionStyle),
         Text('}', style: markingStyle),
       ],
     );
@@ -277,7 +277,7 @@ class ArbSelectTranslationBuilder
 
   @override
   List<Widget> tileIcons() {
-    if (_hasMissingTranslations) {
+    if (hasMissingCases) {
       return [
         ...super.tileIcons(),
         const Tooltip(
@@ -290,9 +290,12 @@ class ArbSelectTranslationBuilder
     return super.tileIcons();
   }
 
-  bool get _hasMissingTranslations {
+  bool get hasMissingCases => missingCases(onlyDetect: true).isNotEmpty;
+
+  Set<String> missingCases({bool onlyDetect = false}) {
+    final missing = <String>{};
     if (knownCases.isEmpty) {
-      return false;
+      return missing;
     }
     final existingCases = <String>{};
     for (final arbSelect in translation.options) {
@@ -300,16 +303,20 @@ class ArbSelectTranslationBuilder
     }
     for (final known in knownCases) {
       if (!existingCases.contains(known)) {
-        return true;
+        missing.add(known);
+        if (onlyDetect) {
+          return missing;
+        }
       }
     }
-    return false;
+    return missing;
   }
 
   /// Generate option widgets for this type of translation using the common superclass layout methods.
   @override
   List<Widget> optionsWidgets() => _optionsWidgets([
         for (final option in translation.options) arbOptionWidget(option),
+        for (final missing in missingCases()) _arbOptionWidget(missing, 'missing', missing: true),
       ]);
 
   /// Generate the widget for one selection argument using common superclass layout method.
