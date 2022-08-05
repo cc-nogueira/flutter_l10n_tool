@@ -37,6 +37,10 @@ class ArbUsecase {
     read(analysisProvider).init();
   }
 
+  void _updateTranslationsAnalysis(ArbDefinition definition) {
+    read(analysisProvider).updataTranslationsAnalysis(definition);
+  }
+
   /// Defines which [ArbDefinition] is currently being selected by the user.
   void select(ArbDefinition? definition) {
     _selectedDefinitionNotifier().select(definition);
@@ -171,11 +175,13 @@ class ArbUsecase {
     } else {
       _currentTranslationsNotifier().add(definition, locale, value);
     }
+    _updateTranslationsAnalysis(definition);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 
   void rollbackTranslation({required String locale, required ArbDefinition definition}) {
     _currentTranslationsNotifier().remove(definition, locale);
+    _updateTranslationsAnalysis(definition);
     discardTranslationChanges(locale: locale, definition: definition);
   }
 

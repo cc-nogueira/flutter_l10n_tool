@@ -71,7 +71,7 @@ class ArbChip extends StatelessWidget {
         icon: missing
             ? const Tooltip(
                 message: 'Missing case.',
-                child: Icon(Icons.error_outline, size: 20, color: Colors.amber),
+                child: Icon(Icons.warning_amber, size: 20, color: Colors.amberAccent),
               )
             : null,
         onPressed: () => onPressed?.call(),
