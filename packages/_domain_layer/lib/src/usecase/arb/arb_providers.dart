@@ -6,6 +6,11 @@ final arbUsecaseProvider = Provider<ArbUsecase>((ref) => ArbUsecase(ref.read));
 /// Internal - provider of the current [ArbScope].
 final _arbScopeProvider = StateProvider((ref) => ArbScope());
 
+final analysisProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.analysisProvider);
+});
+
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
 /// See [ArbScope.selectedDefinitionProvider].
 final selectedDefinitionProvider = Provider((ref) {
@@ -42,13 +47,6 @@ final formPlaceholdersProvider = Provider((ref) {
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
-/// See [ArbScope.currentTranslationsProvider].
-final currentTranslationsProvider = Provider((ref) {
-  final scope = ref.watch(_arbScopeProvider);
-  return ref.watch(scope.currentTranslationsProvider);
-});
-
-/// This is a exporting provider to forward [ArbScope] instance internal provider.
 /// See [ArbScope.existingPluralsBeingEditedProvider].
 final existingPluralsBeingEditedProvider = Provider((ref) {
   final scope = ref.watch(_arbScopeProvider);
@@ -60,6 +58,27 @@ final existingPluralsBeingEditedProvider = Provider((ref) {
 final formPluralsProvider = Provider((ref) {
   final scope = ref.watch(_arbScopeProvider);
   return ref.watch(scope.formPluralsProvider);
+});
+
+/// This is a exporting provider to forward [ArbScope] instance internal provider.
+/// See [ArbScope.existingSelectsBeingEditedProvider].
+final existingSelectsBeingEditedProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.existingSelectsBeingEditedProvider);
+});
+
+/// This is a exporting provider to forward [ArbScope] instance internal provider.
+/// See [ArbScope.formSelectsProvider].
+final formSelectsProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.formSelectsProvider);
+});
+
+/// This is a exporting provider to forward [ArbScope] instance internal provider.
+/// See [ArbScope.currentTranslationsProvider].
+final currentTranslationsProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.currentTranslationsProvider);
 });
 
 /// This is a exporting provider to forward [ArbScope] instance internal provider.

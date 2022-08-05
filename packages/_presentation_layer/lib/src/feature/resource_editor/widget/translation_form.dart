@@ -7,6 +7,7 @@ import '../../../common/widget/text_form_field_mixin.dart';
 import '../builder/arb_builder.dart';
 import 'translation_placeholders_text_editing_controller.dart';
 import 'translation_plurals_and_form.dart';
+import 'translation_selects_and_form.dart';
 
 abstract class TranslationForm<D extends ArbDefinition, T extends ArbTranslation>
     extends StatefulWidget {
@@ -109,7 +110,7 @@ abstract class TranslationFormState<D extends ArbDefinition, T extends ArbTransl
   @mustCallSuper
   void resetState() {
     translationController = StateController<T>(widget.beingEdited);
-    builder = ArbTranslationBuilder(
+    builder = ArbTranslationBuilder.forArgs(
         displayOption: widget.displayOption,
         definition: widget.definition,
         translation: translationController.state);
@@ -301,9 +302,13 @@ class SelectTranslationFormState
   ArbSelectTranslationBuilder get builder => super.builder as ArbSelectTranslationBuilder;
 
   @override
-  Widget optionsAndForm() {
-    return Container();
-  }
+  Widget optionsAndForm() => TranslationSelectsAndForm(
+        translationBuilder: builder,
+        definition: widget.definition,
+        locale: widget.current?.locale ?? widget.beingEdited.locale,
+        translationController: translationController,
+        onUpdateTranslation: onChangedValue,
+      );
 
   @override
   ArbSelectTranslation copyWithPrefix(String value) =>

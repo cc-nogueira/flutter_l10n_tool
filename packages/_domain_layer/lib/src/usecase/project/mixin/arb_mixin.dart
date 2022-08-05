@@ -67,7 +67,7 @@ mixin ArbMixin {
     ];
   }
 
-  List<ArbSelection> inferArbTranslationSelectOptions(String value) {
+  List<ArbSelectCase> inferArbTranslationSelectOptions(String value) {
     final match = _selectRegExp.firstMatch(value);
     if (match == null) {
       throw ArgumentError('Invalid value "$value" for ArbSelectTranslation');
@@ -76,7 +76,7 @@ mixin ArbMixin {
     final optionsRegExp = _selectOptionsRegExp;
     final matches = optionsRegExp.allMatches(options);
     return [
-      for (final each in matches) ArbSelection(option: each.group(1)!, value: each.group(2)!),
+      for (final each in matches) ArbSelectCase(option: each.group(1)!, value: each.group(2)!),
     ];
   }
 

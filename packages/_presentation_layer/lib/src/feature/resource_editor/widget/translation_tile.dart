@@ -50,7 +50,7 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
     required this.isOriginal,
     required this.onEdit,
     required this.onRollback,
-  }) : builder = ArbTranslationBuilder(
+  }) : builder = ArbTranslationBuilder.forArgs(
             displayOption: displayOption, definition: definition, translation: translation);
 
   final ArbTranslationBuilder builder;
@@ -143,8 +143,8 @@ class PlaceholdersTranslationTile
   });
 }
 
-abstract class TranslationWithParameterTile<D extends ArbDefinition, T extends ArbTranslation>
-    extends TranslationTile<D, T> with ArbMixin {
+abstract class TranslationWithParameterTile<D extends ArbDefinitionWithParameter,
+    T extends ArbTranslationWithParameter> extends TranslationTile<D, T> with ArbMixin {
   TranslationWithParameterTile({
     super.key,
     required super.displayOption,
@@ -154,7 +154,7 @@ abstract class TranslationWithParameterTile<D extends ArbDefinition, T extends A
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
-  }) : assert(translation is ArbTranslationWithParameter);
+  });
 
   @override
   Widget? tileContent(TextTheme theme, ColorScheme colors) {

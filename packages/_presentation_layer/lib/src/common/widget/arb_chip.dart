@@ -48,10 +48,12 @@ class ArbChip extends StatelessWidget {
     this.onPressed,
     this.onDelete,
     this.selected = false,
+    this.missing = false,
   });
 
   final Widget child;
   final bool selected;
+  final bool missing;
   final VoidCallback? onPressed;
   final VoidCallback? onDelete;
 
@@ -64,6 +66,14 @@ class ArbChip extends StatelessWidget {
         colors: colors,
         child: child,
         selected: selected,
+        dotted: missing,
+        borderColor: missing ? Colors.amberAccent : null,
+        icon: missing
+            ? const Tooltip(
+                message: 'Missing case.',
+                child: Icon(Icons.error_outline, size: 20, color: Colors.amber),
+              )
+            : null,
         onPressed: () => onPressed?.call(),
         onDelete: onDelete == null ? null : () => onDelete!(),
       ),

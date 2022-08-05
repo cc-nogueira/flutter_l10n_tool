@@ -19,7 +19,7 @@
     }
   },
 
-  "test_select": "Testing selects: {type, select, dark{dark}, light{light}} for theme mode.",
+  "test_select": "Testing selects: {type, select, dark{dark}, light{light}, medium{medium}} for theme mode.",
   "@test_select": {
     "placeholders": {
       "type": {}
@@ -110,7 +110,10 @@
   "label_add_plural": "Add Plural",
   "label_update_plural": "Update Plural",
   "label_discard_plural_changes": "Discard Changes",
-
+  "label_add_select": "Add Select",
+  "label_update_select": "Update Select",
+  "label_discard_select_changes": "Discard Changes",
+  
   "message_loading": "Loading",
   "@message_loading": {
     "description": "Message loading"

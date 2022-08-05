@@ -264,6 +264,8 @@ class ProjectUsecase
   Future<void> _setLoaded(ProjectNotifier projectNotifier) async {
     projectNotifier.loadStage(LoadStage.loaded);
     await Future.delayed(asyncDelay);
+
+    read(arbUsecaseProvider).initProjectAnalysis();
   }
 
   /// Save a user changed [L10nConfiguration].

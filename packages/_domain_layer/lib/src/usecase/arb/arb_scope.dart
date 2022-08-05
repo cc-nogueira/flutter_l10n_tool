@@ -4,6 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
+import 'arb_analysis.dart';
 
 typedef SelectedDefinitionNotifier = SelectionNotifier<ArbDefinition>;
 typedef DefinitionEditionsNotifier = EditionsNotifier<ArbDefinition, ArbDefinition>;
@@ -13,6 +14,7 @@ typedef TranslationEditionsNotifier
 typedef TranslationForLanguageEditionsNotifier = EditionsNotifier<ArbDefinition, ArbTranslation>;
 typedef TranslationLocalesEditionsNotifier = EditionsOneToManyNotifier<ArbDefinition, String>;
 typedef PluralEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String, ArbPlural>;
+typedef SelectEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String, ArbSelectCase>;
 
 /// Arb Scope is a collection of [StateNotificationProvider] internal to [ArbUsecase].
 ///
@@ -21,6 +23,8 @@ typedef PluralEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String,
 /// All these notifiers are available as exported providers (simple providers that export the value
 /// of each Notifier).
 class ArbScope {
+  final analysisProvider = StateProvider((ref) => ArbAnalysis(ref.read));
+
   /// Represents the current selected definition for the user interface.
   ///
   /// This value is changed when the user selects/deselects a resource in the list.
@@ -69,14 +73,6 @@ class ArbScope {
   final formPlaceholdersProvider = StateNotifierProvider<PlaceholderEditionsNotifier,
       EditionsState<ArbDefinition, ArbPlaceholder>>((_) => PlaceholderEditionsNotifier());
 
-  /// Represents the current [ArbTranslation]s modified and saved by the user.
-  ///
-  /// It may differ from the original translation loaded from project files.
-  /// It may also differ from the version being edited by the user (not saved).
-  final currentTranslationsProvider = StateNotifierProvider<TranslationEditionsNotifier,
-          EditionsOneToMapState<ArbDefinition, String, ArbTranslation>>(
-      (_) => TranslationEditionsNotifier());
-
   /// Represents an existing plurals currently being edited for a [ArbDefinition]/locale.
   ///
   /// It will be the initial value of the corresponding value in [formPluralsProvider] for an
@@ -92,9 +88,9 @@ class ArbScope {
   /// Form plurals are the current plural value displayed and edited by the user for
   /// an [ArbDefinition]/locale.
   ///
-  /// There is a max of one [ArbPlaceholder] being edited per [ArbDefinition]/locale.
+  /// There is a max of one [ArbPlural] being edited per [ArbDefinition]/locale.
   ///
-  /// When editing a existing a plural this value starts with
+  /// When editing an existing plural this value starts with
   /// [existingPluralsBeingEditedProvider] value.
   /// When creating a plural this value starts empty.
   ///
@@ -102,6 +98,40 @@ class ArbScope {
   /// pending changes can be detected by comparintg with [existingPluralBeingEditedProvider] value.
   final formPluralsProvider = StateNotifierProvider<PluralEditionsNotifier,
       EditionsOneToMapState<ArbDefinition, String, ArbPlural>>((_) => PluralEditionsNotifier());
+
+  /// Represents an existing selects currently being edited for a [ArbDefinition]/locale.
+  ///
+  /// It will be the initial value of the corresponding value in [formSelectsProvider] for an
+  /// edit select action.
+  /// When the Form value changes by user interaction these two values may differ, representing
+  /// pending changes in the form.
+  ///
+  /// No entry will be found for an [ArbDefinition]/locale when no selects are being edited or when a
+  /// new select is being edited in the user's form.
+  final existingSelectsBeingEditedProvider = StateNotifierProvider<SelectEditionsNotifier,
+      EditionsOneToMapState<ArbDefinition, String, ArbSelectCase>>((_) => SelectEditionsNotifier());
+
+  /// Form selects are the current select value displayed and edited by the user for
+  /// an [ArbDefinition]/locale.
+  ///
+  /// There is a max of one [ArbSelectCase] being edited per [ArbDefinition]/locale.
+  ///
+  /// When editing an existing selection this value starts with
+  /// [existingSelectsBeingEditedProvider] value.
+  /// When creating a selection this value starts empty.
+  ///
+  /// As the user form changes this provider is kept uptodate by the usecase,
+  /// pending changes can be detected by comparintg with [existingSelectsBeingEditedProvider] value.
+  final formSelectsProvider = StateNotifierProvider<SelectEditionsNotifier,
+      EditionsOneToMapState<ArbDefinition, String, ArbSelectCase>>((_) => SelectEditionsNotifier());
+
+  /// Represents the current [ArbTranslation]s modified and saved by the user.
+  ///
+  /// It may differ from the original translation loaded from project files.
+  /// It may also differ from the version being edited by the user (not saved).
+  final currentTranslationsProvider = StateNotifierProvider<TranslationEditionsNotifier,
+          EditionsOneToMapState<ArbDefinition, String, ArbTranslation>>(
+      (_) => TranslationEditionsNotifier());
 
   /// Represents a translation being edited by the user.
   /// This is a family provider to store all ArbTranslations being edited for each locale.

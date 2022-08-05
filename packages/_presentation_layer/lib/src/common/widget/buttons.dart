@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 ButtonStyle segmentedButtonStyle(
@@ -32,7 +33,9 @@ ButtonStyle chipButtonStyle(
   ColorScheme colors, {
   EdgeInsets? padding,
   bool selected = false,
+  bool hideBorder = false,
   Size? minimumSize,
+  Color? borderColor,
   Color? backgroundColor,
   Color? color,
   Color? selectedBackgroundColor,
@@ -42,6 +45,11 @@ ButtonStyle chipButtonStyle(
   return OutlinedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
     padding: padding,
+    side: (hideBorder || borderColor != null)
+        ? BorderSide(
+            color: borderColor ?? colors.onSurface.withOpacity(0.12),
+            style: hideBorder ? BorderStyle.none : BorderStyle.solid)
+        : null,
     backgroundColor:
         selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
     primary:
@@ -165,31 +173,52 @@ OutlinedButton inputChip({
   VoidCallback? onPressed,
   VoidCallback? onDelete,
   bool selected = false,
-  Icon? icon,
+  bool dotted = false,
+  Widget? icon,
+  Color? borderColor,
   Color? backgroundColor,
   Color? color,
   Color? selectedBackgroundColor,
   Color? selectedColor,
   Alignment? align,
 }) {
-  final chipChild = onDelete == null
+  final padding =
+      EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: dotted ? 6 : 4, bottom: 6);
+  final basicChild = onDelete == null && (!dotted || icon == null)
       ? child
       : Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (dotted && icon != null) ...[
+              icon,
+              const SizedBox(width: 8),
+            ],
             child,
-            const SizedBox(width: 8),
-            InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
+            if (onDelete != null) ...[
+              const SizedBox(width: 8),
+              InkWell(onTap: onDelete, child: Icon(Icons.close, size: deleteSize)),
+            ],
           ],
         );
-  return icon == null
+  final chipChild = dotted
+      ? DottedBorder(
+          padding: padding,
+          borderType: BorderType.RRect,
+          radius: const Radius.circular(8),
+          color: borderColor ?? colors.outline,
+          child: basicChild,
+        )
+      : basicChild;
+  return icon == null || dotted
       ? OutlinedButton(
           key: key,
           style: chipButtonStyle(
             colors,
-            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            padding: dotted ? EdgeInsets.zero : padding,
             selected: selected,
             minimumSize: minimumSize,
+            hideBorder: dotted,
+            borderColor: borderColor,
             backgroundColor: backgroundColor,
             color: color,
             selectedBackgroundColor: selectedBackgroundColor,
@@ -203,8 +232,10 @@ OutlinedButton inputChip({
           key: key,
           style: chipButtonStyle(
             colors,
-            padding: EdgeInsets.only(left: 12, right: onDelete == null ? 12 : 8, top: 4, bottom: 6),
+            padding: dotted ? EdgeInsets.zero : padding,
             selected: selected,
+            hideBorder: dotted,
+            borderColor: borderColor,
             minimumSize: minimumSize,
             backgroundColor: backgroundColor,
             color: color,

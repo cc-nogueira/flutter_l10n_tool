@@ -40,7 +40,7 @@ class ArbTranslation with _$ArbTranslation {
     @Default([ArbPlural(option: ArbPluralOption.other)]) List<ArbPlural> options,
   }) = ArbPluralTranslation;
 
-  @With<ArbTranslationWithParameter<ArbSelection>>()
+  @With<ArbTranslationWithParameter<ArbSelectCase>>()
   const factory ArbTranslation.select({
     required String locale,
     required String key,
@@ -48,7 +48,7 @@ class ArbTranslation with _$ArbTranslation {
     @Default('') String expression,
     @Default('') String suffix,
     @Default('') String parameterName,
-    @Default([]) List<ArbSelection> options,
+    @Default([]) List<ArbSelectCase> options,
   }) = ArbSelectTranslation;
 
   ArbDefinitionType get type => map(
@@ -88,9 +88,9 @@ enum ArbPluralOption {
 }
 
 @freezed
-class ArbSelection with _$ArbSelection {
-  const factory ArbSelection({
+class ArbSelectCase with _$ArbSelectCase {
+  const factory ArbSelectCase({
     required String option,
     @Default('') String value,
-  }) = _ArbSelection;
+  }) = _ArbSelectCase;
 }

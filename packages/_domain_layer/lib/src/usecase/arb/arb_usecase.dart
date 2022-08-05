@@ -4,6 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
+import '../../entity/project/project.dart';
 import '../project/project_usecase.dart';
 import 'arb_scope.dart';
 
@@ -30,6 +31,10 @@ class ArbUsecase {
   /// Creates a new [ArbScope] to load a project without any modifications.
   void initScope() {
     read(_arbScopeProvider.notifier).state = ArbScope();
+  }
+
+  void initProjectAnalysis() {
+    read(analysisProvider).init();
   }
 
   /// Defines which [ArbDefinition] is currently being selected by the user.
@@ -217,6 +222,50 @@ class ArbUsecase {
     }
   }
 
+  /// Track select being edited.
+  ///
+  /// This method is called with an actual select when the user starts editing an existing translation
+  /// select option.
+  /// This method is called with a null String when the user discard select edition and
+  /// no select options are currently being edited for the corresponding [ArbDefintion]/locale.
+  ///
+  /// Note that this method is not invoked when a new select option is being edited.
+  void trackExistingSelectBeingEdited({
+    required ArbDefinition definition,
+    required String locale,
+    required ArbSelectCase? option,
+  }) {
+    if (option == null) {
+      _existingSelectsBeingEditedNotifier().remove(definition, locale);
+    } else {
+      _existingSelectsBeingEditedNotifier().add(definition, locale, option);
+    }
+  }
+
+  /// Update the form select provider to reflect the select being edited by the user.
+  ///
+  /// This method is invoded with an empty String when the user starts the creation of a
+  /// new select option.
+  ///
+  /// This method is invoked with an existing select when the user starts the edition of an
+  /// existing select option.
+  ///
+  /// This method is called for all subsequent changes ih the select option being edited (such as
+  /// typing on input field).
+  ///
+  /// This method is invoked with a null value when the user discard changes in the select form.
+  void updateFormSelect({
+    required ArbDefinition definition,
+    required String locale,
+    required ArbSelectCase? option,
+  }) {
+    if (option == null) {
+      _formSelectsNotifier().remove(definition, locale);
+    } else {
+      _formSelectsNotifier().add(definition, locale, option);
+    }
+  }
+
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.selectedDefinitionProvider.notifier);
@@ -245,11 +294,6 @@ class ArbUsecase {
     return read(scope.formPlaceholdersProvider.notifier);
   }
 
-  TranslationEditionsNotifier _currentTranslationsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.currentTranslationsProvider.notifier);
-  }
-
   /// Return the [existingPluralsBeingEditedProvider] notifier.
   PluralEditionsNotifier _existingPluralsBeingEditedNotifier() {
     final scope = read(_arbScopeProvider);
@@ -260,6 +304,23 @@ class ArbUsecase {
   PluralEditionsNotifier _formPluralsNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.formPluralsProvider.notifier);
+  }
+
+  /// Return the [existingPluralsBeingEditedProvider] notifier.
+  SelectEditionsNotifier _existingSelectsBeingEditedNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.existingSelectsBeingEditedProvider.notifier);
+  }
+
+  ///Return the [formPluralsProvider] notifier.
+  SelectEditionsNotifier _formSelectsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.formSelectsProvider.notifier);
+  }
+
+  TranslationEditionsNotifier _currentTranslationsNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.currentTranslationsProvider.notifier);
   }
 
   ///Return the [beingEditedTranslationLocalesProvider] notifier.
