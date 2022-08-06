@@ -90,13 +90,16 @@ class ResourcesDrawer extends NavigationDrawer {
     );
   }
 
-  List<ArbDefinition> _filteredDefinitions(List<ArbDefinition> definitions,
-      {required EditionsState<ArbDefinition, ArbDefinition> currentDefinitions,
-      required EditionsState<ArbDefinition, ArbDefinition> beingEditedDefinitions,
-      required EditionsOneToMapState<ArbDefinition, String, ArbTranslation> currentTranslations,
-      required EditionsOneToManyState<ArbDefinition, String> beingEditedTranslations,
-      required EditionsOneToManyState<ArbDefinition, WarningType> warnings,
-      required List<bool> selectedFilters}) {
+  List<ArbDefinition> _filteredDefinitions(
+    List<ArbDefinition> definitions, {
+    required ArbDefinition? selected,
+    required EditionsState<ArbDefinition, ArbDefinition> currentDefinitions,
+    required EditionsState<ArbDefinition, ArbDefinition> beingEditedDefinitions,
+    required EditionsOneToMapState<ArbDefinition, String, ArbTranslation> currentTranslations,
+    required EditionsOneToManyState<ArbDefinition, String> beingEditedTranslations,
+    required EditionsOneToManyState<ArbDefinition, WarningType> warnings,
+    required List<bool> selectedFilters,
+  }) {
     final filters = [
       if (selectedFilters[0])
         (ArbDefinition def) =>
@@ -111,7 +114,7 @@ class ResourcesDrawer extends NavigationDrawer {
     }
     return [
       for (final def in definitions)
-        if (filters.any((filter) => filter(def))) def,
+        if (def == selected || filters.any((filter) => filter(def))) def,
     ];
   }
 
@@ -130,6 +133,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final selectedFilters = ref.watch(filterProvider);
     final definitions = _filteredDefinitions(
       project.template.definitions,
+      selected: selected,
       currentDefinitions: currentDefinitions,
       beingEditedDefinitions: beingEditedDefinitions,
       currentTranslations: currentTranslations,
