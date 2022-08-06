@@ -14,6 +14,23 @@ class ResourcesDrawer extends NavigationDrawer {
   String titleText(AppLocalizations loc) => loc.title_resources_drawer;
 
   @override
+  Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ToggleButtons(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          isSelected: const [false],
+          children: const [
+            Icon(Icons.save),
+          ],
+        )
+      ],
+    );
+  }
+
+  @override
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);

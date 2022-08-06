@@ -18,16 +18,19 @@ class ProjectSelectorDrawer extends NavigationDrawer {
   String titleText(AppLocalizations loc) => loc.title_project_selector_drawer;
 
   @override
-  List<Widget> headerChildren(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+  Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final projectLoaded = ref.watch(isProjectLoadedProvider);
     if (projectLoaded) {
-      return [];
+      return null;
     }
     final colors = Theme.of(context).colorScheme;
     final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
-    return [
-      Text('(${loc.message_no_project_selected})', style: nameStyle),
-    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('(${loc.message_no_project_selected})', style: nameStyle),
+      ],
+    );
   }
 
   @override

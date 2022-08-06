@@ -69,6 +69,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
   Widget _header(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final child = headerChild(context, ref, loc);
     return SizedBox(
       height: 150,
       child: DrawerHeader(
@@ -86,13 +87,13 @@ abstract class NavigationDrawer extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                       child: Text(titleText(loc)),
                     )),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: headerChildren(context, ref, loc),
+                    if (child != null)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: child,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -134,7 +135,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
   String titleText(AppLocalizations loc);
 
   /// Subclasses may define children for the [_header] builder.
-  List<Widget> headerChildren(BuildContext context, WidgetRef ref, AppLocalizations loc) => [];
+  Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) => null;
 
   /// Subclasses may define drawer's content that comes after the [_header].
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) => [];
