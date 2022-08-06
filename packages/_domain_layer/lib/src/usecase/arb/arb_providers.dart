@@ -11,6 +11,11 @@ final analysisProvider = Provider((ref) {
   return ref.watch(scope.analysisProvider);
 });
 
+final analysisWarningsProvider = Provider((ref) {
+  final analysis = ref.watch(analysisProvider);
+  return ref.watch(analysis.warningsProvider);
+});
+
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
 /// See [ArbScope.selectedDefinitionProvider].
 final selectedDefinitionProvider = Provider((ref) {

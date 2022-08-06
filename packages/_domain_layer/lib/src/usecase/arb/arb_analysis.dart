@@ -8,11 +8,20 @@ import '../../entity/project/project.dart';
 import '../project/project_usecase.dart';
 import 'arb_usecase.dart';
 
+typedef WarningState = EditionsOneToManyState<ArbDefinition, WarningType>;
+typedef WarningsNotifier = EditionsOneToManyNotifier<ArbDefinition, WarningType>;
+
+enum WarningType {
+  translationMissingSelectCases,
+}
+
 class ArbAnalysis {
   ArbAnalysis(this.read);
 
   final Reader read;
   final knownCasesPerSelectDefinition = <String, Set<String>>{};
+  final warningsProvider =
+      StateNotifierProvider<WarningsNotifier, WarningState>((_) => WarningsNotifier());
 
   void init() {
     final project = read(projectProvider);
@@ -25,7 +34,7 @@ class ArbAnalysis {
       final currentTranslations = read(currentTranslationsProvider);
       final translations =
           _definitionTranslations(definition, projectTranslations, currentTranslations);
-      _updateSelectDefinitionCases(definition, translations);
+      _updateSelectDefinitionCasesAndWarnings(definition, translations);
     }
   }
 
@@ -34,24 +43,9 @@ class ArbAnalysis {
     for (final definition in project.template.definitions) {
       if (definition is ArbSelectDefinition) {
         final translations = _definitionTranslations(definition, allTranslations);
-        _updateSelectDefinitionCases(definition, translations);
+        _updateSelectDefinitionCasesAndWarnings(definition, translations);
       }
     }
-  }
-
-  void _updateSelectDefinitionCases(
-    ArbSelectDefinition definition,
-    List<ArbTranslation> translations,
-  ) {
-    final cases = <String>{};
-    for (final translation in translations) {
-      if (translation is ArbSelectTranslation) {
-        for (final select in translation.options) {
-          cases.add(select.option);
-        }
-      }
-    }
-    knownCasesPerSelectDefinition[definition.key] = cases;
   }
 
   List<ArbTranslation> _definitionTranslations(
@@ -74,4 +68,35 @@ class ArbAnalysis {
     }
     return translations;
   }
+
+  void _updateSelectDefinitionCasesAndWarnings(
+    ArbSelectDefinition definition,
+    List<ArbTranslation> translations,
+  ) {
+    final cases = <String>{};
+    for (final translation in translations) {
+      if (translation is ArbSelectTranslation) {
+        for (final select in translation.options) {
+          cases.add(select.option);
+        }
+      }
+    }
+    knownCasesPerSelectDefinition[definition.key] = cases;
+    var hasWarning = false;
+    for (final translation in translations) {
+      if (translation is ArbSelectTranslation) {
+        if (translation.options.length < cases.length) {
+          hasWarning = true;
+          break;
+        }
+      }
+    }
+    if (hasWarning) {
+      _warningsNotifier().add(definition, WarningType.translationMissingSelectCases);
+    } else {
+      _warningsNotifier().remove(definition, WarningType.translationMissingSelectCases);
+    }
+  }
+
+  WarningsNotifier _warningsNotifier() => read(warningsProvider.notifier);
 }

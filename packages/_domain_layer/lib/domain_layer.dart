@@ -23,6 +23,7 @@ export 'src/repository/entity_notifier_repository.dart';
 export 'src/repository/entity_stream_repository.dart';
 export 'src/repository/preferences_repository.dart';
 export 'src/repository/recent_projects_repository.dart';
+export 'src/usecase/arb/arb_analysis.dart';
 export 'src/usecase/arb/arb_usecase.dart';
 export 'src/usecase/preferences/preferences_usecase.dart';
 export 'src/usecase/project/mixin/arb_mixin.dart';
