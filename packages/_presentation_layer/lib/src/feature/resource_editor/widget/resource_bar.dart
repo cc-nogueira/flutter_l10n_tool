@@ -59,7 +59,7 @@ class _ResourceDisplayOptions extends StatelessWidget {
     MainAxisAlignment align,
     DisplayOption option,
   ) {
-    return segmentedButton(
+    return segmentedTextButton(
         align: align,
         colors: theme.colorScheme,
         text: option.text(loc),

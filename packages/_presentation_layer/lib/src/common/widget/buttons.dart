@@ -1,16 +1,14 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
-ButtonStyle segmentedButtonStyle(
-  ColorScheme colors,
-  MainAxisAlignment align, {
-  bool selected = false,
-  Size? minimumSize,
-  Color? backgroundColor,
-  Color? color,
-  Color? selectedBackgroundColor,
-  Color? selectedColor,
-}) {
+ButtonStyle segmentedButtonStyle(ColorScheme colors, MainAxisAlignment align,
+    {bool selected = false,
+    Size? minimumSize,
+    Color? backgroundColor,
+    Color? color,
+    Color? selectedBackgroundColor,
+    Color? selectedColor,
+    InteractiveInkFeatureFactory? splashFactory}) {
   final isLeft = align == MainAxisAlignment.start;
   final isRight = align == MainAxisAlignment.end;
   return OutlinedButton.styleFrom(
@@ -26,6 +24,7 @@ ButtonStyle segmentedButtonStyle(
         selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
     primary: selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurface,
     minimumSize: minimumSize,
+    splashFactory: splashFactory,
   );
 }
 
@@ -81,7 +80,7 @@ OutlinedButton outlinedButton({
 }) =>
     OutlinedButton(onPressed: onPressed, child: Text(text, overflow: overflow));
 
-OutlinedButton segmentedButton({
+OutlinedButton segmentedTextButton({
   required ColorScheme colors,
   required MainAxisAlignment align,
   required String text,
@@ -95,10 +94,39 @@ OutlinedButton segmentedButton({
   Color? selectedBackgroundColor,
   Color? selectedColor,
 }) {
+  return segmentedButton(
+      colors: colors,
+      align: align,
+      child: Text(text, style: style),
+      checkSize: checkSize,
+      minimumSize: minimumSize,
+      onPressed: onPressed,
+      selected: selected,
+      backgroundColor: backgroundColor,
+      color: color,
+      selectedBackgroundColor: selectedBackgroundColor,
+      selectedColor: selectedColor);
+}
+
+OutlinedButton segmentedButton({
+  required ColorScheme colors,
+  required MainAxisAlignment align,
+  required Widget child,
+  double checkSize = 16.0,
+  Size? minimumSize,
+  required VoidCallback? onPressed,
+  bool selected = false,
+  Color? backgroundColor,
+  Color? color,
+  Color? selectedBackgroundColor,
+  Color? selectedColor,
+  bool showSelectedMark = true,
+  bool noSplash = false,
+}) {
   assert(align == MainAxisAlignment.start ||
       align == MainAxisAlignment.center ||
       align == MainAxisAlignment.end);
-  return selected
+  return selected && showSelectedMark
       ? OutlinedButton.icon(
           style: segmentedButtonStyle(
             colors,
@@ -109,10 +137,11 @@ OutlinedButton segmentedButton({
             color: color,
             selectedBackgroundColor: selectedBackgroundColor,
             selectedColor: selectedColor,
+            splashFactory: noSplash ? NoSplash.splashFactory : null,
           ),
           onPressed: onPressed,
           icon: Icon(Icons.check, size: checkSize),
-          label: Text(text, style: style),
+          label: child,
         )
       : OutlinedButton(
           style: segmentedButtonStyle(
@@ -124,9 +153,10 @@ OutlinedButton segmentedButton({
             color: color,
             selectedBackgroundColor: selectedBackgroundColor,
             selectedColor: selectedColor,
+            splashFactory: noSplash ? NoSplash.splashFactory : null,
           ),
           onPressed: onPressed,
-          child: Text(text, style: style),
+          child: child,
         );
 }
 

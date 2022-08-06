@@ -34,21 +34,21 @@ class _ConfigurationToggleButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        segmentedButton(
+        segmentedTextButton(
           colors: colors,
           align: MainAxisAlignment.start,
           text: 'Default',
           onPressed: _onDefaultPressed,
           selected: configuration.isDefault,
         ),
-        segmentedButton(
+        segmentedTextButton(
           colors: colors,
           align: MainAxisAlignment.center,
           text: 'RCMdd',
           onPressed: _onRecommendedPressed,
           selected: configuration.isRecommended,
         ),
-        segmentedButton(
+        segmentedTextButton(
           colors: colors,
           align: MainAxisAlignment.end,
           text: 'Custom',
