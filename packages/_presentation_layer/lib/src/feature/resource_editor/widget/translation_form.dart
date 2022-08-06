@@ -126,7 +126,7 @@ abstract class TranslationFormState<S extends TranslationForm<D, T>, D extends A
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(children: builder.tileIcons()),
+        Column(children: builder.tileLeadingIcons()),
         ArbBuilder.leadingSeparator,
         Expanded(
           child: Column(

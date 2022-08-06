@@ -4,73 +4,21 @@ import 'package:flutter/material.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../builder/arb_builder.dart';
 
-class MissingTranslationTile extends StatelessWidget with ArbTranslationBuilderMixin {
-  MissingTranslationTile({
-    super.key,
-    required this.locale,
-    required this.onEdit,
-  }) : builder = ArbBuilder();
-
-  final String locale;
-  final VoidCallback? onEdit;
-  final ArbBuilder builder;
-
-  @override
-  Widget build(BuildContext context) {
-    builder.init(context);
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final colors = theme.colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(children: tileIcons()),
-        ArbBuilder.leadingSeparator,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              tileTitle(
-                title: Text(locale, style: builder.titleStyle),
-                subtitle: subtitle(textTheme, colors),
-                trailing: _editButton(),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget? subtitle(TextTheme theme, ColorScheme colors) =>
-      Text('Missing translation', style: theme.bodyMedium!.copyWith(color: colors.error));
-
-  Widget _editButton() => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
-}
-
-abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation>
-    extends StatelessWidget {
-  TranslationTile({
+abstract class BasicTranslationTile<D extends ArbDefinition> extends StatelessWidget {
+  const BasicTranslationTile({
     super.key,
     required this.displayOption,
     required this.locale,
-    required this.translation,
     required this.definition,
-    required this.isOriginal,
+    required this.builder,
     required this.onEdit,
-    required this.onRollback,
-  }) : builder = ArbTranslationBuilder.forArgs(
-            displayOption: displayOption, definition: definition, translation: translation);
-
-  final ArbTranslationBuilder builder;
+  });
 
   final DisplayOption displayOption;
   final String locale;
-  final T translation;
   final D definition;
-  final bool isOriginal;
+  final ArbTranslationBuilderBase builder;
   final VoidCallback? onEdit;
-  final VoidCallback onRollback;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +30,7 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(children: builder.tileIcons()),
+        Column(children: builder.tileLeadingIcons()),
         ArbBuilder.leadingSeparator,
         Expanded(
           child: Column(
@@ -91,23 +39,77 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
               builder.tileTitle(
                 title: Text(locale, style: builder.titleStyle),
                 subtitle: builder.descriptorWidget(),
-                trailing: titleTrailing(context),
               ),
               if (content != null) content,
             ],
           ),
         ),
+        ArbBuilder.leadingSeparator,
+        Column(children: tileTrailingIcons(context))
       ],
     );
   }
 
-  Widget titleTrailing(BuildContext context) => isOriginal
-      ? _editButton()
-      : Row(
-          children: [_rollbackButton(context), _editButton()],
+  List<Widget> tileTrailingIcons(BuildContext context);
+
+  Widget? tileContent(TextTheme theme, ColorScheme colors) => null;
+
+  Widget editButton() => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
+}
+
+class MissingTranslationTile extends BasicTranslationTile<ArbDefinition> {
+  MissingTranslationTile({
+    super.key,
+    required super.displayOption,
+    required super.locale,
+    required super.definition,
+    required super.onEdit,
+  }) : super(
+          builder: ArbMissingTranslationBuilder(
+            displayOption: displayOption,
+            definition: definition,
+          ),
         );
 
-  Widget _editButton() => IconButton(icon: const Icon(Icons.edit), iconSize: 20, onPressed: onEdit);
+  @override
+  List<Widget> tileTrailingIcons(BuildContext context) {
+    return <Widget>[editButton()];
+  }
+}
+
+abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation>
+    extends BasicTranslationTile<D> {
+  TranslationTile({
+    super.key,
+    required super.displayOption,
+    required super.locale,
+    required super.definition,
+    required super.onEdit,
+    required this.translation,
+    required this.isOriginal,
+    required this.onRollback,
+  }) : super(
+          builder: ArbTranslationBuilder.forArgs(
+            displayOption: displayOption,
+            definition: definition,
+            translation: translation,
+          ),
+        );
+
+  @override
+  ArbTranslationBuilder get builder => super.builder as ArbTranslationBuilder;
+
+  final T translation;
+  final bool isOriginal;
+  final VoidCallback onRollback;
+
+  @override
+  List<Widget> tileTrailingIcons(BuildContext context) {
+    return <Widget>[
+      if (!isOriginal) _rollbackButton(context),
+      editButton(),
+    ];
+  }
 
   Widget _rollbackButton(BuildContext context) => Tooltip(
         message: 'Translation modified. Click to rollback!',
@@ -143,8 +145,6 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
       onRollback();
     }
   }
-
-  Widget? tileContent(TextTheme theme, ColorScheme colors) => null;
 }
 
 class PlaceholdersTranslationTile

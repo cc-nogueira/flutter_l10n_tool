@@ -1,19 +1,24 @@
 part of 'arb_builder.dart';
 
-/// This mixin externalize common functionality used by separate hierarchies.
-///
-/// Used by [ArbTranslationBuilder] and [MissingTranslationTile].
-mixin ArbTranslationBuilderMixin {
+abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBuilder {
+  ArbTranslationBuilderBase({required this.displayOption, required this.definition});
+
   static const tileIcon = SizedBox(
       width: ArbBuilder.leadingSize,
       height: ArbBuilder.leadingSize,
       child: Center(child: Icon(Icons.translate)));
 
-  List<Widget> tileIcons() {
+  /// Current display option ([DisplayOption.compact] or [DisplayOption.expanded]).
+  final DisplayOption displayOption;
+
+  /// Arb definition (final)
+  final D definition;
+
+  List<Widget> tileLeadingIcons() {
     return <Widget>[tileIcon];
   }
 
-  Widget tileTitle({required Widget title, Widget? subtitle, required Widget trailing}) {
+  Widget tileTitle({required Widget title, Widget? subtitle, Widget? trailing}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,10 +31,21 @@ mixin ArbTranslationBuilderMixin {
             ],
           ),
         ),
-        trailing,
+        if (trailing != null) trailing,
       ],
     );
   }
+
+  /// API for sublasses to display a descriptor to present the translation in a tile.
+  Widget descriptorWidget();
+}
+
+class ArbMissingTranslationBuilder extends ArbTranslationBuilderBase<ArbDefinition> {
+  ArbMissingTranslationBuilder({required super.displayOption, required super.definition});
+
+  @override
+  Widget descriptorWidget() =>
+      Text('Missing translation', style: textTheme.bodyMedium!.copyWith(color: colors.error));
 }
 
 /// Translation builders are usually instantiated with this class factory constructor.
@@ -37,11 +53,11 @@ mixin ArbTranslationBuilderMixin {
 /// The factory constructor will deliver the proper ArbTranslationBuilder sublass implementation.
 /// It is expected that provided implementatios of ArbDefinition ArbTranslation do match.
 abstract class ArbTranslationBuilder<D extends ArbDefinition, T extends ArbTranslation>
-    extends ArbBuilder with ArbTranslationBuilderMixin {
+    extends ArbTranslationBuilderBase<D> {
   /// Constructor
   ArbTranslationBuilder({
-    required this.displayOption,
-    required this.definition,
+    required super.displayOption,
+    required super.definition,
     required this.translation,
   });
 
@@ -74,17 +90,8 @@ abstract class ArbTranslationBuilder<D extends ArbDefinition, T extends ArbTrans
     );
   }
 
-  /// Current display option ([DisplayOption.compact] or [DisplayOption.expanded]).
-  final DisplayOption displayOption;
-
-  /// Arb definition (final)
-  final D definition;
-
   /// Arb translation may be updated during the lifetime of this builder.
   T translation;
-
-  /// API for sublasses to display a descriptor to present the translation in a tile.
-  Widget descriptorWidget();
 
   /// Options are only meaninful for [ArbPluralTranslation] and [ArbSelectTranslation].
   List<Widget> optionsWidgets() => [];
@@ -276,10 +283,10 @@ class ArbSelectTranslationBuilder
       child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
 
   @override
-  List<Widget> tileIcons() {
+  List<Widget> tileLeadingIcons() {
     if (hasMissingCases) {
       return [
-        ...super.tileIcons(),
+        ...super.tileLeadingIcons(),
         const Tooltip(
           triggerMode: TooltipTriggerMode.tap,
           message: 'Missing select cases.',
@@ -287,7 +294,7 @@ class ArbSelectTranslationBuilder
         ),
       ];
     }
-    return super.tileIcons();
+    return super.tileLeadingIcons();
   }
 
   bool get hasMissingCases => missingCases(onlyDetect: true).isNotEmpty;

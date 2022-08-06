@@ -50,7 +50,9 @@ abstract class TranslationWidget<D extends ArbDefinition, T extends ArbTranslati
   }) {
     if (current == null) {
       return MissingTranslationTile(
+        displayOption: displayOption,
         locale: locale,
+        definition: originalDefinition,
         onEdit: () {
           final empty = originalDefinition.map(
             placeholders: (def) => ArbTranslation.placeholders(locale: locale, key: def.key),
@@ -165,7 +167,7 @@ class PlaceholdersTranslationWidget
       displayOption: displayOption,
       locale: locale,
       definition: currentOrOriginalDefinition,
-      current: current as ArbPlaceholdersTranslation,
+      current: current as ArbPlaceholdersTranslation?,
       beingEdited: beingEdited as ArbPlaceholdersTranslation,
       onUpdate: (value) => _updateBeingEdited(read, value),
       onSaveChanges: (value) => _saveChanges(read, value),
@@ -212,7 +214,7 @@ class PluralTranslationWidget extends TranslationWidget<ArbPluralDefinition, Arb
       displayOption: displayOption,
       locale: locale,
       definition: currentOrOriginalDefinition,
-      current: current as ArbPluralTranslation,
+      current: current as ArbPluralTranslation?,
       beingEdited: beingEdited as ArbPluralTranslation,
       onUpdate: (value) => _updateBeingEdited(read, value),
       onSaveChanges: (value) => _saveChanges(read, value),
@@ -271,7 +273,7 @@ class SelectTranslationWidget extends TranslationWidget<ArbSelectDefinition, Arb
       displayOption: displayOption,
       locale: locale,
       definition: currentOrOriginalDefinition,
-      current: current as ArbSelectTranslation,
+      current: current as ArbSelectTranslation?,
       beingEdited: beingEdited as ArbSelectTranslation,
       knownCases: knownCasesController.state,
       onUpdate: (value) => _updateBeingEdited(read, value),
