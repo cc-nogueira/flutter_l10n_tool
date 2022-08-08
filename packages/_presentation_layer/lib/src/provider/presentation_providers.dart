@@ -27,8 +27,9 @@ final themeProvider = Provider((ref) {
 
 /// Locales filter provider
 final localesFilterProvider = StateProvider((ref) {
-  final localesCount = ref.read(projectProvider).translations.keys.length;
-  return List.filled(localesCount, false);
+  final isReady = ref.watch(projectProvider.select((project) => project.isReady));
+  final count = isReady ? ref.read(projectProvider).translations.length : 0;
+  return List.filled(count, false);
 });
 
 /// Navigation rail/drawer

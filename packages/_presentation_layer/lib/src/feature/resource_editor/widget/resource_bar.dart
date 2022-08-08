@@ -150,14 +150,16 @@ class _LocaleOptions extends StatelessWidget {
   }
 
   void onLocalesFilterPressed(Reader read, [int? idx]) {
-    read(localesFilterProvider.notifier).update(
+    final localesFilterNotifier = read(localesFilterProvider.notifier);
+    final noneSelected = !localesFilterNotifier.state.any((value) => value);
+    localesFilterNotifier.update(
       (state) => [
         for (int i = 0; i < state.length; ++i)
           idx == null
               ? false
               : i == idx
                   ? !state[i]
-                  : state[i],
+                  : noneSelected && i == 0 || state[i],
       ],
     );
   }
