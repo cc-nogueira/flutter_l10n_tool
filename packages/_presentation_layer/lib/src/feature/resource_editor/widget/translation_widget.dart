@@ -91,7 +91,7 @@ abstract class TranslationWidget<D extends ArbDefinition, T extends ArbTranslati
         margin: const EdgeInsets.only(top: 12.0),
         child: DottedBorder(
           padding: const EdgeInsets.all(8.0),
-          color: colors.error,
+          color: Colors.amberAccent,
           child: child,
         ),
       );

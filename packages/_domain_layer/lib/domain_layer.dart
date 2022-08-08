@@ -4,6 +4,7 @@ export 'src/entity/arb/arb_locale_translations.dart';
 export 'src/entity/arb/arb_placeholder.dart';
 export 'src/entity/arb/arb_template.dart';
 export 'src/entity/arb/arb_translation.dart';
+export 'src/entity/arb/arb_warning.dart';
 export 'src/entity/entity.dart';
 export 'src/entity/preferences/display_option.dart';
 export 'src/entity/preferences/preference.dart';

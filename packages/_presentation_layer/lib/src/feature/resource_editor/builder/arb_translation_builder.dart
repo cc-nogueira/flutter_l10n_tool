@@ -43,9 +43,24 @@ abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBui
 class ArbMissingTranslationBuilder extends ArbTranslationBuilderBase<ArbDefinition> {
   ArbMissingTranslationBuilder({required super.displayOption, required super.definition});
 
+  static const missingTranslationIcon = SizedBox(
+      width: ArbBuilder.leadingSize,
+      height: ArbBuilder.leadingSize,
+      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
+
+  @override
+  List<Widget> tileLeadingIcons() {
+    return const [
+      IconTheme(
+        data: IconThemeData(color: Colors.amberAccent),
+        child: ArbTranslationBuilderBase.tileIcon,
+      )
+    ];
+  }
+
   @override
   Widget descriptorWidget() =>
-      Text('Missing translation', style: textTheme.bodyMedium!.copyWith(color: colors.error));
+      Text('Missing translation', style: textTheme.bodyMedium!.copyWith(color: Colors.amberAccent));
 }
 
 /// Translation builders are usually instantiated with this class factory constructor.

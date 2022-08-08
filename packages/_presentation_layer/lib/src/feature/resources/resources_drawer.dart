@@ -97,7 +97,7 @@ class ResourcesDrawer extends NavigationDrawer {
     required EditionsState<ArbDefinition, ArbDefinition> beingEditedDefinitions,
     required EditionsOneToMapState<ArbDefinition, String, ArbTranslation> currentTranslations,
     required EditionsOneToManyState<ArbDefinition, String> beingEditedTranslations,
-    required EditionsOneToManyState<ArbDefinition, WarningType> warnings,
+    required EditionsOneToManyState<ArbDefinition, ArbWarning> warnings,
     required List<bool> selectedFilters,
   }) {
     final filters = [

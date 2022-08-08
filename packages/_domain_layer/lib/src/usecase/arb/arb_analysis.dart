@@ -4,16 +4,13 @@ import 'package:riverpod/riverpod.dart';
 import '../../entity/arb/arb_definition.dart';
 import '../../entity/arb/arb_locale_translations.dart';
 import '../../entity/arb/arb_translation.dart';
+import '../../entity/arb/arb_warning.dart';
 import '../../entity/project/project.dart';
 import '../project/project_usecase.dart';
 import 'arb_usecase.dart';
 
-typedef WarningState = EditionsOneToManyState<ArbDefinition, WarningType>;
-typedef WarningsNotifier = EditionsOneToManyNotifier<ArbDefinition, WarningType>;
-
-enum WarningType {
-  translationMissingSelectCases,
-}
+typedef WarningState = EditionsOneToManyState<ArbDefinition, ArbWarning>;
+typedef WarningsNotifier = EditionsOneToManyNotifier<ArbDefinition, ArbWarning>;
 
 class ArbAnalysis {
   ArbAnalysis(this.read);
@@ -29,22 +26,20 @@ class ArbAnalysis {
   }
 
   void updataTranslationsAnalysis(ArbDefinition definition) {
-    if (definition is ArbSelectDefinition) {
-      final projectTranslations = read(projectProvider).translations.values;
-      final currentTranslations = read(currentTranslationsProvider);
-      final translations =
-          _definitionTranslations(definition, projectTranslations, currentTranslations);
-      _updateSelectDefinitionCasesAndWarnings(definition, translations);
-    }
+    final project = read(projectProvider);
+    final locales = project.translations.keys;
+    final projectTrans = project.translations.values;
+    final currentTrans = read(currentTranslationsProvider);
+    final translations = _definitionTranslations(definition, projectTrans, currentTrans);
+    _updateResourceWarnings(locales, definition, translations);
   }
 
   void _initSelectCases(Project project) {
+    final locales = project.translations.keys;
     final allTranslations = project.translations.values;
     for (final definition in project.template.definitions) {
-      if (definition is ArbSelectDefinition) {
-        final translations = _definitionTranslations(definition, allTranslations);
-        _updateSelectDefinitionCasesAndWarnings(definition, translations);
-      }
+      final translations = _definitionTranslations(definition, allTranslations);
+      _updateResourceWarnings(locales, definition, translations);
     }
   }
 
@@ -69,6 +64,35 @@ class ArbAnalysis {
     return translations;
   }
 
+  void _updateResourceWarnings(
+    Iterable<String> locales,
+    ArbDefinition definition,
+    List<ArbTranslation> translations,
+  ) {
+    _updateMissingTranslationWarnings(locales, definition, translations);
+    if (definition is ArbSelectDefinition) {
+      _updateSelectDefinitionCasesAndWarnings(definition, translations);
+    }
+  }
+
+  void _updateMissingTranslationWarnings(
+    Iterable<String> locales,
+    ArbDefinition definition,
+    List<ArbTranslation> translations,
+  ) {
+    final missingLocales = Set<String>.from(locales);
+    for (final translation in translations) {
+      final locale = translation.locale;
+      final warn = ArbWarning(locale: locale, type: ArbWarningType.missingTranslation);
+      missingLocales.remove(locale);
+      _warningsNotifier().remove(definition, warn);
+    }
+    for (final locale in missingLocales) {
+      final warn = ArbWarning(locale: locale, type: ArbWarningType.missingTranslation);
+      _warningsNotifier().add(definition, warn);
+    }
+  }
+
   void _updateSelectDefinitionCasesAndWarnings(
     ArbSelectDefinition definition,
     List<ArbTranslation> translations,
@@ -82,19 +106,18 @@ class ArbAnalysis {
       }
     }
     knownCasesPerSelectDefinition[definition.key] = cases;
-    var hasWarning = false;
     for (final translation in translations) {
       if (translation is ArbSelectTranslation) {
+        final warn = ArbWarning(
+          locale: translation.locale,
+          type: ArbWarningType.translationMissingSelectCases,
+        );
         if (translation.options.length < cases.length) {
-          hasWarning = true;
-          break;
+          _warningsNotifier().add(definition, warn);
+        } else {
+          _warningsNotifier().remove(definition, warn);
         }
       }
-    }
-    if (hasWarning) {
-      _warningsNotifier().add(definition, WarningType.translationMissingSelectCases);
-    } else {
-      _warningsNotifier().remove(definition, WarningType.translationMissingSelectCases);
     }
   }
 
