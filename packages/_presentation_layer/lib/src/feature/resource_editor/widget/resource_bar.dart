@@ -63,14 +63,15 @@ class _ResourceDisplayOptions extends StatelessWidget {
     MainAxisAlignment align,
     DisplayOption option,
   ) {
+    final selected = currentOption == option;
     return segmentedTextButton(
         align: align,
         colors: theme.colorScheme,
         text: option.text(loc),
-        style: style(theme.textTheme, option),
+        style: _style(theme.textTheme, selected),
         minimumSize: const Size(0, 36),
         onPressed: () => _onDisplayOptionPressed(option),
-        selected: currentOption == option);
+        selected: selected);
   }
 
   void _onDisplayOptionPressed(DisplayOption option) {
@@ -79,11 +80,8 @@ class _ResourceDisplayOptions extends StatelessWidget {
     }
   }
 
-  TextStyle? style(TextTheme theme, DisplayOption option) {
-    return currentOption == option
-        ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w500)
-        : theme.bodySmall;
-  }
+  TextStyle? _style(TextTheme theme, bool selected) =>
+      selected ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w500) : theme.bodySmall;
 }
 
 class LocaleOptions extends ConsumerWidget {
@@ -117,24 +115,26 @@ class _LocaleOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final colors = Theme.of(context).colorScheme;
     return Row(children: [
-      ..._localeButtons(colors),
+      ..._localeButtons(textTheme, colors),
       clearFiltersButton(colors, () => onLocalesFilterPressed(read)),
     ]);
   }
 
-  List<Widget> _localeButtons(ColorScheme colors) {
+  List<Widget> _localeButtons(TextTheme theme, ColorScheme colors) {
     final length = locales.length;
     if (length < 6) {
       return <Widget>[
         for (int idx = 0; idx < locales.length; ++idx)
           segmentedTextButton(
             colors: colors,
-            selectedColor: Colors.white,
             minimumSize: const Size(0, 36),
             showSelectedMark: showSelectedMark,
             noSplash: true,
+            style: _style(theme, selectedLocaleFilters[idx]),
             align: idx == 0
                 ? MainAxisAlignment.start
                 : idx == length - 1
@@ -163,4 +163,7 @@ class _LocaleOptions extends StatelessWidget {
       ],
     );
   }
+
+  TextStyle? _style(TextTheme theme, bool selected) =>
+      selected ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w600) : theme.bodySmall;
 }

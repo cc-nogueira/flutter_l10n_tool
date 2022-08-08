@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/message_widget.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../provider/presentation_providers.dart';
 import '../widget/definition_widget.dart';
 import '../widget/resource_bar.dart';
 import '../widget/translation_widget.dart';
@@ -44,8 +45,8 @@ abstract class _ResourcePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDefinition =
         ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition]));
-    final project = ref.watch(projectProvider);
-    final translations = project.translations.values.toList();
+    final selectedTranslations = ref.watch(selectedLocaleTranslationsProvider);
+    //final translations = ref.watch(projectProvider).translations.values.toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -56,8 +57,8 @@ abstract class _ResourcePage extends ConsumerWidget {
             child: ListView.builder(
               shrinkWrap: false,
               itemBuilder: (_, idx) =>
-                  _itemBuilder(originalDefinition, currentDefinition, translations[idx]),
-              itemCount: translations.length,
+                  _itemBuilder(originalDefinition, currentDefinition, selectedTranslations[idx]),
+              itemCount: selectedTranslations.length,
             ),
           ),
         ],

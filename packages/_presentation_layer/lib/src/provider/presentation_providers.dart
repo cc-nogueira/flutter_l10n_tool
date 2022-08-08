@@ -32,6 +32,25 @@ final localesFilterProvider = StateProvider((ref) {
   return List.filled(count, false);
 });
 
+final selectedLocalesProvider = Provider((ref) {
+  final locales = ref.read(projectProvider).translations.keys.toList();
+  final filters = ref.watch(localesFilterProvider);
+  assert(filters.length == locales.length);
+  final noneSelected = !filters.any((value) => value);
+  return [
+    for (int i = 0; i < filters.length; ++i)
+      if (noneSelected || filters[i]) locales[i]
+  ];
+});
+
+final selectedLocaleTranslationsProvider = Provider((ref) {
+  final selectedLocales = ref.watch(selectedLocalesProvider);
+  final translations = ref.read(projectProvider).translations;
+  return [
+    for (final locale in selectedLocales) translations[locale]!,
+  ];
+});
+
 /// Navigation rail/drawer
 final activeNavigationProvider =
     StateProvider<NavigationDrawerOption?>((_) => NavigationDrawerTopOption.projectSelector);
