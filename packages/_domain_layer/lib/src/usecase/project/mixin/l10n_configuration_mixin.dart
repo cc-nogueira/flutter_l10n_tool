@@ -25,6 +25,7 @@ class L10nConfigurationMixin {
         outputDir: yaml['output-dir'] ?? '',
         outputLocalizationFile: yaml['output-localization-file'] ?? '',
         outputClass: yaml['output-class'] ?? '',
+        untranslatedMessagesFile: yaml['untranslated-messages-file'],
         header: yaml['header'] ?? '',
         requiredResourceAttributes: yaml['required-resource-attributes'] ??
             L10nConfiguration.defaultRequiredResourceAttributes,

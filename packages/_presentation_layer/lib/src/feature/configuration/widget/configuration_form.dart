@@ -44,6 +44,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
   late final TextEditingController _templateArbFileTextController;
   late final TextEditingController _outputLocalizationFileTextController;
   late final TextEditingController _outputClassTextController;
+  late final TextEditingController _untranslatedMessagesFileTextController;
   late final TextEditingController _headerTextController;
 
   final FocusNode _arbDirFocus = FocusNode();
@@ -54,6 +55,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
   final FocusNode _outputLocalizationFocus = FocusNode();
   final FocusNode _outputClassFocus = FocusNode();
   final FocusNode _nullableGetterFocus = FocusNode();
+  final FocusNode _untranslatedMessagesFileFocus = FocusNode();
   final FocusNode _headerFocus = FocusNode();
 
   @override
@@ -66,6 +68,8 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
     _outputLocalizationFileTextController =
         TextEditingController(text: widget.configuration.outputLocalizationFile);
     _outputClassTextController = TextEditingController(text: widget.configuration.outputClass);
+    _untranslatedMessagesFileTextController =
+        TextEditingController(text: widget.configuration.untranslatedMessagesFile);
     _headerTextController = TextEditingController(text: widget.configuration.header);
   }
 
@@ -81,6 +85,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
     _templateArbFileTextController.text = widget.configuration.templateArbFile;
     _outputLocalizationFileTextController.text = widget.configuration.outputLocalizationFile;
     _outputClassTextController.text = widget.configuration.outputClass;
+    _untranslatedMessagesFileTextController.text = widget.configuration.untranslatedMessagesFile;
     _headerTextController.text = widget.configuration.header;
     setState(() {});
   }
@@ -92,6 +97,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
     _outputDirTextController.dispose();
     _outputLocalizationFileTextController.dispose();
     _outputClassTextController.dispose();
+    _untranslatedMessagesFileTextController.dispose();
     _headerTextController.dispose();
     _arbDirFocus.dispose();
     _templateArbFileFocus.dispose();
@@ -101,6 +107,7 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
     _outputLocalizationFocus.dispose();
     _outputClassFocus.dispose();
     _nullableGetterFocus.dispose();
+    _untranslatedMessagesFileFocus.dispose();
     _headerFocus.dispose();
     super.dispose();
   }
@@ -244,6 +251,20 @@ class _ConfigurationFormState extends State<_ConfigurationForm> with TextFormFie
                 .update((state) => state.copyWith(nullableGetter: value ?? true)),
           ),
           focusNode: _nullableGetterFocus,
+        ),
+        FormMixin.verticalSeparator,
+        textField(
+          context: context,
+          label: 'untranslated messages file',
+          hintText: L10nConfiguration.defaultUntranslatedMessagesFile,
+          textController: _untranslatedMessagesFileTextController,
+          focusNode: _untranslatedMessagesFileFocus,
+          nextFocus: _headerFocus,
+          originalText: widget.currentConfiguration.untranslatedMessagesFile,
+          onChanged: (value) => setState(
+            () => widget.configurationController
+                .update((state) => state.copyWith(untranslatedMessagesFile: value)),
+          ),
         ),
         FormMixin.verticalSeparator,
         textField(

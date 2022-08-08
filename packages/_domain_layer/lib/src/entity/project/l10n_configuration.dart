@@ -21,6 +21,7 @@ class L10nConfiguration with _$L10nConfiguration {
     @Default('') String templateArbFile,
     @Default('') String outputLocalizationFile,
     @Default('') String outputClass,
+    @Default('') String untranslatedMessagesFile,
     @Default('') String header,
     @Default(L10nConfiguration.defaultRequiredResourceAttributes) bool requiredResourceAttributes,
     @Default(L10nConfiguration.defaultNullableGetter) bool nullableGetter,
@@ -47,6 +48,7 @@ class L10nConfiguration with _$L10nConfiguration {
   static const defaultTemplateArbFile = 'app_en.arb';
   static const defaultOutputLocalizationFile = 'app_localizations.dart';
   static const defaultOutputClass = 'AppLocalizations';
+  static const defaultUntranslatedMessagesFile = '';
   static const defaultHeader = '';
 
   // All recommmended values:
@@ -63,6 +65,7 @@ class L10nConfiguration with _$L10nConfiguration {
   String get effectiveOutputLocalizationFile =>
       outputLocalizationFile.ifEmpty(defaultOutputLocalizationFile);
   String get effectiveOutputClass => outputClass.ifEmpty(defaultOutputClass);
+  String get effective => untranslatedMessagesFile.ifEmpty(defaultUntranslatedMessagesFile);
   String get effectiveHeader => header.ifEmpty(defaultHeader);
 
   /// Test if the current configuration is equivalent to the default configuration
@@ -74,6 +77,8 @@ class L10nConfiguration with _$L10nConfiguration {
       (templateArbFile.isEmpty || templateArbFile == defaultTemplateArbFile) &&
       (outputLocalizationFile.isEmpty || outputLocalizationFile == defaultOutputLocalizationFile) &&
       (outputClass.isEmpty || outputClass == defaultOutputClass) &&
+      (untranslatedMessagesFile.isEmpty ||
+          untranslatedMessagesFile == defaultUntranslatedMessagesFile) &&
       (header.isEmpty || header == defaultHeader) &&
       (requiredResourceAttributes == defaultRequiredResourceAttributes) &&
       (nullableGetter == defaultNullableGetter);
@@ -89,6 +94,8 @@ class L10nConfiguration with _$L10nConfiguration {
       (templateArbFile.isEmpty || templateArbFile == defaultTemplateArbFile) &&
       (outputLocalizationFile.isEmpty || outputLocalizationFile == defaultOutputLocalizationFile) &&
       (outputClass.isEmpty || outputClass == defaultOutputClass) &&
+      (untranslatedMessagesFile.isEmpty ||
+          untranslatedMessagesFile == defaultUntranslatedMessagesFile) &&
       (requiredResourceAttributes == defaultRequiredResourceAttributes);
 
   /// Test if the current configuration is a custom configuration (neither default nor recommended).
