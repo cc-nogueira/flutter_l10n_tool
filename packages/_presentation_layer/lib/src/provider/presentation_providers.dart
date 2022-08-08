@@ -16,13 +16,19 @@ final darkThemeProvider = Provider((ref) => ref.watch(themeBuilderProvider).dark
 /// light theme
 final lightThemeProvider = Provider((ref) => ref.watch(themeBuilderProvider).lightTheme);
 
-/// theme provider based on mode preference.
+/// theme provider based on mode preference
 final themeProvider = Provider((ref) {
   final mode = ref.watch(themeModeProvider);
   if (mode == ThemeMode.light) {
     return ref.watch(lightThemeProvider);
   }
   return ref.watch(darkThemeProvider);
+});
+
+/// Locales filter provider
+final localesFilterProvider = StateProvider((ref) {
+  final localesCount = ref.read(projectProvider).translations.keys.length;
+  return List.filled(localesCount, false);
 });
 
 /// Navigation rail/drawer

@@ -26,7 +26,12 @@ class ResourcePage extends ConsumerWidget {
   }
 
   Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
-    return const MessageWidget('No resource selected');
+    return Column(
+      children: const [
+        ResourceBar(),
+        Expanded(child: MessageWidget('No resource selected')),
+      ],
+    );
   }
 }
 

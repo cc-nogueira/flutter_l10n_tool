@@ -37,7 +37,7 @@ class ResourcesDrawer extends NavigationDrawer {
         segmentedButton(
           colors: colors,
           align: MainAxisAlignment.start,
-          minimumSize: const Size(0, 32),
+          minimumSize: const Size(0, 36),
           showSelectedMark: false,
           noSplash: true,
           selectedColor: Colors.white,
@@ -48,7 +48,7 @@ class ResourcesDrawer extends NavigationDrawer {
         segmentedButton(
           colors: colors,
           align: MainAxisAlignment.center,
-          minimumSize: const Size(0, 32),
+          minimumSize: const Size(0, 36),
           showSelectedMark: false,
           selectedColor: Colors.white,
           noSplash: true,
@@ -59,7 +59,7 @@ class ResourcesDrawer extends NavigationDrawer {
         segmentedButton(
           colors: colors,
           align: MainAxisAlignment.end,
-          minimumSize: const Size(0, 32),
+          minimumSize: const Size(0, 36),
           showSelectedMark: false,
           selectedColor: Colors.amberAccent,
           noSplash: true,
@@ -67,12 +67,7 @@ class ResourcesDrawer extends NavigationDrawer {
           child: const Icon(Icons.warning_amber, size: 16),
           onPressed: () => _onFilterPressed(ref.read, 2),
         ),
-        IconButton(
-          icon: const Icon(Icons.backspace_outlined, size: 20),
-          onPressed: () => _onFilterPressed(ref.read),
-          splashRadius: 20,
-          color: colors.secondary,
-        ),
+        clearFiltersButton(colors, () => _onFilterPressed(ref.read)),
       ],
     );
   }
@@ -144,31 +139,35 @@ class ResourcesDrawer extends NavigationDrawer {
 
     return [
       Expanded(
-        child: ListTileTheme(
-          style: ListTileStyle.drawer,
-          child: FocusTraversalGroup(
-            child: ListView.builder(
-              primary: false,
-              itemCount: definitions.length,
-              itemBuilder: (ctx, index) {
-                final definition = definitions[index];
-                final current = currentDefinitions[definition];
-                final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
-                    beingEditedDefinitions.containsKey(definition);
-                final hasModifiedTranslations = currentTranslations.containsKey(definition);
-                final hasWarnings = warnings[definition] != null;
-                return _itemBuilder(
-                  ctx,
-                  ref.read,
-                  colors,
-                  definition,
-                  current: current,
-                  isBeingEdited: isBeingEdited,
-                  isSelected: definition == selected,
-                  isModified: current != null || hasModifiedTranslations,
-                  hasWarnings: hasWarnings,
-                );
-              },
+        child: Container(
+          decoration: const BoxDecoration(color: Colors.black12),
+          margin: const EdgeInsets.only(bottom: 8.0),
+          child: ListTileTheme(
+            style: ListTileStyle.drawer,
+            child: FocusTraversalGroup(
+              child: ListView.builder(
+                primary: false,
+                itemCount: definitions.length,
+                itemBuilder: (ctx, index) {
+                  final definition = definitions[index];
+                  final current = currentDefinitions[definition];
+                  final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
+                      beingEditedDefinitions.containsKey(definition);
+                  final hasModifiedTranslations = currentTranslations.containsKey(definition);
+                  final hasWarnings = warnings[definition] != null;
+                  return _itemBuilder(
+                    ctx,
+                    ref.read,
+                    colors,
+                    definition,
+                    current: current,
+                    isBeingEdited: isBeingEdited,
+                    isSelected: definition == selected,
+                    isModified: current != null || hasModifiedTranslations,
+                    hasWarnings: hasWarnings,
+                  );
+                },
+              ),
             ),
           ),
         ),

@@ -33,9 +33,6 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
   /// Option color from the project color scheme.
   @override
   Color color(ColorScheme colors) {
-    if (this == NavigationDrawerTopOption.resources) {
-      return colors.surface;
-    }
     if (this == NavigationDrawerTopOption.projectSelector) {
       return colors.primaryContainer;
     }
@@ -44,6 +41,9 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
     }
     if (this == NavigationDrawerTopOption.preferences) {
       return colors.onSecondary;
+    }
+    if (this == NavigationDrawerTopOption.resources) {
+      return colors.onPrimary;
     }
     return colors.surface;
   }

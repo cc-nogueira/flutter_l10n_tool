@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/buttons.dart';
+import '../../../common/widget/form_mixin.dart';
+import '../../../provider/presentation_providers.dart';
 
 class ResourceBar extends StatelessWidget {
   const ResourceBar({super.key});
@@ -13,6 +15,8 @@ class ResourceBar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(children: const [
         ResourceDisplayOptions(),
+        FormMixin.horizontalSeparator,
+        LocaleOptions(showSelectedMark: true),
       ]),
     );
   }
@@ -47,13 +51,13 @@ class _ResourceDisplayOptions extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        _button(loc, theme, MainAxisAlignment.start, DisplayOption.compact),
-        _button(loc, theme, MainAxisAlignment.end, DisplayOption.expanded),
+        _displayOptionButton(loc, theme, MainAxisAlignment.start, DisplayOption.compact),
+        _displayOptionButton(loc, theme, MainAxisAlignment.end, DisplayOption.expanded),
       ],
     );
   }
 
-  Widget _button(
+  Widget _displayOptionButton(
     DomainLocalizations loc,
     ThemeData theme,
     MainAxisAlignment align,
@@ -65,11 +69,11 @@ class _ResourceDisplayOptions extends StatelessWidget {
         text: option.text(loc),
         style: style(theme.textTheme, option),
         minimumSize: const Size(0, 36),
-        onPressed: () => _onPressed(option),
+        onPressed: () => _onDisplayOptionPressed(option),
         selected: currentOption == option);
   }
 
-  void _onPressed(DisplayOption option) {
+  void _onDisplayOptionPressed(DisplayOption option) {
     if (currentOption != option) {
       onChanged(option);
     }
@@ -79,5 +83,82 @@ class _ResourceDisplayOptions extends StatelessWidget {
     return currentOption == option
         ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w500)
         : theme.bodySmall;
+  }
+}
+
+class LocaleOptions extends ConsumerWidget {
+  const LocaleOptions({super.key, required this.showSelectedMark});
+
+  final bool showSelectedMark;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locales = ref.watch(projectProvider).translations.keys.toList();
+    final selectedLocales = ref.watch(localesFilterProvider);
+    if (locales.length < 2) {
+      return Container();
+    }
+    return _LocaleOptions(ref.read, locales, selectedLocales, showSelectedMark: showSelectedMark);
+  }
+}
+
+class _LocaleOptions extends StatelessWidget {
+  const _LocaleOptions(
+    this.read,
+    this.locales,
+    this.selectedLocaleFilters, {
+    required this.showSelectedMark,
+  });
+
+  final Reader read;
+  final List<String> locales;
+  final List<bool> selectedLocaleFilters;
+  final bool showSelectedMark;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(children: [
+      ..._localeButtons(colors),
+      clearFiltersButton(colors, () => onLocalesFilterPressed(read)),
+    ]);
+  }
+
+  List<Widget> _localeButtons(ColorScheme colors) {
+    final length = locales.length;
+    if (length < 6) {
+      return <Widget>[
+        for (int idx = 0; idx < locales.length; ++idx)
+          segmentedTextButton(
+            colors: colors,
+            selectedColor: Colors.white,
+            minimumSize: const Size(0, 36),
+            showSelectedMark: showSelectedMark,
+            noSplash: true,
+            align: idx == 0
+                ? MainAxisAlignment.start
+                : idx == length - 1
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.center,
+            selected: selectedLocaleFilters[idx],
+            text: locales[idx],
+            onPressed: () => onLocalesFilterPressed(read, idx),
+          ),
+      ];
+    }
+    return [];
+  }
+
+  void onLocalesFilterPressed(Reader read, [int? idx]) {
+    read(localesFilterProvider.notifier).update(
+      (state) => [
+        for (int i = 0; i < state.length; ++i)
+          idx == null
+              ? false
+              : i == idx
+                  ? !state[i]
+                  : state[i],
+      ],
+    );
   }
 }

@@ -93,19 +93,24 @@ OutlinedButton segmentedTextButton({
   Color? color,
   Color? selectedBackgroundColor,
   Color? selectedColor,
+  bool showSelectedMark = true,
+  bool noSplash = false,
 }) {
   return segmentedButton(
-      colors: colors,
-      align: align,
-      child: Text(text, style: style),
-      checkSize: checkSize,
-      minimumSize: minimumSize,
-      onPressed: onPressed,
-      selected: selected,
-      backgroundColor: backgroundColor,
-      color: color,
-      selectedBackgroundColor: selectedBackgroundColor,
-      selectedColor: selectedColor);
+    colors: colors,
+    align: align,
+    child: Text(text, style: style),
+    checkSize: checkSize,
+    minimumSize: minimumSize,
+    onPressed: onPressed,
+    selected: selected,
+    backgroundColor: backgroundColor,
+    color: color,
+    selectedBackgroundColor: selectedBackgroundColor,
+    selectedColor: selectedColor,
+    showSelectedMark: showSelectedMark,
+    noSplash: noSplash,
+  );
 }
 
 OutlinedButton segmentedButton({
@@ -314,3 +319,10 @@ ElevatedButton filledTonalButton({
     child: child,
   );
 }
+
+Widget clearFiltersButton(ColorScheme colors, VoidCallback onPressed) => IconButton(
+      icon: const Icon(Icons.backspace_outlined, size: 20),
+      onPressed: onPressed,
+      splashRadius: 20,
+      color: colors.secondary,
+    );
