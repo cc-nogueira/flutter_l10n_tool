@@ -103,6 +103,7 @@ mixin ArbTemplateMixin on ArbMixin {
         continue;
       }
       final translation = definition.map(
+        newDefinition: (def) => null,
         placeholders: (def) {
           final placeholderNames = arbTranslationPlaceholderNames(entry.value);
           return ArbTranslation.placeholders(
@@ -145,7 +146,9 @@ mixin ArbTemplateMixin on ArbMixin {
           );
         },
       );
-      translations[entry.key] = translation;
+      if (translation != null) {
+        translations[entry.key] = translation;
+      }
     }
     return ArbLocaleTranslations(locale: locale, translations: translations);
   }

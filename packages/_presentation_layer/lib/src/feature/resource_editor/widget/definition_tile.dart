@@ -98,6 +98,17 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
   }
 }
 
+class NewDefinitionTile extends DefinitionTile<ArbNewDefinition> {
+  NewDefinitionTile({
+    super.key,
+    required super.displayOption,
+    required super.definition,
+    required super.isOriginal,
+    required super.onEdit,
+    required super.onRollback,
+  });
+}
+
 class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinition> {
   PlaceholdersDefinitionTile({
     super.key,

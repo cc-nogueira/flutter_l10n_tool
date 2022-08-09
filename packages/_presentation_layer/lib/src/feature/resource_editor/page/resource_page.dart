@@ -17,13 +17,12 @@ class ResourcePage extends ConsumerWidget {
     final originalDefinition = ref.watch(selectedDefinitionProvider);
     if (originalDefinition == null) {
       final loc = AppLocalizations.of(context);
-      return Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc));
+      return Scaffold(
+        body: Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc)),
+        floatingActionButton: FloatingActionButton(child: const Icon(Icons.add), onPressed: () {}),
+      );
     }
-    return originalDefinition.map(
-      placeholders: (def) => _PlaceholdersResourcePage(def),
-      plural: (def) => _PluralResourcePage(def),
-      select: (def) => _SelectResourcePage(def),
-    );
+    return _ResourcePage(originalDefinition);
   }
 
   Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
@@ -37,38 +36,42 @@ class ResourcePage extends ConsumerWidget {
   }
 }
 
-abstract class _ResourcePage extends ConsumerWidget {
-  const _ResourcePage();
+class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
+  const _ResourcePage(this.originalDefinition);
 
-  ArbDefinition get originalDefinition;
+  final D originalDefinition;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDefinition =
         ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition]));
     final selectedTranslations = ref.watch(selectedLocaleTranslationsProvider);
-    //final translations = ref.watch(projectProvider).translations.values.toList();
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ResourceBar(),
-          definitionWidget(currentDefinition),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: false,
-              itemBuilder: (_, idx) =>
-                  _itemBuilder(originalDefinition, currentDefinition, selectedTranslations[idx]),
-              itemCount: selectedTranslations.length,
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ResourceBar(),
+            definitionWidget(currentDefinition),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.only(bottom: 72),
+                shrinkWrap: false,
+                itemBuilder: (_, idx) =>
+                    _itemBuilder(originalDefinition, currentDefinition, selectedTranslations[idx]),
+                itemCount: selectedTranslations.length,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+      floatingActionButton: FloatingActionButton(child: const Icon(Icons.add), onPressed: () {}),
     );
   }
 
   Widget definitionWidget(ArbDefinition? current) => originalDefinition.map(
+        newDefinition: (original) => NewDefinitionWidget(original: original),
         placeholders: (original) => PlaceholdersDefinitionWidget(
           original: original,
           current: current as ArbPlaceholdersDefinition?,
@@ -89,6 +92,7 @@ abstract class _ResourcePage extends ConsumerWidget {
     ArbLocaleTranslations localeTranslations,
   ) =>
       originalDefinition.map(
+        newDefinition: (original) => Container(),
         placeholders: (original) => PlaceholdersTranslationWidget(
           localeTranslations.locale,
           originalDefinition: original,
@@ -109,25 +113,4 @@ abstract class _ResourcePage extends ConsumerWidget {
             originalTranslation:
                 localeTranslations.translations[originalDefinition.key] as ArbSelectTranslation?),
       );
-}
-
-class _PlaceholdersResourcePage extends _ResourcePage {
-  const _PlaceholdersResourcePage(this.originalDefinition);
-
-  @override
-  final ArbPlaceholdersDefinition originalDefinition;
-}
-
-class _PluralResourcePage extends _ResourcePage {
-  const _PluralResourcePage(this.originalDefinition);
-
-  @override
-  final ArbPluralDefinition originalDefinition;
-}
-
-class _SelectResourcePage extends _ResourcePage {
-  const _SelectResourcePage(this.originalDefinition);
-
-  @override
-  final ArbSelectDefinition originalDefinition;
 }

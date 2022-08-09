@@ -56,6 +56,32 @@ abstract class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget 
   void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
 }
 
+class NewDefinitionWidget extends DefinitionWidget<ArbNewDefinition> {
+  NewDefinitionWidget({required super.original, super.key}) : super(current: null);
+
+  @override
+  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal}) =>
+      NewDefinitionTile(
+        displayOption: displayOption,
+        definition: currentOrOriginal,
+        isOriginal: isOriginal,
+        onEdit: () => _edit(read, currentOrOriginal),
+        onRollback: () => _rollback(read),
+      );
+
+  @override
+  Widget _form(Reader read, DisplayOption displayOption, ArbDefinition definitionBeingEdited) =>
+      NewDefinitionForm(
+        displayOption: displayOption,
+        originalDefinition: original,
+        currentDefinition: currentOrOriginal,
+        definitionBeingEdited: definitionBeingEdited as ArbNewDefinition,
+        onUpdateDefinition: (value) => _updateDefinition(read, value),
+        onSaveChanges: (value) => _saveChanges(read, value),
+        onDiscardChanges: () => _discardChanges(read),
+      );
+}
+
 class PlaceholdersDefinitionWidget extends DefinitionWidget<ArbPlaceholdersDefinition> {
   PlaceholdersDefinitionWidget({required super.original, required super.current, super.key});
 

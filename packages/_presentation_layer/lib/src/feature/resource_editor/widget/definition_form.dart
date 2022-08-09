@@ -29,6 +29,22 @@ abstract class DefinitionForm<T extends ArbDefinition> extends StatefulWidget {
   final VoidCallback onDiscardChanges;
 }
 
+class NewDefinitionForm extends DefinitionForm<ArbNewDefinition> {
+  const NewDefinitionForm({
+    super.key,
+    required super.displayOption,
+    required super.originalDefinition,
+    required super.currentDefinition,
+    required super.definitionBeingEdited,
+    required super.onUpdateDefinition,
+    required super.onSaveChanges,
+    required super.onDiscardChanges,
+  });
+
+  @override
+  State<DefinitionForm<ArbNewDefinition>> createState() => NewDefinitionFormState();
+}
+
 class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinition> {
   const PlaceholdersDefinitionForm({
     super.key,
@@ -182,6 +198,8 @@ abstract class DefinitionFormState<T extends ArbDefinition> extends State<Defini
     });
   }
 }
+
+class NewDefinitionFormState extends DefinitionFormState<ArbNewDefinition> {}
 
 class PlaceholdersDefinitionFormState extends DefinitionFormState<ArbPlaceholdersDefinition> {
   @override

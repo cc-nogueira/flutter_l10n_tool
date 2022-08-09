@@ -6,6 +6,7 @@ import 'arb_placeholder.dart';
 part 'arb_definition.freezed.dart';
 
 enum ArbDefinitionType {
+  newDefinition,
   placeholders,
   plural,
   select;
@@ -30,6 +31,13 @@ mixin ArbDefinitionWithParameter on ArbDefinition {
 @freezed
 class ArbDefinition with _$ArbDefinition {
   const ArbDefinition._();
+
+  @With<ArbKeyMixin>()
+  const factory ArbDefinition.newDefinition({
+    @Default('') String key,
+    String? context,
+    String? description,
+  }) = ArbNewDefinition;
 
   /// ArbPlaceholdersDefinition factory with [ArbKeyMixin].
   ///
@@ -70,6 +78,7 @@ class ArbDefinition with _$ArbDefinition {
   }) = ArbSelectDefinition;
 
   ArbDefinitionType get type => map(
+        newDefinition: (_) => ArbDefinitionType.newDefinition,
         placeholders: (_) => ArbDefinitionType.placeholders,
         plural: (_) => ArbDefinitionType.plural,
         select: (_) => ArbDefinitionType.select,
