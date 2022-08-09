@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:_core_layer/notifiers.dart';
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +10,10 @@ import '../../common/navigation/navigation_drawer_option.dart';
 import '../../common/widget/buttons.dart';
 import '../../common/widget/navigation_drawer.dart';
 import '../../l10n/app_localizations.dart';
+import '../../provider/presentation_providers.dart';
 
-final filterProvider = StateProvider((_) => [false, false, false]);
+final _filterProvider = StateProvider((_) => [false, false, false]);
+final _considerLocalesProvider = StateProvider(((ref) => true));
 
 class ResourcesDrawer extends NavigationDrawer {
   const ResourcesDrawer({super.key}) : super(NavigationDrawerTopOption.resources);
@@ -18,20 +22,45 @@ class ResourcesDrawer extends NavigationDrawer {
   String titleText(AppLocalizations loc) => loc.title_resources_drawer;
 
   @override
+  EdgeInsetsGeometry get headerChildPadding => const EdgeInsets.only(left: 16, right: 4.0);
+
+  @override
   Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+    final colors = Theme.of(context).colorScheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _localeOption(colors, ref),
         _filterButtons(context, ref),
         const SizedBox(height: 4),
       ],
     );
   }
 
+  Widget _localeOption(ColorScheme colors, WidgetRef ref) {
+    final considerLocales = ref.watch(_considerLocalesProvider);
+    final style = considerLocales
+        ? TextStyle(color: colors.onPrimaryContainer)
+        : TextStyle(color: colors.secondary);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox(
+          height: 23,
+          child: FittedBox(child: Text('Analyse only selected locales:', style: style)),
+        ),
+        Switch(
+          value: considerLocales,
+          onChanged: (value) => ref.read(_considerLocalesProvider.notifier).state = value == true,
+        ),
+      ],
+    );
+  }
+
   Widget _filterButtons(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
-    final selectedFilters = ref.watch(filterProvider);
+    final selectedFilters = ref.watch(_filterProvider);
     return Row(
       children: [
         segmentedButton(
@@ -73,7 +102,7 @@ class ResourcesDrawer extends NavigationDrawer {
   }
 
   void _onFilterPressed(Reader read, [int? idx]) {
-    read(filterProvider.notifier).update(
+    read(_filterProvider.notifier).update(
       (state) => [
         for (int i = 0; i < state.length; ++i)
           idx == null
@@ -88,21 +117,21 @@ class ResourcesDrawer extends NavigationDrawer {
   List<ArbDefinition> _filteredDefinitions(
     List<ArbDefinition> definitions, {
     required ArbDefinition? selected,
+    required List<String> locales,
+    required List<bool> selectedFilters,
     required EditionsState<ArbDefinition, ArbDefinition> currentDefinitions,
     required EditionsState<ArbDefinition, ArbDefinition> beingEditedDefinitions,
     required EditionsOneToMapState<ArbDefinition, String, ArbTranslation> currentTranslations,
     required EditionsOneToManyState<ArbDefinition, String> beingEditedTranslations,
     required EditionsOneToManyState<ArbDefinition, ArbWarning> warnings,
-    required List<bool> selectedFilters,
   }) {
     final filters = [
       if (selectedFilters[0])
         (ArbDefinition def) =>
-            beingEditedTranslations.containsKey(def) || beingEditedDefinitions.containsKey(def),
+            _isBeingEdited(locales, beingEditedDefinitions, beingEditedTranslations, def),
       if (selectedFilters[1])
-        (ArbDefinition def) =>
-            currentDefinitions.containsKey(def) || currentTranslations.containsKey(def),
-      if (selectedFilters[2]) (ArbDefinition def) => warnings.containsKey(def),
+        (ArbDefinition def) => _isModified(locales, currentDefinitions, currentTranslations, def),
+      if (selectedFilters[2]) (ArbDefinition def) => _hasWarnings(locales, warnings, def),
     ];
     if (filters.isEmpty) {
       return definitions;
@@ -118,6 +147,9 @@ class ResourcesDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
     final project = ref.watch(projectProvider);
 
+    final considerLocales = ref.watch(_considerLocalesProvider);
+    final localesToAnalyse =
+        considerLocales ? ref.watch(selectedLocalesProvider) : ref.watch(allLocalesProvider);
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final currentTranslations = ref.watch(currentTranslationsProvider);
     final beingEditedTranslations = ref.watch(beingEditedTranslationLocalesProvider);
@@ -125,7 +157,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final warnings = ref.watch(analysisWarningsProvider);
     final selected = ref.watch(selectedDefinitionProvider);
 
-    final selectedFilters = ref.watch(filterProvider);
+    final selectedFilters = ref.watch(_filterProvider);
     final definitions = _filteredDefinitions(
       project.template.definitions,
       selected: selected,
@@ -135,6 +167,7 @@ class ResourcesDrawer extends NavigationDrawer {
       beingEditedTranslations: beingEditedTranslations,
       warnings: warnings,
       selectedFilters: selectedFilters,
+      locales: localesToAnalyse,
     );
 
     return [
@@ -151,10 +184,11 @@ class ResourcesDrawer extends NavigationDrawer {
                 itemBuilder: (ctx, index) {
                   final definition = definitions[index];
                   final current = currentDefinitions[definition];
-                  final isBeingEdited = beingEditedTranslations.containsKey(definition) ||
-                      beingEditedDefinitions.containsKey(definition);
-                  final hasModifiedTranslations = currentTranslations.containsKey(definition);
-                  final hasWarnings = warnings[definition] != null;
+                  final hasWarnings = _hasWarnings(localesToAnalyse, warnings, definition);
+                  final isBeingEdited = _isBeingEdited(localesToAnalyse, beingEditedDefinitions,
+                      beingEditedTranslations, definition);
+                  final isModified = _isModified(
+                      localesToAnalyse, currentDefinitions, currentTranslations, definition);
                   return _itemBuilder(
                     ctx,
                     ref.read,
@@ -163,7 +197,7 @@ class ResourcesDrawer extends NavigationDrawer {
                     current: current,
                     isBeingEdited: isBeingEdited,
                     isSelected: definition == selected,
-                    isModified: current != null || hasModifiedTranslations,
+                    isModified: isModified,
                     hasWarnings: hasWarnings,
                   );
                 },
@@ -173,6 +207,46 @@ class ResourcesDrawer extends NavigationDrawer {
         ),
       )
     ];
+  }
+
+  bool _isBeingEdited(
+    List<String> locales,
+    EditionsState<ArbDefinition, ArbDefinition> beingEditedDefinitions,
+    EditionsOneToManyState<ArbDefinition, String> beingEditedTranslations,
+    ArbDefinition definition,
+  ) =>
+      beingEditedDefinitions.containsKey(definition) ||
+      _hasActiveTranslationsBeingEdited(
+        locales,
+        beingEditedTranslations[definition],
+      );
+
+  bool _hasActiveTranslationsBeingEdited(List<String> locales, Set<String>? beingEdited) =>
+      beingEdited != null && locales.any((locale) => beingEdited.contains(locale));
+
+  bool _isModified(
+    List<String> locales,
+    EditionsState<ArbDefinition, ArbDefinition> currentDefinitions,
+    EditionsOneToMapState<ArbDefinition, String, ArbTranslation> currentTranslations,
+    ArbDefinition definition,
+  ) {
+    return currentDefinitions[definition] != null ||
+        _hasActiveModifiedTranslations(
+          locales,
+          currentTranslations[definition]?.keys,
+        );
+  }
+
+  bool _hasActiveModifiedTranslations(List<String> locales, Iterable<String>? modified) =>
+      modified != null && modified.any((locale) => locales.contains(locale));
+
+  bool _hasWarnings(
+    List<String> locales,
+    EditionsOneToManyState<ArbDefinition, ArbWarning> warnings,
+    ArbDefinition definition,
+  ) {
+    final warns = warnings[definition];
+    return warns != null && warns.any((warn) => locales.contains(warn.locale));
   }
 
   Widget _itemBuilder(

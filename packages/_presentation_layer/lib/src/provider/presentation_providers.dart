@@ -32,6 +32,9 @@ final localesFilterProvider = StateProvider((ref) {
   return List.filled(count, false);
 });
 
+final allLocalesProvider =
+    Provider(((ref) => ref.read(projectProvider).translations.keys.toList()));
+
 final selectedLocalesProvider = Provider((ref) {
   final locales = ref.read(projectProvider).translations.keys.toList();
   final filters = ref.watch(localesFilterProvider);

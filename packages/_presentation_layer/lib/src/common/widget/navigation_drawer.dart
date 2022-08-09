@@ -90,7 +90,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
                     if (child != null)
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: headerChildPadding,
                           child: child,
                         ),
                       ),
@@ -136,6 +136,8 @@ abstract class NavigationDrawer extends ConsumerWidget {
 
   /// Subclasses may define children for the [_header] builder.
   Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) => null;
+
+  EdgeInsetsGeometry get headerChildPadding => const EdgeInsets.symmetric(horizontal: 16.0);
 
   /// Subclasses may define drawer's content that comes after the [_header].
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) => [];
