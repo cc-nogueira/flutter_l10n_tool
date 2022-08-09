@@ -322,6 +322,7 @@ ElevatedButton filledTonalButton({
 
 Widget clearFiltersButton(ColorScheme colors, VoidCallback onPressed) => IconButton(
       icon: const Icon(Icons.backspace_outlined, size: 20),
+      padding: EdgeInsets.zero,
       onPressed: onPressed,
       splashRadius: 20,
       color: colors.secondary,

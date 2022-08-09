@@ -12,12 +12,16 @@ class ResourceBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(children: const [
-        ResourceDisplayOptions(),
-        FormMixin.horizontalSeparator,
-        LocaleOptions(showSelectedMark: true),
-      ]),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Wrap(
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: const [
+          ResourceDisplayOptions(),
+          FormMixin.horizontalSeparator,
+          LocaleOptions(showSelectedMark: true),
+        ],
+      ),
     );
   }
 }
@@ -50,6 +54,7 @@ class _ResourceDisplayOptions extends StatelessWidget {
     final loc = DomainLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         _displayOptionButton(loc, theme, MainAxisAlignment.start, DisplayOption.compact),
         _displayOptionButton(loc, theme, MainAxisAlignment.end, DisplayOption.expanded),
@@ -118,15 +123,18 @@ class _LocaleOptions extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colors = Theme.of(context).colorScheme;
-    return Row(children: [
-      ..._localeButtons(textTheme, colors),
-      clearFiltersButton(colors, () => onLocalesFilterPressed(read)),
-    ]);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        ..._localeButtons(textTheme, colors),
+        clearFiltersButton(colors, () => onLocalesFilterPressed(read)),
+      ],
+    );
   }
 
   List<Widget> _localeButtons(TextTheme theme, ColorScheme colors) {
     final length = locales.length;
-    if (length < 6) {
+    if (length < 60) {
       return <Widget>[
         for (int idx = 0; idx < locales.length; ++idx)
           segmentedTextButton(

@@ -28,6 +28,7 @@ class ResourcePage extends ConsumerWidget {
 
   Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         ResourceBar(),
         Expanded(child: MessageWidget('No resource selected')),
@@ -50,6 +51,7 @@ abstract class _ResourcePage extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const ResourceBar(),
           definitionWidget(currentDefinition),
