@@ -6,6 +6,10 @@ abstract class ArbDefinitionBuilder extends ArbBuilder {
     required ArbDefinition definition,
   }) {
     return definition.maybeMap(
+        newDefinition: (def) => _ArbNewDefinitionBuilder(
+              displayOption: displayOption,
+              definition: def,
+            ),
         placeholders: (def) => _ArbPlaceholdersDefinitionBuilder(
               displayOption: displayOption,
               definition: def,
@@ -42,6 +46,18 @@ abstract class ArbDefinitionBuilder extends ArbBuilder {
         trailing,
       ],
     );
+  }
+}
+
+class _ArbNewDefinitionBuilder extends ArbDefinitionBuilder {
+  _ArbNewDefinitionBuilder({
+    required super.displayOption,
+    required ArbNewDefinition definition,
+  }) : super._(definition: definition);
+
+  @override
+  Widget descriptorWidget() {
+    return const Text('TODO');
   }
 }
 

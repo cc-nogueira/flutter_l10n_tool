@@ -16,27 +16,15 @@ class ResourcePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final originalDefinition = ref.watch(selectedDefinitionProvider);
     if (originalDefinition == null) {
-      final loc = AppLocalizations.of(context);
-      return Scaffold(
-        body: Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc)),
-        floatingActionButton: FloatingActionButton(child: const Icon(Icons.add), onPressed: () {}),
-      );
+      return _NoResouceSelectedPage();
     }
-    return _ResourcePage(originalDefinition);
-  }
-
-  Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        ResourceBar(),
-        Expanded(child: MessageWidget('No resource selected')),
-      ],
-    );
+    return originalDefinition.maybeMap(
+        newDefinition: (def) => _NewResourcePage(def),
+        orElse: () => _ResourcePage(originalDefinition));
   }
 }
 
-class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
+class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewResourceMixin {
   const _ResourcePage(this.originalDefinition);
 
   final D originalDefinition;
@@ -44,7 +32,7 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDefinition =
-        ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition]));
+        ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition])) as D?;
     final selectedTranslations = ref.watch(selectedLocaleTranslationsProvider);
     return Scaffold(
       body: Padding(
@@ -53,7 +41,7 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const ResourceBar(),
-            definitionWidget(currentDefinition),
+            DefinitionWidget<D>(original: originalDefinition, current: currentDefinition),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.only(bottom: 72),
@@ -66,24 +54,13 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(child: const Icon(Icons.add), onPressed: () {}),
+      floatingActionButton: _fab(ref.read),
     );
   }
 
-  Widget definitionWidget(ArbDefinition? current) => originalDefinition.map(
-        newDefinition: (original) => NewDefinitionWidget(original: original),
-        placeholders: (original) => PlaceholdersDefinitionWidget(
-          original: original,
-          current: current as ArbPlaceholdersDefinition?,
-        ),
-        plural: (original) => PluralDefinitionWidget(
-          original: original,
-          current: current as ArbPluralDefinition?,
-        ),
-        select: (original) => SelectDefinitionWidget(
-          original: original,
-          current: current as ArbSelectDefinition?,
-        ),
+  Widget? _fab(Reader read) => FloatingActionButton(
+        onPressed: () => newResourceDefinition(read),
+        child: const Icon(Icons.add),
       );
 
   Widget _itemBuilder(
@@ -113,4 +90,44 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget {
             originalTranslation:
                 localeTranslations.translations[originalDefinition.key] as ArbSelectTranslation?),
       );
+}
+
+class _NewResourcePage extends _ResourcePage {
+  const _NewResourcePage(super.originalDefinition);
+
+  @override
+  Widget? _fab(Reader read) => null;
+}
+
+class _NoResouceSelectedPage extends ConsumerWidget with _NewResourceMixin {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
+    return Scaffold(
+      body: Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => newResourceDefinition(ref.read),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _noResourceSelected(BuildContext context, AppLocalizations loc) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        ResourceBar(),
+        Expanded(child: MessageWidget('No resource selected')),
+      ],
+    );
+  }
+}
+
+mixin _NewResourceMixin {
+  void newResourceDefinition(Reader read) {
+    final arbUsecase = read(arbUsecaseProvider);
+    const newDefinition = ArbNewDefinition();
+    arbUsecase.select(newDefinition);
+    arbUsecase.updateDefinitionBeingEdited(original: newDefinition, current: newDefinition);
+  }
 }

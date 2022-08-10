@@ -14,6 +14,40 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
     required this.onRollback,
   }) : builder = ArbDefinitionBuilder(displayOption: displayOption, definition: definition);
 
+  static DefinitionTile of<T extends ArbDefinition>(
+      {required DisplayOption displayOption,
+      required T definition,
+      required bool isOriginal,
+      required VoidCallback onEdit,
+      required VoidCallback onRollback}) {
+    return definition.map(
+      newDefinition: (def) => NewDefinitionTile(
+          displayOption: displayOption,
+          definition: def,
+          isOriginal: isOriginal,
+          onEdit: onEdit,
+          onRollback: onRollback),
+      placeholders: (def) => PlaceholdersDefinitionTile(
+          displayOption: displayOption,
+          definition: def,
+          isOriginal: isOriginal,
+          onEdit: onEdit,
+          onRollback: onRollback),
+      plural: (def) => PluralDefinitionTile(
+          displayOption: displayOption,
+          definition: def,
+          isOriginal: isOriginal,
+          onEdit: onEdit,
+          onRollback: onRollback),
+      select: (def) => SelectDefinitionTile(
+          displayOption: displayOption,
+          definition: def,
+          isOriginal: isOriginal,
+          onEdit: onEdit,
+          onRollback: onRollback),
+    );
+  }
+
   final ArbDefinitionBuilder builder;
 
   final DisplayOption displayOption;
