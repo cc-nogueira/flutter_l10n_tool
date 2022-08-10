@@ -6,6 +6,7 @@ import '../../entity/arb/arb_placeholder.dart';
 import '../../entity/arb/arb_translation.dart';
 import 'arb_analysis.dart';
 
+typedef NewDefinitionNotifier = SelectionNotifier<ArbDefinition>;
 typedef SelectedDefinitionNotifier = SelectionNotifier<ArbDefinition>;
 typedef DefinitionEditionsNotifier = EditionsNotifier<ArbDefinition, ArbDefinition>;
 typedef PlaceholderEditionsNotifier = EditionsNotifier<ArbDefinition, ArbPlaceholder>;
@@ -24,6 +25,8 @@ typedef SelectEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String,
 /// of each Notifier).
 class ArbScope {
   final analysisProvider = StateProvider((ref) => ArbAnalysis(ref.read));
+
+  final editNewDefinitionProvider = StateProvider((_) => false);
 
   /// Represents the current selected definition for the user interface.
   ///

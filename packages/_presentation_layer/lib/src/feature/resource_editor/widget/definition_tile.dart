@@ -12,7 +12,7 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
     required this.isOriginal,
     required this.onEdit,
     required this.onRollback,
-  }) : builder = ArbDefinitionBuilder(displayOption: displayOption, definition: definition);
+  }) : builder = ArbDefinitionBuilder.of(definition: definition);
 
   static DefinitionTile of<T extends ArbDefinition>(
       {required DisplayOption displayOption,
@@ -21,12 +21,6 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
       required VoidCallback onEdit,
       required VoidCallback onRollback}) {
     return definition.map(
-      newDefinition: (def) => NewDefinitionTile(
-          displayOption: displayOption,
-          definition: def,
-          isOriginal: isOriginal,
-          onEdit: onEdit,
-          onRollback: onRollback),
       placeholders: (def) => PlaceholdersDefinitionTile(
           displayOption: displayOption,
           definition: def,
@@ -130,17 +124,6 @@ abstract class DefinitionTile<T extends ArbDefinition> extends StatelessWidget {
       onRollback();
     }
   }
-}
-
-class NewDefinitionTile extends DefinitionTile<ArbNewDefinition> {
-  NewDefinitionTile({
-    super.key,
-    required super.displayOption,
-    required super.definition,
-    required super.isOriginal,
-    required super.onEdit,
-    required super.onRollback,
-  });
 }
 
 class PlaceholdersDefinitionTile extends DefinitionTile<ArbPlaceholdersDefinition> {

@@ -22,7 +22,7 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
     final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
 
     return definitionBeingEdited is D
-        ? _form(ref.read, displayOption, definitionBeingEdited)
+        ? _form(ref.read, definitionBeingEdited)
         : _tile(ref.read, displayOption, isOriginal: current == null);
   }
 
@@ -35,9 +35,7 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
         onRollback: () => _rollback(read),
       );
 
-  Widget _form(Reader read, DisplayOption displayOption, D definitionBeingEdited) =>
-      DefinitionForm.of(
-        displayOption: displayOption,
+  Widget _form(Reader read, D definitionBeingEdited) => DefinitionForm.of(
         originalDefinition: original,
         currentDefinition: currentOrOriginal,
         definitionBeingEdited: definitionBeingEdited,
@@ -71,4 +69,20 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
   }
 
   void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
+}
+
+class NewDefinitionWidget extends ConsumerWidget {
+  const NewDefinitionWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return NewDefinitionForm(
+      onSaveChanges: (value) => _saveChanges(ref.read, value),
+      onDiscardChanges: () => _discardChanges(ref.read),
+    );
+  }
+
+  void _discardChanges(Reader read) {}
+
+  void _saveChanges(Reader read, ArbDefinition value) {}
 }

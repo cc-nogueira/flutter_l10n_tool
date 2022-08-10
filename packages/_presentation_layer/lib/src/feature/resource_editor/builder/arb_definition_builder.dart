@@ -1,36 +1,24 @@
 part of 'arb_builder.dart';
 
-abstract class ArbDefinitionBuilder extends ArbBuilder {
-  factory ArbDefinitionBuilder({
-    required DisplayOption displayOption,
-    required ArbDefinition definition,
-  }) {
-    return definition.maybeMap(
-        newDefinition: (def) => _ArbNewDefinitionBuilder(
-              displayOption: displayOption,
-              definition: def,
-            ),
-        placeholders: (def) => _ArbPlaceholdersDefinitionBuilder(
-              displayOption: displayOption,
-              definition: def,
-            ),
-        orElse: () => _ArbDefinitionWithParameterBuilder(
-              displayOption: displayOption,
-              definition: definition,
-            ));
-  }
+class ArbDefinitionBuilder extends ArbBuilder {
+  ArbDefinitionBuilder({this.definition});
 
-  ArbDefinitionBuilder._({required this.displayOption, required this.definition});
+  factory ArbDefinitionBuilder.of({required ArbDefinition definition}) {
+    return definition.map(
+      placeholders: (def) => ArbDefinitionBuilder(),
+      plural: (def) => ArbDefinitionWithParameterBuilder(definition: def),
+      select: (def) => ArbDefinitionWithParameterBuilder(definition: def),
+    );
+  }
 
   static const tileIcon = SizedBox(
       width: ArbBuilder.leadingSize,
       height: ArbBuilder.leadingSize,
       child: Center(child: Icon(Icons.key)));
 
-  final DisplayOption displayOption;
-  ArbDefinition definition;
+  ArbDefinition? definition;
 
-  Widget descriptorWidget();
+  Widget descriptorWidget() => Container();
 
   Widget definitionTile({
     CrossAxisAlignment align = CrossAxisAlignment.center,
@@ -49,46 +37,20 @@ abstract class ArbDefinitionBuilder extends ArbBuilder {
   }
 }
 
-class _ArbNewDefinitionBuilder extends ArbDefinitionBuilder {
-  _ArbNewDefinitionBuilder({
-    required super.displayOption,
-    required ArbNewDefinition definition,
-  }) : super._(definition: definition);
+class ArbDefinitionWithParameterBuilder extends ArbDefinitionBuilder {
+  ArbDefinitionWithParameterBuilder({
+    required ArbDefinitionWithParameter definition,
+  }) : super(definition: definition);
 
-  @override
-  Widget descriptorWidget() {
-    return const Text('TODO');
-  }
-}
-
-class _ArbPlaceholdersDefinitionBuilder extends ArbDefinitionBuilder {
-  _ArbPlaceholdersDefinitionBuilder({
-    required super.displayOption,
-    required ArbPlaceholdersDefinition definition,
-  }) : super._(definition: definition);
-
-  @override
-  Widget descriptorWidget() {
-    return const Text('TODO');
-  }
-}
-
-class _ArbDefinitionWithParameterBuilder extends ArbDefinitionBuilder {
-  _ArbDefinitionWithParameterBuilder({
-    required super.displayOption,
-    required super.definition,
-  })  : assert(definition is ArbDefinitionWithParameter),
-        super._();
-
-  ArbDefinitionWithParameter get defWithParameter => definition as ArbDefinitionWithParameter;
+  ArbDefinitionWithParameter get defWithParam => super.definition as ArbDefinitionWithParameter;
 
   @override
   Widget descriptorWidget() {
     return Row(children: [
       Text('{ ', style: markingStyle),
-      Text(defWithParameter.parameterName.ifEmpty('??'), style: valueStyle),
+      Text(defWithParam.parameterName.ifEmpty('??'), style: valueStyle),
       Text(', ', style: markingStyle),
-      Text(definition.type.name, style: optionStyle),
+      Text(defWithParam.type.name, style: optionStyle),
       Text(', ', style: markingStyle),
       Text('...', style: valueStyle),
       Text(' }', style: markingStyle),

@@ -9,10 +9,58 @@ import '../../../l10n/app_localizations.dart';
 import '../builder/arb_builder.dart';
 import 'definition_placeholders_and_form.dart';
 
-abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
+class NewDefinitionForm extends StatefulWidget {
+  const NewDefinitionForm({
+    super.key,
+    required this.onSaveChanges,
+    required this.onDiscardChanges,
+  });
+
+  final ValueChanged<ArbDefinition> onSaveChanges;
+  final VoidCallback onDiscardChanges;
+
+  @override
+  State<NewDefinitionForm> createState() => _NewDefinitionFormState();
+}
+
+class _NewDefinitionFormState extends State<NewDefinitionForm> {
+  final emptyDefinitionController =
+      StateController<ArbDefinition>(const ArbPlaceholdersDefinition());
+
+  final beingEditedDefinitionController =
+      StateController<ArbDefinition>(const ArbPlaceholdersDefinition());
+
+  @override
+  Widget build(BuildContext context) {
+    final emptyDef = emptyDefinitionController.state;
+    final beingEdited = beingEditedDefinitionController.state;
+    return DefinitionForm.of(
+      originalDefinition: emptyDef,
+      currentDefinition: emptyDef,
+      definitionBeingEdited: beingEdited,
+      onSaveChanges: widget.onSaveChanges,
+      onDiscardChanges: widget.onDiscardChanges,
+      onUpdateDefinition: onUpdateDefinition,
+    );
+  }
+
+  void onUpdateDefinition(ArbDefinition def) {
+    if (def.runtimeType != beingEditedDefinitionController.state.runtimeType) {
+      setState(() {
+        beingEditedDefinitionController.state = def;
+        emptyDefinitionController.state = def.map(
+          placeholders: (_) => const ArbPlaceholdersDefinition(),
+          plural: (_) => const ArbPluralDefinition(),
+          select: (_) => const ArbSelectDefinition(),
+        );
+      });
+    }
+  }
+}
+
+abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulWidget {
   const DefinitionForm({
     super.key,
-    required this.displayOption,
     required this.originalDefinition,
     required this.currentDefinition,
     required this.definitionBeingEdited,
@@ -22,7 +70,6 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
   });
 
   static DefinitionForm of<T extends ArbDefinition>({
-    required DisplayOption displayOption,
     required T originalDefinition,
     required T currentDefinition,
     required T definitionBeingEdited,
@@ -31,17 +78,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
     required VoidCallback onDiscardChanges,
   }) {
     return definitionBeingEdited.map(
-      newDefinition: (def) => NewDefinitionForm(
-        displayOption: displayOption,
-        originalDefinition: originalDefinition as ArbNewDefinition,
-        currentDefinition: currentDefinition as ArbNewDefinition,
-        definitionBeingEdited: def,
-        onUpdateDefinition: onUpdateDefinition,
-        onSaveChanges: onSaveChanges,
-        onDiscardChanges: onDiscardChanges,
-      ),
       placeholders: (def) => PlaceholdersDefinitionForm(
-        displayOption: displayOption,
         originalDefinition: originalDefinition as ArbPlaceholdersDefinition,
         currentDefinition: currentDefinition as ArbPlaceholdersDefinition,
         definitionBeingEdited: def,
@@ -50,7 +87,6 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
         onDiscardChanges: onDiscardChanges,
       ),
       plural: (def) => PluralDefinitionForm(
-        displayOption: displayOption,
         originalDefinition: originalDefinition as ArbPluralDefinition,
         currentDefinition: currentDefinition as ArbPluralDefinition,
         definitionBeingEdited: def,
@@ -59,7 +95,6 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
         onDiscardChanges: onDiscardChanges,
       ),
       select: (def) => SelectDefinitionForm(
-        displayOption: displayOption,
         originalDefinition: originalDefinition as ArbSelectDefinition,
         currentDefinition: currentDefinition as ArbSelectDefinition,
         definitionBeingEdited: def,
@@ -70,7 +105,6 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
     );
   }
 
-  final DisplayOption displayOption;
   final D originalDefinition;
   final D currentDefinition;
   final D definitionBeingEdited;
@@ -79,26 +113,9 @@ abstract class DefinitionForm<D extends ArbDefinition> extends StatefulWidget {
   final VoidCallback onDiscardChanges;
 }
 
-class NewDefinitionForm extends DefinitionForm<ArbNewDefinition> {
-  const NewDefinitionForm({
-    super.key,
-    required super.displayOption,
-    required super.originalDefinition,
-    required super.currentDefinition,
-    required super.definitionBeingEdited,
-    required super.onUpdateDefinition,
-    required super.onSaveChanges,
-    required super.onDiscardChanges,
-  });
-
-  @override
-  State<DefinitionForm<ArbNewDefinition>> createState() => NewDefinitionFormState();
-}
-
 class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinition> {
   const PlaceholdersDefinitionForm({
     super.key,
-    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -108,14 +125,13 @@ class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinitio
   });
 
   @override
-  State<DefinitionForm<ArbPlaceholdersDefinition>> createState() =>
+  ConsumerState<DefinitionForm<ArbPlaceholdersDefinition>> createState() =>
       PlaceholdersDefinitionFormState();
 }
 
 class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   const PluralDefinitionForm({
     super.key,
-    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -125,13 +141,12 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
   });
 
   @override
-  State<DefinitionForm<ArbPluralDefinition>> createState() => PluralDefinitionFormState();
+  ConsumerState<DefinitionForm<ArbPluralDefinition>> createState() => PluralDefinitionFormState();
 }
 
 class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   const SelectDefinitionForm({
     super.key,
-    required super.displayOption,
     required super.originalDefinition,
     required super.currentDefinition,
     required super.definitionBeingEdited,
@@ -141,10 +156,10 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
   });
 
   @override
-  State<DefinitionForm<ArbSelectDefinition>> createState() => SelectDefinitionFormState();
+  ConsumerState<DefinitionForm<ArbSelectDefinition>> createState() => SelectDefinitionFormState();
 }
 
-abstract class DefinitionFormState<D extends ArbDefinition> extends State<DefinitionForm<D>>
+abstract class DefinitionFormState<D extends ArbDefinition> extends ConsumerState<DefinitionForm<D>>
     with TextFormFieldMixin {
   late ArbDefinitionBuilder builder;
   late StateController<D> definitionController;
@@ -179,10 +194,7 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
     definitionController = StateController<D>(widget.definitionBeingEdited);
     keyTextController.text = definitionController.state.key;
     descTextController.text = definitionController.state.description ?? '';
-    builder = ArbDefinitionBuilder(
-      displayOption: widget.displayOption,
-      definition: definitionController.state,
-    );
+    builder = ArbDefinitionBuilder.of(definition: definitionController.state);
   }
 
   @override
@@ -257,13 +269,19 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
         formValue: definitionController.state.type,
         validator: (value) => value == null ? '* required' : null,
         onChanged: (option) {
-          if (option == null || option == definitionController.state.type || 1 < 2) {
+          if (option == null || option == definitionController.state.type) {
             return;
           }
-          setState(() {
-            // definitionController.state = definitionController.state.copyWith(option: option);
-            // widget.onUpdate(formPlural);
-          });
+          final constructor = option == ArbDefinitionType.placeholders
+              ? ArbDefinition.placeholders
+              : option == ArbDefinitionType.plural
+                  ? ArbDefinition.plural
+                  : ArbDefinition.select;
+          final changedDefinition = constructor(
+            key: definitionController.state.key,
+            description: definitionController.state.description,
+          );
+          widget.onUpdateDefinition(changedDefinition);
         },
       );
 
@@ -295,8 +313,6 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
     });
   }
 }
-
-class NewDefinitionFormState extends DefinitionFormState<ArbNewDefinition> {}
 
 class PlaceholdersDefinitionFormState extends DefinitionFormState<ArbPlaceholdersDefinition> {
   @override

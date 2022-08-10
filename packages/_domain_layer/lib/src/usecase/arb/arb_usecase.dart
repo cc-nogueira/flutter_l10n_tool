@@ -41,8 +41,18 @@ class ArbUsecase {
     read(analysisProvider).updataTranslationsAnalysis(definition);
   }
 
+  void editNewDefinition() {
+    clearSelection();
+    _editNewDefinitionNotifier().state = true;
+  }
+
+  void cancelEditingNewDefinition() {
+    _editNewDefinitionNotifier().state = false;
+  }
+
   /// Defines which [ArbDefinition] is currently being selected by the user.
   void select(ArbDefinition? definition) {
+    cancelEditingNewDefinition();
     _selectedDefinitionNotifier().select(definition);
   }
 
@@ -270,6 +280,11 @@ class ArbUsecase {
     } else {
       _formSelectsNotifier().add(definition, locale, option);
     }
+  }
+
+  StateController _editNewDefinitionNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.editNewDefinitionProvider.notifier);
   }
 
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {

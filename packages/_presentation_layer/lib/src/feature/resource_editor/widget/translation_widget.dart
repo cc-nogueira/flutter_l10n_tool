@@ -55,14 +55,11 @@ abstract class TranslationWidget<D extends ArbDefinition, T extends ArbTranslati
         definition: originalDefinition,
         onEdit: () {
           final empty = originalDefinition.map(
-            newDefinition: (def) => null,
             placeholders: (def) => ArbTranslation.placeholders(locale: locale, key: def.key),
             plural: (def) => ArbTranslation.plural(locale: locale, key: def.key),
             select: (def) => ArbTranslation.select(locale: locale, key: def.key),
           );
-          if (empty != null) {
-            _edit(read, empty);
-          }
+          _edit(read, empty);
         },
       );
     }

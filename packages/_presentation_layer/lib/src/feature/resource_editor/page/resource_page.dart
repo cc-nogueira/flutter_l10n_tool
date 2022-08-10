@@ -14,13 +14,14 @@ class ResourcePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(editNewDefinitionProvider)) {
+      return const _NewResourcePage();
+    }
     final originalDefinition = ref.watch(selectedDefinitionProvider);
     if (originalDefinition == null) {
-      return _NoResouceSelectedPage();
+      return const _NoResouceSelectedPage();
     }
-    return originalDefinition.maybeMap(
-        newDefinition: (def) => _NewResourcePage(def),
-        orElse: () => _ResourcePage(originalDefinition));
+    return _ResourcePage(originalDefinition);
   }
 }
 
@@ -69,7 +70,6 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewRes
     ArbLocaleTranslations localeTranslations,
   ) =>
       originalDefinition.map(
-        newDefinition: (original) => Container(),
         placeholders: (original) => PlaceholdersTranslationWidget(
           localeTranslations.locale,
           originalDefinition: original,
@@ -92,14 +92,27 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewRes
       );
 }
 
-class _NewResourcePage extends _ResourcePage {
-  const _NewResourcePage(super.originalDefinition);
+class _NewResourcePage extends ConsumerWidget {
+  const _NewResourcePage();
 
   @override
-  Widget? _fab(Reader read) => null;
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          ResourceBar(),
+          NewDefinitionWidget(),
+        ],
+      ),
+    );
+  }
 }
 
 class _NoResouceSelectedPage extends ConsumerWidget with _NewResourceMixin {
+  const _NoResouceSelectedPage();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
@@ -126,8 +139,6 @@ class _NoResouceSelectedPage extends ConsumerWidget with _NewResourceMixin {
 mixin _NewResourceMixin {
   void newResourceDefinition(Reader read) {
     final arbUsecase = read(arbUsecaseProvider);
-    const newDefinition = ArbNewDefinition();
-    arbUsecase.select(newDefinition);
-    arbUsecase.updateDefinitionBeingEdited(original: newDefinition, current: newDefinition);
+    arbUsecase.editNewDefinition();
   }
 }
