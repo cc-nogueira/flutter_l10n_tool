@@ -2,6 +2,7 @@ import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
@@ -150,6 +151,8 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
   TextEditingController keyTextController = TextEditingController();
   TextEditingController descTextController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -188,24 +191,33 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Form(
+      key: _formKey,
       child: Container(
         decoration: BoxDecoration(color: colors.primaryContainer),
         padding: const EdgeInsets.all(8.0),
         child: builder.definitionTile(
           align: CrossAxisAlignment.start,
           content: form(context, loc, colors),
-          trailing: trailing(),
+          trailing: trailing(context),
         ),
       ),
     );
   }
 
-  Widget trailing() => Row(children: [
-        IconButton(icon: const Icon(Icons.check), onPressed: hasChanges ? _saveChanges : null),
+  Widget trailing(BuildContext context) => Row(children: [
+        IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: hasChanges ? () => _saveChanges(context) : null),
         IconButton(icon: const Icon(Icons.close), onPressed: widget.onDiscardChanges),
       ]);
 
-  void _saveChanges() => widget.onSaveChanges(definitionController.state);
+  void _saveChanges(BuildContext context) {
+    final form = _formKey.currentState!;
+    form.save();
+    if (form.validate()) {
+      widget.onSaveChanges(definitionController.state);
+    }
+  }
 
   bool get hasChanges => definitionController.state != widget.currentDefinition;
 
@@ -225,6 +237,7 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
   }
 
   Widget typeAndKeyWidgets(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(flex: 1, child: typeWidget(context)),
           FormMixin.horizontalSeparator,
@@ -232,11 +245,26 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
         ],
       );
 
-  Widget typeWidget(BuildContext context) => textField(
-        context: context,
+  Widget typeWidget(BuildContext context) => FormDropdown<ArbDefinitionType>(
         label: 'Type',
-        originalText: '',
-        onChanged: (value) {},
+        options: const [
+          ArbDefinitionType.placeholders,
+          ArbDefinitionType.plural,
+          ArbDefinitionType.select,
+        ],
+        optionLabel: (value) => value.name,
+        originalValue: widget.originalDefinition.type,
+        formValue: definitionController.state.type,
+        validator: (value) => value == null ? '* required' : null,
+        onChanged: (option) {
+          if (option == null || option == definitionController.state.type || 1 < 2) {
+            return;
+          }
+          setState(() {
+            // definitionController.state = definitionController.state.copyWith(option: option);
+            // widget.onUpdate(formPlural);
+          });
+        },
       );
 
   Widget keyWidget(BuildContext context) => textField(
@@ -244,6 +272,7 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends State<Defini
         label: 'Key',
         originalText: definitionController.state.key,
         textController: keyTextController,
+        validator: (text) => text == null || text.isEmpty ? '* required' : null,
         onChanged: (value) =>
             onUpdateDefinition(definitionController.state.copyWith(key: value) as D),
         inputFormatters: [textInputKeyFormatter],

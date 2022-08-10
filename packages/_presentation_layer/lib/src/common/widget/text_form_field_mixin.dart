@@ -21,6 +21,7 @@ mixin TextFormFieldMixin {
     String? hintText,
     required String originalText,
     TextEditingController? textController,
+    String? Function(String?)? validator,
     ValueChanged<String>? onChanged,
     FocusNode? focusNode,
     FocusNode? nextFocus,
@@ -72,6 +73,7 @@ mixin TextFormFieldMixin {
               FocusScope.of(context).requestFocus(nextFocus);
             },
       maxLines: maxLines,
+      validator: validator,
     );
   }
 

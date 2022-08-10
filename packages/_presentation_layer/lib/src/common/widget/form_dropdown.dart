@@ -10,6 +10,7 @@ class FormDropdown<T> extends StatelessWidget {
     required this.formValue,
     required this.onChanged,
     this.focusNode,
+    this.validator,
   });
 
   final String label;
@@ -17,6 +18,7 @@ class FormDropdown<T> extends StatelessWidget {
   final List<T> options;
   final T originalValue;
   final T formValue;
+  final String? Function(T?)? validator;
   final ValueChanged<T?> onChanged;
   final String Function(T value) optionLabel;
 
@@ -42,6 +44,7 @@ class FormDropdown<T> extends StatelessWidget {
       items: _items(value: formValue),
       selectedItemBuilder: (_) => _selectedItems(),
       focusNode: focusNode,
+      validator: validator,
       onChanged: (value) => onChanged(value),
     );
   }
