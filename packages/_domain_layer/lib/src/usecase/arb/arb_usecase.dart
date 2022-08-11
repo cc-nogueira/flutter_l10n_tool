@@ -42,7 +42,7 @@ class ArbUsecase {
   }
 
   void editNewDefinition() {
-    clearSelection();
+    //clearSelection();
     _editNewDefinitionNotifier().state = true;
   }
 

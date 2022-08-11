@@ -154,6 +154,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final beingEditedDefinitions = ref.watch(beingEditedDefinitionsProvider);
     final warnings = ref.watch(analysisWarningsProvider);
     final selected = ref.watch(selectedDefinitionProvider);
+    final isEditingNewDefinition = ref.watch(editNewDefinitionProvider);
 
     final selectedFilters = ref.watch(_filterProvider);
     final definitions = _filteredDefinitions(
@@ -194,7 +195,7 @@ class ResourcesDrawer extends NavigationDrawer {
                     definition,
                     current: current,
                     isBeingEdited: isBeingEdited,
-                    isSelected: definition == selected,
+                    isSelected: !isEditingNewDefinition && definition == selected,
                     isModified: isModified,
                     hasWarnings: hasWarnings,
                   );
