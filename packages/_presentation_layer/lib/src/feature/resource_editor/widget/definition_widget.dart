@@ -43,6 +43,8 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
         onUpdateDefinition: (value) => _updateDefinition(read, value),
         onSaveChanges: (value) => _saveChanges(read, value),
         onDiscardChanges: () => _discardChanges(read),
+        onChangeType: (definition, {required type}) =>
+            _changeDefinitionType(read, definition, type: type),
       );
 
   void _edit(Reader read, ArbDefinition current) {
@@ -69,6 +71,8 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
     _rebuild(read);
   }
 
+  void _changeDefinitionType(Reader read, ArbDefinition value, {required ArbDefinitionType type}) {}
+
   void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
 }
 
@@ -80,16 +84,18 @@ class NewDefinitionWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NewDefinitionForm(
-      onSaveChanges: (value) => _saveChanges(ref.read, value),
-      onDiscardChanges: () => _discardChanges(ref.read),
+      onSaveNewDefinition: (value) => _saveNewDefinition(ref.read, value),
+      onDiscardNewDefinition: ({required original}) => _discardNew(ref.read, original: original),
     );
   }
 
-  void _discardChanges(Reader read) {
-    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition());
+  void _discardNew(Reader read, {required ArbDefinition original}) {
+    onDone().then((_) {
+      read(arbUsecaseProvider).cancelEditingNewDefinition(original: original);
+    });
   }
 
-  void _saveChanges(Reader read, ArbDefinition value) {
-    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition());
+  void _saveNewDefinition(Reader read, ArbDefinition value) {
+    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition(original: null));
   }
 }

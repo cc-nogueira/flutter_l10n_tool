@@ -9,50 +9,70 @@ import '../../../l10n/app_localizations.dart';
 import '../builder/arb_builder.dart';
 import 'definition_placeholders_and_form.dart';
 
+typedef ChangeTypeCallback = void Function(ArbDefinition definition,
+    {required ArbDefinitionType type});
+
+typedef DiscardNewDefinitionCallback = void Function({required ArbDefinition original});
+
 class NewDefinitionForm extends StatefulWidget {
   const NewDefinitionForm({
     super.key,
-    required this.onSaveChanges,
-    required this.onDiscardChanges,
+    required this.onSaveNewDefinition,
+    required this.onDiscardNewDefinition,
   });
 
-  final ValueChanged<ArbDefinition> onSaveChanges;
-  final VoidCallback onDiscardChanges;
+  final ValueChanged<ArbDefinition> onSaveNewDefinition;
+  final DiscardNewDefinitionCallback onDiscardNewDefinition;
 
   @override
   State<NewDefinitionForm> createState() => _NewDefinitionFormState();
 }
 
 class _NewDefinitionFormState extends State<NewDefinitionForm> {
-  final emptyDefinitionController =
-      StateController<ArbDefinition>(const ArbPlaceholdersDefinition());
+  static const emptyDefinitions = {
+    ArbDefinitionType.placeholders: ArbPlaceholdersDefinition(),
+    ArbDefinitionType.plural: ArbPluralDefinition(),
+    ArbDefinitionType.select: ArbSelectDefinition(),
+  };
 
-  final beingEditedDefinitionController =
-      StateController<ArbDefinition>(const ArbPlaceholdersDefinition());
+  final currentDefinitionTypeController = StateController(ArbDefinitionType.placeholders);
+
+  final beingEditedDefinitionController = StateController<Map<ArbDefinitionType, ArbDefinition>>({
+    ArbDefinitionType.placeholders: const ArbPlaceholdersDefinition(),
+    ArbDefinitionType.plural: const ArbPluralDefinition(),
+    ArbDefinitionType.select: const ArbSelectDefinition(),
+  });
 
   @override
   Widget build(BuildContext context) {
-    final emptyDef = emptyDefinitionController.state;
-    final beingEdited = beingEditedDefinitionController.state;
+    final type = currentDefinitionTypeController.state;
+    final beingEdited = beingEditedDefinitionController.state[type]!;
+    final emptyDef = emptyDefinitions[beingEdited.type]!;
     return DefinitionForm.of(
       originalDefinition: emptyDef,
       currentDefinition: emptyDef,
       definitionBeingEdited: beingEdited,
-      onSaveChanges: widget.onSaveChanges,
-      onDiscardChanges: widget.onDiscardChanges,
+      onSaveChanges: widget.onSaveNewDefinition,
+      onDiscardChanges: () => widget.onDiscardNewDefinition(original: emptyDef),
       onUpdateDefinition: onUpdateDefinition,
+      onChangeType: onChangeType,
     );
   }
 
-  void onUpdateDefinition(ArbDefinition def) {
-    if (def.runtimeType != beingEditedDefinitionController.state.runtimeType) {
+  void onUpdateDefinition(ArbDefinition definition) {
+    beingEditedDefinitionController.state[definition.type] = definition;
+  }
+
+  void onChangeType(ArbDefinition definition, {required ArbDefinitionType type}) {
+    if (definition.type != type) {
+      final prevDefinition = beingEditedDefinitionController.state[type]!;
+      final changedDefinition = prevDefinition.copyWith(
+        key: definition.key,
+        description: definition.description,
+      );
       setState(() {
-        beingEditedDefinitionController.state = def;
-        emptyDefinitionController.state = def.map(
-          placeholders: (_) => const ArbPlaceholdersDefinition(),
-          plural: (_) => const ArbPluralDefinition(),
-          select: (_) => const ArbSelectDefinition(),
-        );
+        beingEditedDefinitionController.state[type] = changedDefinition;
+        currentDefinitionTypeController.state = type;
       });
     }
   }
@@ -67,6 +87,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
     required this.onUpdateDefinition,
     required this.onSaveChanges,
     required this.onDiscardChanges,
+    required this.onChangeType,
   });
 
   static DefinitionForm of<T extends ArbDefinition>({
@@ -76,6 +97,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
     required ValueChanged<ArbDefinition> onUpdateDefinition,
     required ValueChanged<ArbDefinition> onSaveChanges,
     required VoidCallback onDiscardChanges,
+    required ChangeTypeCallback onChangeType,
   }) {
     return definitionBeingEdited.map(
       placeholders: (def) => PlaceholdersDefinitionForm(
@@ -85,6 +107,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
         onUpdateDefinition: onUpdateDefinition,
         onSaveChanges: onSaveChanges,
         onDiscardChanges: onDiscardChanges,
+        onChangeType: onChangeType,
       ),
       plural: (def) => PluralDefinitionForm(
         originalDefinition: originalDefinition as ArbPluralDefinition,
@@ -93,6 +116,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
         onUpdateDefinition: onUpdateDefinition,
         onSaveChanges: onSaveChanges,
         onDiscardChanges: onDiscardChanges,
+        onChangeType: onChangeType,
       ),
       select: (def) => SelectDefinitionForm(
         originalDefinition: originalDefinition as ArbSelectDefinition,
@@ -101,6 +125,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
         onUpdateDefinition: onUpdateDefinition,
         onSaveChanges: onSaveChanges,
         onDiscardChanges: onDiscardChanges,
+        onChangeType: onChangeType,
       ),
     );
   }
@@ -111,6 +136,7 @@ abstract class DefinitionForm<D extends ArbDefinition> extends ConsumerStatefulW
   final ValueChanged<ArbDefinition> onUpdateDefinition;
   final ValueChanged<ArbDefinition> onSaveChanges;
   final VoidCallback onDiscardChanges;
+  final ChangeTypeCallback onChangeType;
 }
 
 class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinition> {
@@ -122,6 +148,7 @@ class PlaceholdersDefinitionForm extends DefinitionForm<ArbPlaceholdersDefinitio
     required super.onUpdateDefinition,
     required super.onSaveChanges,
     required super.onDiscardChanges,
+    required super.onChangeType,
   });
 
   @override
@@ -138,6 +165,7 @@ class PluralDefinitionForm extends DefinitionForm<ArbPluralDefinition> {
     required super.onUpdateDefinition,
     required super.onSaveChanges,
     required super.onDiscardChanges,
+    required super.onChangeType,
   });
 
   @override
@@ -153,6 +181,7 @@ class SelectDefinitionForm extends DefinitionForm<ArbSelectDefinition> {
     required super.onUpdateDefinition,
     required super.onSaveChanges,
     required super.onDiscardChanges,
+    required super.onChangeType,
   });
 
   @override
@@ -272,16 +301,7 @@ abstract class DefinitionFormState<D extends ArbDefinition> extends ConsumerStat
           if (option == null || option == definitionController.state.type) {
             return;
           }
-          final constructor = option == ArbDefinitionType.placeholders
-              ? ArbDefinition.placeholders
-              : option == ArbDefinitionType.plural
-                  ? ArbDefinition.plural
-                  : ArbDefinition.select;
-          final changedDefinition = constructor(
-            key: definitionController.state.key,
-            description: definitionController.state.description,
-          );
-          widget.onUpdateDefinition(changedDefinition);
+          widget.onChangeType(definitionController.state, type: option);
         },
       );
 

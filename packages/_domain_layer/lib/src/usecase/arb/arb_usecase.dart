@@ -45,13 +45,16 @@ class ArbUsecase {
     _editNewDefinitionNotifier().state = true;
   }
 
-  void cancelEditingNewDefinition() {
+  void cancelEditingNewDefinition({required ArbDefinition? original}) {
+    if (original != null) {
+      discardDefinitionChanges(original: original);
+    }
     _editNewDefinitionNotifier().state = false;
   }
 
   /// Defines which [ArbDefinition] is currently being selected by the user.
   void select(ArbDefinition? definition) {
-    cancelEditingNewDefinition();
+    cancelEditingNewDefinition(original: null);
     _selectedDefinitionNotifier().select(definition);
   }
 
