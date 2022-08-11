@@ -1,4 +1,5 @@
 import 'package:_domain_layer/domain_layer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -72,7 +73,9 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
 }
 
 class NewDefinitionWidget extends ConsumerWidget {
-  const NewDefinitionWidget({super.key});
+  const NewDefinitionWidget({super.key, required this.onDone});
+
+  final AsyncCallback onDone;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +85,11 @@ class NewDefinitionWidget extends ConsumerWidget {
     );
   }
 
-  void _discardChanges(Reader read) {}
+  void _discardChanges(Reader read) {
+    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition());
+  }
 
-  void _saveChanges(Reader read, ArbDefinition value) {}
+  void _saveChanges(Reader read, ArbDefinition value) {
+    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition());
+  }
 }

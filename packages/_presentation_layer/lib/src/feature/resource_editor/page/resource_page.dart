@@ -15,7 +15,7 @@ class ResourcePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(editNewDefinitionProvider)) {
-      return const _NewResourcePage();
+      return _NewResourcePage();
     }
     final originalDefinition = ref.watch(selectedDefinitionProvider);
     if (originalDefinition == null) {
@@ -92,21 +92,200 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewRes
       );
 }
 
-class _NewResourcePage extends ConsumerWidget {
-  const _NewResourcePage();
+class _NewResourcePage extends StatefulWidget {
+  @override
+  State<_NewResourcePage> createState() => _NewResourcePageState();
+}
+
+class _NewResourcePageState extends State<_NewResourcePage> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late CurvedAnimation _moveAnimation;
+  late CurvedAnimation _iconOpacityAnimation;
+  late CurvedAnimation _containerOpacityAnimation;
+
+  static const kFlightAnimationDuration = Duration(milliseconds: 500);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          ResourceBar(),
-          NewDefinitionWidget(),
-        ],
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: kFlightAnimationDuration);
+    _configAnimations();
+    _resetState();
+  }
+
+  void _configAnimations() {
+    const transitionStart = 0.6;
+    _moveAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0, transitionStart),
+    );
+    _iconOpacityAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(transitionStart / 2.0, transitionStart),
+    );
+    _containerOpacityAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(transitionStart, 1.0),
+    );
+  }
+
+  void _resetState() {
+    if (!_controller.isAnimating) {
+      _controller.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _AnimatedNewResourcePage(
+      _controller,
+      moveAnimation: _moveAnimation,
+      iconOpacityAnimation: _iconOpacityAnimation,
+      containerOpacityAnimation: _containerOpacityAnimation,
+    );
+  }
+}
+
+class _AnimatedNewResourcePage extends AnimatedWidget {
+  _AnimatedNewResourcePage(
+    AnimationController animation, {
+    required this.moveAnimation,
+    required this.iconOpacityAnimation,
+    required this.containerOpacityAnimation,
+  }) : super(listenable: animation);
+
+  final CurvedAnimation moveAnimation;
+  final CurvedAnimation iconOpacityAnimation;
+  final CurvedAnimation containerOpacityAnimation;
+
+  final StateController<Offset> startTargetOffset = StateController(Offset.zero);
+  final StateController<Offset> finalTargetOffset = StateController(Offset.zero);
+  final StateController<RenderBox?> startTargetRenderBox = StateController(null);
+  final StateController<RenderBox?> finalTargetRenderBox = StateController(null);
+
+  final _stackKey = LabeledGlobalKey('newResourceStackKey');
+  final _addButtonKey = LabeledGlobalKey('addButtonKey');
+  final _formContainerKey = LabeledGlobalKey('formContainerKey');
+
+  Animation<double> get animation => listenable as Animation<double>;
+  AnimationController get controller => listenable as AnimationController;
+
+  bool get isInitial => animation.value == 0.0;
+  bool get isAnimating => animation.value > 0.0 && animation.value < 1.0;
+  bool get isFinal => animation.value == 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isInitial) {
+      startTargetRenderBox.state = null;
+    }
+    if (isFinal) {
+      finalTargetRenderBox.state = null;
+    }
+    return Stack(
+      key: _stackKey,
+      children: [
+        _page(),
+        _transitioningButton(),
+      ],
+    );
+  }
+
+  Widget _page() {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ResourceBar(),
+            Opacity(
+              opacity: containerOpacityAnimation.value > 0 ? 1.0 : 0.0,
+              child: NewDefinitionWidget(key: _formContainerKey, onDone: _onDone),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: isInitial
+          ? FloatingActionButton(
+              key: _addButtonKey,
+              onPressed: () => {},
+              child: const Icon(Icons.add),
+            )
+          : null,
+    );
+  }
+
+  Future<void> _onDone() async => controller.reverse(from: 1.0);
+
+  Widget _transitioningButton() {
+    if (isAnimating) {
+      if (startTargetRenderBox.state == null) {
+        _readStartPosition();
+      }
+      if (finalTargetRenderBox.state == null) {
+        _readFinalPosition();
+      }
+    }
+    if (!isAnimating || startTargetRenderBox.state == null || finalTargetRenderBox.state == null) {
+      return Container();
+    }
+
+    final startSize = startTargetRenderBox.state!.size;
+    final finalSize = finalTargetRenderBox.state!.size;
+    final sizeDiff = (finalSize - startSize) as Offset;
+    final startOffset = startTargetOffset.state;
+    final finalOffset = finalTargetOffset.state;
+    final dist = finalOffset - startOffset;
+
+    return Positioned(
+        top: startOffset.dy + moveAnimation.value * dist.dy,
+        left: startOffset.dx + moveAnimation.value * dist.dx,
+        child: SizedBox(
+          width: startSize.width + moveAnimation.value * sizeDiff.dx,
+          height: startSize.height + moveAnimation.value * sizeDiff.dy,
+          child: _flightWidget(),
+        ));
+  }
+
+  Widget _flightWidget() {
+    final iconOpacity = 1.0 - iconOpacityAnimation.value;
+    final containerOpacity = 1.0 - containerOpacityAnimation.value;
+    return Opacity(
+      opacity: containerOpacity,
+      child: FloatingActionButton(
+        heroTag: null,
+        child: Opacity(
+          opacity: iconOpacity,
+          child: const Icon(Icons.add),
+        ),
+        onPressed: () {},
       ),
     );
+  }
+
+  void _readStartPosition() {
+    final startTarget = _addButtonKey.currentContext?.findRenderObject();
+    final stackWidget = _stackKey.currentContext?.findRenderObject();
+    if (startTarget is RenderBox && stackWidget != null) {
+      startTargetRenderBox.state = startTarget;
+      startTargetOffset.state = startTarget.localToGlobal(Offset.zero, ancestor: stackWidget);
+    }
+  }
+
+  void _readFinalPosition() {
+    final finalTarget = _formContainerKey.currentContext?.findRenderObject();
+    final stackWidget = _stackKey.currentContext?.findRenderObject();
+    if (finalTarget is RenderBox && stackWidget != null) {
+      finalTargetRenderBox.state = finalTarget;
+      finalTargetOffset.state = finalTarget.localToGlobal(Offset.zero, ancestor: stackWidget);
+    }
   }
 }
 

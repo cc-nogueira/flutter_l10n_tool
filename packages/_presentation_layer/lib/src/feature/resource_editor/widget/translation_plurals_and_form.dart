@@ -121,7 +121,7 @@ class _TranslationPluralsAndForm extends StatefulWidget {
 
 class _TranslationPluralsAndFormState extends State<_TranslationPluralsAndForm>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late final AnimationController _controller;
 
   static const kFlightAnimationDuration = Duration(milliseconds: 300);
 
