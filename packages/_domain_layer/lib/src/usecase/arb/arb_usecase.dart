@@ -42,7 +42,6 @@ class ArbUsecase {
   }
 
   void editNewDefinition() {
-    //clearSelection();
     _editNewDefinitionNotifier().state = true;
   }
 
@@ -58,7 +57,11 @@ class ArbUsecase {
 
   /// Toggle the selection of a [ArbDefinition].
   void toggle(ArbDefinition? definition) {
-    _selectedDefinitionNotifier().toggleSelect(definition);
+    if (read(editNewDefinitionProvider)) {
+      select(definition);
+    } else {
+      _selectedDefinitionNotifier().toggleSelect(definition);
+    }
   }
 
   /// Clear the current [ArbDefinition] selection.
