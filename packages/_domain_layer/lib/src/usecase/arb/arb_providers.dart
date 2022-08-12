@@ -21,6 +21,11 @@ final editNewDefinitionProvider = Provider((ref) {
   return ref.watch(scope.editNewDefinitionProvider);
 });
 
+final newDefinitionsProvider = Provider((ref) {
+  final scope = ref.watch(_arbScopeProvider);
+  return ref.watch(scope.newDefinitionsProvider);
+});
+
 /// This is a exporting provider to forward [ArbScope] instance internal provider.
 /// See [ArbScope.selectedDefinitionProvider].
 final selectedDefinitionProvider = Provider((ref) {

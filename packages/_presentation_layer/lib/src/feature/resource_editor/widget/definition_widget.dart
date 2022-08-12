@@ -84,7 +84,8 @@ class NewDefinitionWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NewDefinitionForm(
-      onSaveNewDefinition: (value) => _saveNewDefinition(ref.read, value),
+      onSaveNewDefinition: ({required original, required value}) =>
+          _saveNewDefinition(ref.read, original: original, value: value),
       onDiscardNewDefinition: ({required original}) => _discardNew(ref.read, original: original),
     );
   }
@@ -95,7 +96,10 @@ class NewDefinitionWidget extends ConsumerWidget {
     });
   }
 
-  void _saveNewDefinition(Reader read, ArbDefinition value) {
-    onDone().then((_) => read(arbUsecaseProvider).cancelEditingNewDefinition(original: null));
+  void _saveNewDefinition(Reader read,
+      {required ArbDefinition original, required ArbDefinition value}) {
+    onDone().then((_) {
+      read(arbUsecaseProvider).saveNewDefinition(original: original, value: value);
+    });
   }
 }

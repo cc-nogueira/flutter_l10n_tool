@@ -12,6 +12,10 @@ import 'definition_placeholders_and_form.dart';
 typedef ChangeTypeCallback = void Function(ArbDefinition definition,
     {required ArbDefinitionType type});
 
+typedef SaveNewDefinitionCallback = void Function({
+  required ArbDefinition original,
+  required ArbDefinition value,
+});
 typedef DiscardNewDefinitionCallback = void Function({required ArbDefinition original});
 
 class NewDefinitionForm extends StatefulWidget {
@@ -21,7 +25,7 @@ class NewDefinitionForm extends StatefulWidget {
     required this.onDiscardNewDefinition,
   });
 
-  final ValueChanged<ArbDefinition> onSaveNewDefinition;
+  final SaveNewDefinitionCallback onSaveNewDefinition;
   final DiscardNewDefinitionCallback onDiscardNewDefinition;
 
   @override
@@ -52,7 +56,7 @@ class _NewDefinitionFormState extends State<NewDefinitionForm> {
       originalDefinition: emptyDef,
       currentDefinition: emptyDef,
       definitionBeingEdited: beingEdited,
-      onSaveChanges: widget.onSaveNewDefinition,
+      onSaveChanges: (value) => widget.onSaveNewDefinition(original: emptyDef, value: value),
       onDiscardChanges: () => widget.onDiscardNewDefinition(original: emptyDef),
       onUpdateDefinition: onUpdateDefinition,
       onChangeType: onChangeType,

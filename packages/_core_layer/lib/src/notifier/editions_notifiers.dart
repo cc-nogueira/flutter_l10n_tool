@@ -5,7 +5,7 @@ import 'package:riverpod/riverpod.dart';
 
 /// This state object shares its internal map between instances.
 ///
-/// Creating an ofspring element with copyWith or copyWithout will change the original
+/// Creating an offspring element with copyWith or copyWithout will change the original
 /// content and create a "soft" copy.
 ///
 /// This is only useful to avoid constant map recreation kwowing the original value is always discarded.

@@ -52,6 +52,11 @@ class ArbUsecase {
     _editNewDefinitionNotifier().state = false;
   }
 
+  void saveNewDefinition({required ArbDefinition original, required ArbDefinition value}) {
+    _newDefinitiosNotifier().add(value);
+    cancelEditingNewDefinition(original: original);
+  }
+
   /// Defines which [ArbDefinition] is currently being selected by the user.
   void select(ArbDefinition? definition) {
     cancelEditingNewDefinition(original: null);
@@ -288,9 +293,16 @@ class ArbUsecase {
     }
   }
 
+  // -- StateNotifiers and StateControllers:
+
   StateController _editNewDefinitionNotifier() {
     final scope = read(_arbScopeProvider);
     return read(scope.editNewDefinitionProvider.notifier);
+  }
+
+  NewDefinitionsNotifier _newDefinitiosNotifier() {
+    final scope = read(_arbScopeProvider);
+    return read(scope.newDefinitionsProvider.notifier);
   }
 
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {
