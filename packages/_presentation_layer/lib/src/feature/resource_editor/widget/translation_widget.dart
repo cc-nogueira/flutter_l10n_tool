@@ -120,8 +120,7 @@ abstract class TranslationWidget<D extends ArbDefinition, T extends ArbTranslati
   }
 
   void _saveChanges(Reader read, ArbTranslation value) {
-    read(arbUsecaseProvider)
-        .saveTranslation(locale: locale, definition: originalDefinition, value: value);
+    read(arbUsecaseProvider).saveTranslation(definition: originalDefinition, value: value);
     _rebuild(read);
   }
 
@@ -153,6 +152,7 @@ class PlaceholdersTranslationWidget
       isOriginal: isOriginal,
       onEdit: () => _edit(read, current),
       onRollback: () => _rollback(read),
+      onSave: (value) => _saveChanges(read, value),
     );
   }
 
@@ -200,6 +200,7 @@ class PluralTranslationWidget extends TranslationWidget<ArbPluralDefinition, Arb
       isOriginal: isOriginal,
       onEdit: () => _edit(read, current),
       onRollback: () => _rollback(read),
+      onSave: (value) => _saveChanges(read, value),
     );
   }
 
@@ -259,6 +260,7 @@ class SelectTranslationWidget extends TranslationWidget<ArbSelectDefinition, Arb
       knownCases: knownCasesController.state,
       onEdit: () => _edit(read, current),
       onRollback: () => _rollback(read),
+      onSave: (value) => _saveChanges(read, value),
     );
   }
 

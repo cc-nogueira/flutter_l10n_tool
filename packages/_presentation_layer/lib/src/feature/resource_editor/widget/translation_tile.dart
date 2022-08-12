@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../common/widget/form_mixin.dart';
 import '../builder/arb_builder.dart';
+import '../builder/arb_translation_builder.dart';
 
 abstract class BasicTranslationTile<D extends ArbDefinition> extends StatelessWidget {
   const BasicTranslationTile({
@@ -45,7 +46,7 @@ abstract class BasicTranslationTile<D extends ArbDefinition> extends StatelessWi
           ),
         ),
         ArbBuilder.leadingSeparator,
-        Column(children: tileTrailingIcons(context))
+        Row(children: tileTrailingIcons(context))
       ],
     );
   }
@@ -88,12 +89,13 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
     required this.translation,
     required this.isOriginal,
     required this.onRollback,
+    required this.onSave,
   }) : super(
           builder: ArbTranslationBuilder.forArgs(
-            displayOption: displayOption,
-            definition: definition,
-            translation: translation,
-          ),
+              displayOption: displayOption,
+              definition: definition,
+              translation: translation,
+              onTranslationChanged: onSave),
         );
 
   @override
@@ -102,6 +104,7 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
   final T translation;
   final bool isOriginal;
   final VoidCallback onRollback;
+  final ValueChanged<T> onSave;
 
   @override
   List<Widget> tileTrailingIcons(BuildContext context) {
@@ -126,7 +129,7 @@ abstract class TranslationTile<D extends ArbDefinition, T extends ArbTranslation
       builder: (ctx) => AlertDialog(
         title: const Text('Please confirm'),
         content: const Text(
-          'Definition has been modified.\n'
+          'Translation has been modified.\n'
           'Please confirm rollback to origial value or dismiss this dialog.',
         ),
         actions: [
@@ -158,6 +161,7 @@ class PlaceholdersTranslationTile
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
+    required super.onSave,
   });
 }
 
@@ -172,6 +176,7 @@ abstract class TranslationWithParameterTile<D extends ArbDefinitionWithParameter
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
+    required super.onSave,
   });
 
   @override
@@ -201,6 +206,7 @@ class PluralTranslationTile
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
+    required super.onSave,
   });
 }
 
@@ -215,6 +221,7 @@ class SelectTranslationTile
     required super.isOriginal,
     required super.onEdit,
     required super.onRollback,
+    required super.onSave,
     required this.knownCases,
   });
 

@@ -185,10 +185,10 @@ class ArbUsecase {
   }
 
   void saveTranslation({
-    required String locale,
     required ArbDefinition definition,
     required ArbTranslation value,
   }) {
+    final locale = value.locale;
     final translations = read(projectProvider).translations[locale];
     final original = translations?.translations[definition.key];
     if (value == original) {

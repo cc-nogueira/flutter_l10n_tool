@@ -8,7 +8,7 @@ import '../../../common/widget/arb_chip.dart';
 import '../../../common/widget/buttons.dart';
 import '../../../common/widget/form_button.dart';
 import '../../../l10n/app_localizations.dart';
-import '../builder/arb_builder.dart';
+import '../builder/arb_translation_builder.dart';
 import 'translation_select_form.dart';
 
 /// Show existing select options, actions and a dynamic form for plurals edition.

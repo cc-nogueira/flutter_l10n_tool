@@ -6,7 +6,7 @@ import '../../../common/widget/form_dropdown.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../../../l10n/app_localizations.dart';
-import '../builder/arb_builder.dart';
+import '../builder/arb_definition_builder.dart';
 import 'definition_placeholders_and_form.dart';
 
 typedef ChangeTypeCallback = void Function(ArbDefinition definition,

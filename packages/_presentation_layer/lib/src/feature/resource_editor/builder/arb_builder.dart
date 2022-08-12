@@ -1,9 +1,4 @@
-import 'package:_core_layer/string_utils.dart';
-import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
-
-part 'arb_definition_builder.dart';
-part 'arb_translation_builder.dart';
 
 class ArbBuilder {
   ArbBuilder();

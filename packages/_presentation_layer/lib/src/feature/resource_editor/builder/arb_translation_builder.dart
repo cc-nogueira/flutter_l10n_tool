@@ -1,4 +1,9 @@
-part of 'arb_builder.dart';
+import 'package:_core_layer/string_utils.dart';
+import 'package:_domain_layer/domain_layer.dart';
+import 'package:flutter/material.dart';
+
+import '../widget/fix_translation_param_name_button.dart';
+import 'arb_builder.dart';
 
 abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBuilder {
   ArbTranslationBuilderBase({required this.displayOption, required this.definition});
@@ -74,6 +79,7 @@ abstract class ArbTranslationBuilder<D extends ArbDefinition, T extends ArbTrans
     required super.displayOption,
     required super.definition,
     required this.translation,
+    required this.onTranslationChanged,
   });
 
   /// Static method like a factory constructor to instantiate the corresponding builder for the
@@ -84,6 +90,7 @@ abstract class ArbTranslationBuilder<D extends ArbDefinition, T extends ArbTrans
     required DisplayOption displayOption,
     required D definition,
     required T translation,
+    required ValueChanged<T> onTranslationChanged,
   }) {
     assert(definition.type == translation.type);
     return translation.map(
@@ -91,22 +98,28 @@ abstract class ArbTranslationBuilder<D extends ArbDefinition, T extends ArbTrans
         displayOption: displayOption,
         definition: definition as ArbPlaceholdersDefinition,
         translation: trans,
+        onTranslationChanged: onTranslationChanged as ValueChanged<ArbPlaceholdersTranslation>,
       ),
       plural: (trans) => ArbPluralTranslationBuilder(
         displayOption: displayOption,
         definition: definition as ArbPluralDefinition,
         translation: trans,
+        onTranslationChanged: onTranslationChanged as ValueChanged<ArbPluralTranslation>,
       ),
       select: (trans) => ArbSelectTranslationBuilder(
         displayOption: displayOption,
         translation: trans,
         definition: definition as ArbSelectDefinition,
+        onTranslationChanged: onTranslationChanged as ValueChanged<ArbSelectTranslation>,
       ),
     );
   }
 
   /// Arb translation may be updated during the lifetime of this builder.
   T translation;
+
+  /// Callback when changing a translation (i.e Fix action).
+  ValueChanged<T> onTranslationChanged;
 
   /// Options are only meaninful for [ArbPluralTranslation] and [ArbSelectTranslation].
   List<Widget> optionsWidgets() => [];
@@ -122,6 +135,7 @@ class ArbPlaceholdersTranslationBuilder
     required super.displayOption,
     required super.definition,
     required super.translation,
+    required super.onTranslationChanged,
   });
 
   /// Generate the SelectableText widget with [ArbBuilder.subtitleStyle] and corolized placeholders.
@@ -204,6 +218,7 @@ abstract class _ArbTranslationWithParameterBuilder<D extends ArbDefinitionWithPa
     required super.displayOption,
     required super.definition,
     required super.translation,
+    required super.onTranslationChanged,
   });
 
   /// Horizonta spacing constant
@@ -229,15 +244,12 @@ abstract class _ArbTranslationWithParameterBuilder<D extends ArbDefinitionWithPa
         Text(' }', style: markingStyle),
         if (translation.suffix.isNotEmpty) Text(translation.suffix, style: subtitleStyle),
         if (!paramNameOK)
-          const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Tooltip(
-              triggerMode: TooltipTriggerMode.tap,
-              message: 'Current param name does not match param definition.\n'
-                  'This does not break Flutter L10N generation.\n'
-                  'It may be be fixed on file generation (configurable in options).',
-              child: Icon(Icons.error_outline, size: 20, color: Colors.amber),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: FixTranslationParamNameButton(
+                definition: definition,
+                translation: translation,
+                onValueChanged: onTranslationChanged),
           ),
       ],
     );
@@ -291,6 +303,7 @@ class ArbPluralTranslationBuilder
     required super.displayOption,
     required super.definition,
     required super.translation,
+    required super.onTranslationChanged,
   });
 
   /// Generate option widgets for this type of translation using the common superclass layout methods.
@@ -313,6 +326,7 @@ class ArbSelectTranslationBuilder
     required super.definition,
     required super.translation,
     required super.displayOption,
+    required super.onTranslationChanged,
   });
 
   var knownCases = <String>{};

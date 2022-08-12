@@ -1,4 +1,8 @@
-part of 'arb_builder.dart';
+import 'package:_core_layer/string_utils.dart';
+import 'package:_domain_layer/domain_layer.dart';
+import 'package:flutter/material.dart';
+
+import 'arb_builder.dart';
 
 class ArbDefinitionBuilder extends ArbBuilder {
   ArbDefinitionBuilder({this.definition});

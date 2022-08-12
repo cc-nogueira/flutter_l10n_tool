@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widget/form_mixin.dart';
 import '../../../common/widget/text_form_field_mixin.dart';
 import '../builder/arb_builder.dart';
+import '../builder/arb_translation_builder.dart';
 import 'translation_placeholders_text_editing_controller.dart';
 import 'translation_plurals_and_form.dart';
 import 'translation_selects_and_form.dart';
@@ -113,9 +114,11 @@ abstract class TranslationFormState<S extends TranslationForm<D, T>, D extends A
   void resetState() {
     translationController = StateController<T>(widget.beingEdited);
     builder = ArbTranslationBuilder.forArgs(
-        displayOption: widget.displayOption,
-        definition: widget.definition,
-        translation: translationController.state);
+      displayOption: widget.displayOption,
+      definition: widget.definition,
+      translation: translationController.state,
+      onTranslationChanged: onChangedValue,
+    );
   }
 
   @override
