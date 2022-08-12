@@ -10,7 +10,7 @@ import '../../common/widget/navigation_drawer.dart';
 import '../../l10n/app_localizations.dart';
 import '../../provider/presentation_providers.dart';
 
-final _filterProvider = StateProvider((_) => [false, false, false]);
+final _filterProvider = StateProvider((_) => [false, false, false, false]);
 final _considerLocalesProvider = StateProvider(((ref) => true));
 
 class ResourcesDrawer extends NavigationDrawer {
@@ -68,9 +68,9 @@ class ResourcesDrawer extends NavigationDrawer {
           showSelectedMark: false,
           noSplash: true,
           selectedColor: Colors.white,
-          selected: selectedFilters[0],
+          selected: selectedFilters[1],
           child: const Icon(Icons.edit, size: 16),
-          onPressed: () => _onFilterPressed(ref.read, 0),
+          onPressed: () => _onFilterPressed(ref.read, 1),
         ),
         segmentedButton(
           colors: colors,
@@ -79,9 +79,20 @@ class ResourcesDrawer extends NavigationDrawer {
           showSelectedMark: false,
           selectedColor: Colors.white,
           noSplash: true,
-          selected: selectedFilters[1],
+          selected: selectedFilters[2],
           child: const Icon(Icons.save, size: 16),
-          onPressed: () => _onFilterPressed(ref.read, 1),
+          onPressed: () => _onFilterPressed(ref.read, 2),
+        ),
+        segmentedButton(
+          colors: colors,
+          align: MainAxisAlignment.center,
+          minimumSize: const Size(0, 36),
+          showSelectedMark: false,
+          noSplash: true,
+          selectedColor: Colors.white,
+          selected: selectedFilters[0],
+          child: const Icon(Icons.add_box, size: 16),
+          onPressed: () => _onFilterPressed(ref.read, 0),
         ),
         segmentedButton(
           colors: colors,
@@ -90,9 +101,9 @@ class ResourcesDrawer extends NavigationDrawer {
           showSelectedMark: false,
           selectedColor: Colors.amberAccent,
           noSplash: true,
-          selected: selectedFilters[2],
+          selected: selectedFilters[3],
           child: const Icon(Icons.warning_amber, size: 16),
-          onPressed: () => _onFilterPressed(ref.read, 2),
+          onPressed: () => _onFilterPressed(ref.read, 3),
         ),
         clearFiltersButton(colors, () => _onFilterPressed(ref.read)),
       ],
@@ -112,8 +123,9 @@ class ResourcesDrawer extends NavigationDrawer {
     );
   }
 
-  List<ArbDefinition> _filteredDefinitions(
-    List<ArbDefinition> definitions, {
+  List<ArbDefinition> _filteredDefinitions({
+    required List<ArbDefinition> originalDefinitions,
+    required SetState<ArbDefinition> newDefinitions,
     required ArbDefinition? selected,
     required List<String> locales,
     required List<bool> selectedFilters,
@@ -124,18 +136,21 @@ class ResourcesDrawer extends NavigationDrawer {
     required EditionsOneToManyState<ArbDefinition, ArbWarning> warnings,
   }) {
     final filters = [
-      if (selectedFilters[0])
+      if (selectedFilters[0]) (ArbDefinition def) => _isNewDefinition(locales, newDefinitions, def),
+      if (selectedFilters[1])
         (ArbDefinition def) =>
             _isBeingEdited(locales, beingEditedDefinitions, beingEditedTranslations, def),
-      if (selectedFilters[1])
+      if (selectedFilters[2])
         (ArbDefinition def) => _isModified(locales, currentDefinitions, currentTranslations, def),
-      if (selectedFilters[2]) (ArbDefinition def) => _hasWarnings(locales, warnings, def),
+      if (selectedFilters[3]) (ArbDefinition def) => _hasWarnings(locales, warnings, def),
     ];
     if (filters.isEmpty) {
-      return definitions;
+      return [...newDefinitions, ...originalDefinitions];
     }
     return [
-      for (final def in definitions)
+      for (final def in newDefinitions)
+        if (def == selected || filters.any((filter) => filter(def))) def,
+      for (final def in originalDefinitions)
         if (def == selected || filters.any((filter) => filter(def))) def,
     ];
   }
@@ -148,6 +163,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final considerLocales = ref.watch(_considerLocalesProvider);
     final localesToAnalyse =
         considerLocales ? ref.watch(selectedLocalesProvider) : ref.watch(allLocalesProvider);
+    final newDefinitions = ref.watch(newDefinitionsProvider);
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final currentTranslations = ref.watch(currentTranslationsProvider);
     final beingEditedTranslations = ref.watch(beingEditedTranslationLocalesProvider);
@@ -158,7 +174,8 @@ class ResourcesDrawer extends NavigationDrawer {
 
     final selectedFilters = ref.watch(_filterProvider);
     final definitions = _filteredDefinitions(
-      project.template.definitions,
+      originalDefinitions: project.template.definitions,
+      newDefinitions: newDefinitions,
       selected: selected,
       currentDefinitions: currentDefinitions,
       beingEditedDefinitions: beingEditedDefinitions,
@@ -184,6 +201,7 @@ class ResourcesDrawer extends NavigationDrawer {
                   final definition = definitions[index];
                   final current = currentDefinitions[definition];
                   final hasWarnings = _hasWarnings(localesToAnalyse, warnings, definition);
+                  final isNew = _isNewDefinition(localesToAnalyse, newDefinitions, definition);
                   final isBeingEdited = _isBeingEdited(localesToAnalyse, beingEditedDefinitions,
                       beingEditedTranslations, definition);
                   final isModified = _isModified(
@@ -194,6 +212,7 @@ class ResourcesDrawer extends NavigationDrawer {
                     colors,
                     definition,
                     current: current,
+                    isNew: isNew,
                     isBeingEdited: isBeingEdited,
                     isSelected: !isEditingNewDefinition && definition == selected,
                     isModified: isModified,
@@ -207,6 +226,13 @@ class ResourcesDrawer extends NavigationDrawer {
       )
     ];
   }
+
+  bool _isNewDefinition(
+    List<String> locales,
+    SetState<ArbDefinition> newDefinitions,
+    ArbDefinition definition,
+  ) =>
+      newDefinitions.contains(definition);
 
   bool _isBeingEdited(
     List<String> locales,
@@ -255,15 +281,18 @@ class ResourcesDrawer extends NavigationDrawer {
     ArbDefinition definition, {
     required ArbDefinition? current,
     required bool isSelected,
+    required bool isNew,
     required bool isBeingEdited,
     required bool isModified,
     required bool hasWarnings,
   }) {
-    final leading = isBeingEdited
-        ? const Icon(Icons.edit, size: 14)
-        : isModified
-            ? const Icon(Icons.save, size: 14)
-            : const SizedBox(width: 12);
+    final leading = isNew
+        ? const Icon(Icons.add_box, size: 14)
+        : isBeingEdited
+            ? const Icon(Icons.edit, size: 14)
+            : isModified
+                ? const Icon(Icons.save, size: 14)
+                : const SizedBox(width: 12);
     final color = hasWarnings ? Colors.amberAccent : null;
     final style = isSelected
         ? TextStyle(fontWeight: FontWeight.w600, color: color)
