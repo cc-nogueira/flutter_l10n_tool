@@ -8,6 +8,11 @@ abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBui
       height: ArbBuilder.leadingSize,
       child: Center(child: Icon(Icons.translate)));
 
+  static const warningIcon = SizedBox(
+      width: ArbBuilder.leadingSize,
+      height: ArbBuilder.leadingSize,
+      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
+
   /// Current display option ([DisplayOption.compact] or [DisplayOption.expanded]).
   final DisplayOption displayOption;
 
@@ -42,11 +47,6 @@ abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBui
 
 class ArbMissingTranslationBuilder extends ArbTranslationBuilderBase<ArbDefinition> {
   ArbMissingTranslationBuilder({required super.displayOption, required super.definition});
-
-  static const missingTranslationIcon = SizedBox(
-      width: ArbBuilder.leadingSize,
-      height: ArbBuilder.leadingSize,
-      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
 
   @override
   List<Widget> tileLeadingIcons() {
@@ -167,6 +167,31 @@ class ArbPlaceholdersTranslationBuilder
       style: subtitleStyle,
       maxLines: null,
     );
+  }
+
+  @override
+  List<Widget> tileLeadingIcons() {
+    final definitionPlaceholders = {for (final ph in definition.placeholders) ph.key};
+    final hasUnknonwn = !definitionPlaceholders.containsAll(translation.placeholderNames);
+    final hasUnused = (definitionPlaceholders..removeAll(translation.placeholderNames)).isNotEmpty;
+    final messages = [
+      if (hasUnknonwn) 'uses unknown placeholders',
+      if (hasUnknonwn && hasUnused) ' and ',
+      if (hasUnused) 'not using all defined placeholders',
+      if (hasUnknonwn || hasUnused) '.',
+    ];
+    if (messages.isNotEmpty) {
+      final message = messages.join().capitalized;
+      return [
+        ...super.tileLeadingIcons(),
+        Tooltip(
+          triggerMode: TooltipTriggerMode.tap,
+          message: message,
+          child: ArbTranslationBuilderBase.warningIcon,
+        ),
+      ];
+    }
+    return super.tileLeadingIcons();
   }
 }
 
@@ -292,11 +317,6 @@ class ArbSelectTranslationBuilder
 
   var knownCases = <String>{};
 
-  static const missingCasesIcon = SizedBox(
-      width: ArbBuilder.leadingSize,
-      height: ArbBuilder.leadingSize,
-      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
-
   @override
   List<Widget> tileLeadingIcons() {
     if (hasMissingCases) {
@@ -305,7 +325,7 @@ class ArbSelectTranslationBuilder
         const Tooltip(
           triggerMode: TooltipTriggerMode.tap,
           message: 'Missing select cases.',
-          child: missingCasesIcon,
+          child: ArbTranslationBuilderBase.warningIcon,
         ),
       ];
     }

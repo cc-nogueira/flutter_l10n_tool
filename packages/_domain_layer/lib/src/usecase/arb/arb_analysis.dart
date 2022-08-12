@@ -70,6 +70,9 @@ class ArbAnalysis {
     List<ArbTranslation> translations,
   ) {
     _updateMissingTranslationWarnings(locales, definition, translations);
+    if (definition is ArbPlaceholdersDefinition) {
+      _updatePlaceholdersDefinitionWarnings(definition, translations);
+    }
     if (definition is ArbSelectDefinition) {
       _updateSelectDefinitionCasesAndWarnings(definition, translations);
     }
@@ -90,6 +93,38 @@ class ArbAnalysis {
     for (final locale in missingLocales) {
       final warn = ArbWarning(locale: locale, type: ArbWarningType.missingTranslation);
       _warningsNotifier().add(definition, warn);
+    }
+  }
+
+  void _updatePlaceholdersDefinitionWarnings(
+    ArbPlaceholdersDefinition definition,
+    List<ArbTranslation> translations,
+  ) {
+    final definitionPlaceholders = {for (final ph in definition.placeholders) ph.key};
+    for (final translation in translations) {
+      if (translation is ArbPlaceholdersTranslation) {
+        ArbWarning warn = ArbWarning(
+          locale: translation.locale,
+          type: ArbWarningType.translationUnknownPlaceholderKey,
+        );
+        final hasUnknown = !definitionPlaceholders.containsAll(translation.placeholderNames);
+        if (hasUnknown) {
+          _warningsNotifier().add(definition, warn);
+        } else {
+          _warningsNotifier().remove(definition, warn);
+        }
+
+        warn = ArbWarning(
+          locale: translation.locale,
+          type: ArbWarningType.translationUnusedPlaceholderKey,
+        );
+        final unused = Set.from(definitionPlaceholders)..removeAll(translation.placeholderNames);
+        if (unused.isNotEmpty) {
+          _warningsNotifier().add(definition, warn);
+        } else {
+          _warningsNotifier().remove(definition, warn);
+        }
+      }
     }
   }
 

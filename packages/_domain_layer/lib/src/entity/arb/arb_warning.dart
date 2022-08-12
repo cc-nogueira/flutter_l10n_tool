@@ -12,5 +12,7 @@ class ArbWarning with _$ArbWarning {
 
 enum ArbWarningType {
   missingTranslation,
+  translationUnknownPlaceholderKey,
+  translationUnusedPlaceholderKey,
   translationMissingSelectCases,
 }
