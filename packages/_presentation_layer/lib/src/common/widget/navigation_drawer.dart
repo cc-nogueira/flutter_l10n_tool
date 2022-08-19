@@ -1,3 +1,4 @@
+import 'package:_domain_layer/domain_layer.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
     this.option, {
     super.key,
     this.width = 304,
+    this.dependOnProjectLoaded = true,
     this.childrenPadding = const EdgeInsets.symmetric(horizontal: 8.0),
   });
 
@@ -30,6 +32,9 @@ abstract class NavigationDrawer extends ConsumerWidget {
 
   /// Drawer width, defaults to 304 (Drawer default _kWidth)
   final double width;
+
+  /// Drawer content depend on project being loaded
+  final bool dependOnProjectLoaded;
 
   /// Builds a drawer.
   ///
@@ -48,13 +53,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
         children: [
           _header(context, ref, loc),
           Expanded(
-            child: Padding(
-              padding: childrenPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children(context, ref, loc),
-              ),
-            ),
+            child: _body(context, ref, loc),
           ),
         ],
       ),
@@ -69,7 +68,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
   Widget _header(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final child = headerChild(context, ref, loc);
+    final child = _projectNotLoadedHeaderMsg(colors, ref, loc) ?? headerChild(context, ref, loc);
     return SizedBox(
       height: 150,
       child: DrawerHeader(
@@ -131,6 +130,22 @@ abstract class NavigationDrawer extends ConsumerWidget {
         ),
       );
 
+  Widget? _projectNotLoadedHeaderMsg(ColorScheme colors, WidgetRef ref, AppLocalizations loc) {
+    if (dependOnProjectLoaded) {
+      final projectLoaded = ref.watch(isProjectLoadedProvider);
+      if (!projectLoaded) {
+        final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('(${loc.message_no_project_selected})', style: nameStyle),
+          ],
+        );
+      }
+    }
+    return null;
+  }
+
   /// Abstract localized header title text for [_header] builder.
   String titleText(AppLocalizations loc);
 
@@ -138,6 +153,27 @@ abstract class NavigationDrawer extends ConsumerWidget {
   Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) => null;
 
   EdgeInsetsGeometry get headerChildPadding => const EdgeInsets.symmetric(horizontal: 16.0);
+
+  Widget _body(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+    return _projectNotLoadedBody(ref) ??
+        Padding(
+          padding: childrenPadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children(context, ref, loc),
+          ),
+        );
+  }
+
+  Widget? _projectNotLoadedBody(WidgetRef ref) {
+    if (dependOnProjectLoaded) {
+      final projectLoaded = ref.watch(isProjectLoadedProvider);
+      if (!projectLoaded) {
+        return Container();
+      }
+    }
+    return null;
+  }
 
   /// Subclasses may define drawer's content that comes after the [_header].
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) => [];

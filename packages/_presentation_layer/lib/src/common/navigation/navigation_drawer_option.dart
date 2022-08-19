@@ -18,7 +18,8 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
   projectSelector(Icons.source_outlined),
   configuration(Icons.webhook_outlined),
   preferences(Icons.settings_outlined),
-  resources(Icons.list);
+  resources(Icons.list),
+  changeControl(Icons.published_with_changes);
 
   /// Const constructor
   const NavigationDrawerTopOption(this.icon);
@@ -44,6 +45,9 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
     }
     if (this == NavigationDrawerTopOption.resources) {
       return colors.onPrimary;
+    }
+    if (this == NavigationDrawerTopOption.changeControl) {
+      return colors.errorContainer;
     }
     return colors.surface;
   }

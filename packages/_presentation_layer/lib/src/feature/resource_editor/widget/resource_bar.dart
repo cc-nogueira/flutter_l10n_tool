@@ -97,7 +97,7 @@ class LocaleOptions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locales = ref.watch(projectProvider).translations.keys.toList();
-    final selectedLocales = ref.watch(localesFilterProvider);
+    final selectedLocales = ref.watch(selectedLocalesProvider);
     if (locales.length < 2) {
       return Container();
     }
@@ -109,13 +109,13 @@ class _LocaleOptions extends StatelessWidget {
   const _LocaleOptions(
     this.read,
     this.locales,
-    this.selectedLocaleFilters, {
+    this.selectedLocales, {
     required this.showSelectedMark,
   });
 
   final Reader read;
   final List<String> locales;
-  final List<bool> selectedLocaleFilters;
+  final Set<String> selectedLocales;
   final bool showSelectedMark;
 
   @override
@@ -127,7 +127,7 @@ class _LocaleOptions extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ..._localeButtons(textTheme, colors),
-        clearFiltersButton(colors, () => onLocalesFilterPressed(read)),
+        clearFiltersButton(colors, () => _onClearLocalesFilter(read)),
       ],
     );
   }
@@ -142,35 +142,41 @@ class _LocaleOptions extends StatelessWidget {
             minimumSize: const Size(0, 36),
             showSelectedMark: showSelectedMark,
             noSplash: true,
-            style: _style(theme, selectedLocaleFilters[idx]),
+            style: _style(theme, selectedLocales.contains(locales[idx])),
             align: idx == 0
                 ? MainAxisAlignment.start
                 : idx == length - 1
                     ? MainAxisAlignment.end
                     : MainAxisAlignment.center,
-            selected: selectedLocaleFilters[idx],
+            selected: selectedLocales.contains(locales[idx]),
             text: locales[idx],
-            onPressed: () => onLocalesFilterPressed(read, idx),
+            onPressed: () => onLocalesFilterPressed(read, locales[idx]),
           ),
       ];
     }
     return [];
   }
 
-  void onLocalesFilterPressed(Reader read, [int? idx]) {
-    final localesFilterNotifier = read(localesFilterProvider.notifier);
-    final noneSelected = !localesFilterNotifier.state.any((value) => value);
+  void onLocalesFilterPressed(Reader read, String locale) {
+    final localesFilterNotifier = read(selectedLocalesProvider.notifier);
     localesFilterNotifier.update(
-      (state) => [
-        for (int i = 0; i < state.length; ++i)
-          idx == null
-              ? false
-              : i == idx
-                  ? !state[i]
-                  : noneSelected && i == 0 || state[i],
-      ],
+      (state) {
+        if (state.contains(locale)) {
+          return {
+            for (final each in state)
+              if (each != locale) each,
+          };
+        }
+        if (state.isNotEmpty) {
+          return {...state, locale};
+        }
+        final first = read(allLocalesProvider).first;
+        return {first, locale};
+      },
     );
   }
+
+  void _onClearLocalesFilter(Reader read) => read(selectedLocalesProvider.notifier).state = {};
 
   TextStyle? _style(TextTheme theme, bool selected) =>
       selected ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w600) : theme.bodySmall;

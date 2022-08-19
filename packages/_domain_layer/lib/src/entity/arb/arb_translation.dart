@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'arb_definition.dart';
+import 'arb_key_mixin.dart';
 
 part 'arb_translation.freezed.dart';
 
@@ -22,6 +23,7 @@ mixin ArbTranslationWithParameter<T> on ArbTranslation {
 class ArbTranslation with _$ArbTranslation {
   const ArbTranslation._();
 
+  @With<ArbKeyMixin>()
   const factory ArbTranslation.placeholders({
     required String locale,
     required String key,
@@ -29,6 +31,7 @@ class ArbTranslation with _$ArbTranslation {
     @Default([]) List<String> placeholderNames,
   }) = ArbPlaceholdersTranslation;
 
+  @With<ArbKeyMixin>()
   @With<ArbTranslationWithParameter<ArbPlural>>()
   const factory ArbTranslation.plural({
     required String locale,
@@ -40,6 +43,7 @@ class ArbTranslation with _$ArbTranslation {
     @Default([ArbPlural(option: ArbPluralOption.other)]) List<ArbPlural> options,
   }) = ArbPluralTranslation;
 
+  @With<ArbKeyMixin>()
   @With<ArbTranslationWithParameter<ArbSelectCase>>()
   const factory ArbTranslation.select({
     required String locale,

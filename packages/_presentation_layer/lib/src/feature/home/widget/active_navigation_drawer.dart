@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../provider/presentation_providers.dart';
+import '../../change_control/page/change_control_drawer.dart';
 import '../../configuration/page/project_configuration_drawer.dart';
 import '../../help/help_drawer.dart';
 import '../../preferences/preferences_drawer.dart';
-import '../../project_selector/drawer/project_selector_drawer.dart';
-import '../../resources/resources_drawer.dart';
+import '../../project_selector/page/project_selector_drawer.dart';
+import '../../resources/page/resources_drawer.dart';
 
 /// Convenient widget to show the active navigation drawer or an empty container.
 ///
@@ -33,6 +34,8 @@ class ActiveNavigationDrawer extends ConsumerWidget {
         return const PreferencesDrawer();
       case NavigationDrawerTopOption.resources:
         return const ResourcesDrawer();
+      case NavigationDrawerTopOption.changeControl:
+        return const ChangeControlDrawer();
       case NavigationDrawerBottomOption.help:
         return const HelpDrawer();
       default:

@@ -26,31 +26,27 @@ final themeProvider = Provider((ref) {
 });
 
 /// Locales filter provider
-final localesFilterProvider = StateProvider((ref) {
-  final isReady = ref.watch(projectProvider.select((project) => project.isReady));
-  final count = isReady ? ref.read(projectProvider).translations.length : 0;
-  return List.filled(count, false);
+final selectedLocalesProvider = StateProvider<Set<String>>((ref) {
+  ref.watch(projectProvider.select((project) => project.isReady));
+  return <String>{};
 });
 
 final allLocalesProvider =
     Provider(((ref) => ref.read(projectProvider).translations.keys.toList()));
 
-final selectedLocalesProvider = Provider((ref) {
-  final locales = ref.read(projectProvider).translations.keys.toList();
-  final filters = ref.watch(localesFilterProvider);
-  assert(filters.length == locales.length);
-  final noneSelected = !filters.any((value) => value);
-  return [
-    for (int i = 0; i < filters.length; ++i)
-      if (noneSelected || filters[i]) locales[i]
-  ];
+final activeLocalesProvider = Provider((ref) {
+  final selected = ref.watch(selectedLocalesProvider).toList();
+  if (selected.isNotEmpty) {
+    return selected;
+  }
+  return ref.watch(allLocalesProvider);
 });
 
-final selectedLocaleTranslationsProvider = Provider((ref) {
-  final selectedLocales = ref.watch(selectedLocalesProvider);
+final localeTranslationForActiveLocalesProvider = Provider((ref) {
+  final activeLocales = ref.watch(activeLocalesProvider);
   final translations = ref.read(projectProvider).translations;
   return [
-    for (final locale in selectedLocales) translations[locale]!,
+    for (final locale in activeLocales) translations[locale]!,
   ];
 });
 

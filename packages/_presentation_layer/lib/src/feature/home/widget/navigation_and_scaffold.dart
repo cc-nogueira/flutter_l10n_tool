@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/desktop/container_with_title_bar.dart';
 import '../../../provider/presentation_providers.dart';
-import '../../rail/navigation_drawer_rail.dart';
+import '../../rail/page/navigation_drawer_rail.dart';
 import 'active_navigation_drawer.dart';
 
 class NavigationAndScaffold extends ConsumerWidget {

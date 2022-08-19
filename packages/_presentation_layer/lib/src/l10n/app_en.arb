@@ -53,6 +53,11 @@
   "@title_resources_drawer": {
     "description": "Title for resources drawer"
   },
+  
+  "title_change_control_drawer": "Changes",
+  "@title_change_control_drawer": {
+    "description": "Title for change control drawer"
+  },
 
   "title_help_drawer": "About",
   "@title_help_drawer": {

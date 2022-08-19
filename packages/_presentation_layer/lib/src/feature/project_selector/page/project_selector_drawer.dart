@@ -1,4 +1,3 @@
-import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,22 +15,6 @@ class ProjectSelectorDrawer extends NavigationDrawer {
 
   @override
   String titleText(AppLocalizations loc) => loc.title_project_selector_drawer;
-
-  @override
-  Widget? headerChild(BuildContext context, WidgetRef ref, AppLocalizations loc) {
-    final projectLoaded = ref.watch(isProjectLoadedProvider);
-    if (projectLoaded) {
-      return null;
-    }
-    final colors = Theme.of(context).colorScheme;
-    final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('(${loc.message_no_project_selected})', style: nameStyle),
-      ],
-    );
-  }
 
   @override
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {

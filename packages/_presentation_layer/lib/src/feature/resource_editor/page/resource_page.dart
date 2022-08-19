@@ -34,7 +34,7 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewRes
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDefinition =
         ref.watch(currentDefinitionsProvider.select((value) => value[originalDefinition])) as D?;
-    final selectedTranslations = ref.watch(selectedLocaleTranslationsProvider);
+    final selectedTranslations = ref.watch(localeTranslationForActiveLocalesProvider);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
