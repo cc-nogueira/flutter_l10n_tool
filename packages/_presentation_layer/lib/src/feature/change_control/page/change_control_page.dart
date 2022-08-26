@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widget/message_widget.dart';
-import '../../../l10n/app_localizations.dart';
 
 class ChangeControlPage extends ConsumerWidget {
   const ChangeControlPage({super.key});

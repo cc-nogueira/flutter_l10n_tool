@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     doWhenWindowReady(() {
       const min = Size(800, 560);
       const initial = Size(1280, 720);

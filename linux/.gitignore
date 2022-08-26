@@ -1,0 +1,5 @@
+flutter/
+
+CMakeLists.txt
+main.cc
+my_application.h
