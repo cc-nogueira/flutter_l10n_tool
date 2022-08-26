@@ -7,7 +7,7 @@ import '../../../common/widget/message_widget.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
 import '../../loading_error/page/loading_error_page.dart';
-import '../../resource_editor/page/resource_page.dart';
+import '../widget/active_page.dart';
 import '../widget/navigation_and_scaffold.dart';
 import '../widget/project_title.dart';
 
@@ -33,11 +33,11 @@ class HomePage extends ConsumerWidget {
       return Column(
         children: [
           _generateWarningWidget(context, ref.read),
-          const Expanded(child: ResourcePage()),
+          const Expanded(child: ActivePage()),
         ],
       );
     }
-    return const ResourcePage();
+    return const ActivePage();
   }
 
   Widget _messageWidget(BuildContext context) {

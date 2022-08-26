@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../navigation/navigation_drawer_option.dart';
 
-/// Abstract class defines the common structure of a project navigation drawer.
+/// Abstract class defines the common structure of blanka project navigation drawer.
 ///
 /// A drawer is defined to have a [_header] and an expanded column with its [children].
 ///
@@ -20,7 +20,8 @@ abstract class NavigationDrawer extends ConsumerWidget {
     this.option, {
     super.key,
     this.width = 304,
-    this.dependOnProjectLoaded = true,
+    this.headerDependOnProjectLoaded = true,
+    this.bodyDependOnProjectLoaded = true,
     this.childrenPadding = const EdgeInsets.symmetric(horizontal: 8.0),
   });
 
@@ -33,8 +34,11 @@ abstract class NavigationDrawer extends ConsumerWidget {
   /// Drawer width, defaults to 304 (Drawer default _kWidth)
   final double width;
 
-  /// Drawer content depend on project being loaded
-  final bool dependOnProjectLoaded;
+  /// Drawer header depend on project being loaded
+  final bool headerDependOnProjectLoaded;
+
+  /// Drawer body depend on project being loaded
+  final bool bodyDependOnProjectLoaded;
 
   /// Builds a drawer.
   ///
@@ -131,7 +135,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
       );
 
   Widget? _projectNotLoadedHeaderMsg(ColorScheme colors, WidgetRef ref, AppLocalizations loc) {
-    if (dependOnProjectLoaded) {
+    if (headerDependOnProjectLoaded) {
       final projectLoaded = ref.watch(isProjectLoadedProvider);
       if (!projectLoaded) {
         final nameStyle = TextStyle(fontWeight: FontWeight.w400, color: colors.onSurface);
@@ -166,7 +170,7 @@ abstract class NavigationDrawer extends ConsumerWidget {
   }
 
   Widget? _projectNotLoadedBody(WidgetRef ref) {
-    if (dependOnProjectLoaded) {
+    if (bodyDependOnProjectLoaded) {
       final projectLoaded = ref.watch(isProjectLoadedProvider);
       if (!projectLoaded) {
         return Container();

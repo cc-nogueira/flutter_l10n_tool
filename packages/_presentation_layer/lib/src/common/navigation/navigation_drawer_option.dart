@@ -47,7 +47,7 @@ enum NavigationDrawerTopOption implements NavigationDrawerOption {
       return colors.onPrimary;
     }
     if (this == NavigationDrawerTopOption.changeControl) {
-      return colors.errorContainer;
+      return Colors.brown[900]!;
     }
     return colors.surface;
   }

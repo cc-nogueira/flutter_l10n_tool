@@ -1,5 +1,6 @@
 export 'src/entity/arb/arb_definition.dart';
 export 'src/entity/arb/arb_global.dart';
+export 'src/entity/arb/arb_key_mixin.dart';
 export 'src/entity/arb/arb_locale_translations.dart';
 export 'src/entity/arb/arb_placeholder.dart';
 export 'src/entity/arb/arb_template.dart';
@@ -27,6 +28,7 @@ export 'src/repository/preferences_repository.dart';
 export 'src/repository/recent_projects_repository.dart';
 export 'src/usecase/arb/arb_analysis.dart';
 export 'src/usecase/arb/arb_usecase.dart';
+export 'src/usecase/change_control/change_control_usecase.dart';
 export 'src/usecase/preferences/preferences_usecase.dart';
 export 'src/usecase/project/mixin/arb_mixin.dart';
 export 'src/usecase/project/project_usecase.dart';

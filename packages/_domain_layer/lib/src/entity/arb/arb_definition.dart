@@ -28,14 +28,13 @@ mixin ArbDefinitionWithParameter on ArbDefinition {
 /// - ArbPluralDefinition
 /// - ArbSelectDefinition
 @freezed
-class ArbDefinition with _$ArbDefinition {
+class ArbDefinition with _$ArbDefinition, ArbKeyMixin {
   const ArbDefinition._();
 
-  /// ArbPlaceholdersDefinition factory with [ArbKeyMixin].
+  /// ArbPlaceholdersDefinition factory.
   ///
   /// It contains the common key, context and description.
   /// And it may contain a list of [ArbPlaceholder].
-  @With<ArbKeyMixin>()
   const factory ArbDefinition.placeholders({
     @Default('') String key,
     String? context,
@@ -43,11 +42,10 @@ class ArbDefinition with _$ArbDefinition {
     @Default([]) List<ArbPlaceholder> placeholders,
   }) = ArbPlaceholdersDefinition;
 
-  /// ArbPluralDefinition factory with [ArbKeyMixin].
+  /// ArbPluralDefinition factory.
   ///
   /// It contains the common key, context and description.
   /// It also contains the name of the placeholder for the plural variable.
-  @With<ArbKeyMixin>()
   @With<ArbDefinitionWithParameter>()
   const factory ArbDefinition.plural({
     @Default('') String key,
@@ -56,11 +54,10 @@ class ArbDefinition with _$ArbDefinition {
     @Default('') String parameterName,
   }) = ArbPluralDefinition;
 
-  /// ArbSelectDefinition factory with [ArbKeyMixin].
+  /// ArbSelectDefinition factory.
   ///
   /// It contains the common key, context and description.  ///
   /// It also contains the name of the placeholder for the select variable.
-  @With<ArbKeyMixin>()
   @With<ArbDefinitionWithParameter>()
   const factory ArbDefinition.select({
     @Default('') String key,

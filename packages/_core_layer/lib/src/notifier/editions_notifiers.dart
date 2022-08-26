@@ -27,6 +27,12 @@ class EditionsState<K, V> {
   /// Test if editions contains the given key.
   bool containsKey(K key) => _map.containsKey(key);
 
+  /// Iterable over keys
+  Iterable<K> get keys => _map.keys;
+
+  /// Iterable over keys
+  Iterable<V> get values => _map.values;
+
   /// Internal - create a new state object sharing the internal editions map including the given
   /// value associated to the given key.
   ///
@@ -230,6 +236,9 @@ class EditionsOneToMapState<K, VK, VV> {
 
   /// Test if the internal map contains editions for the given key.
   bool containsKey(K key) => _map.containsKey(key);
+
+  /// Iterable over keys.
+  Iterable<K> get keys => _map.keys;
 
   /// Internal - create a new state object sharing the internal editions map including the given
   /// value associated to the given key.

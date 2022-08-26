@@ -9,7 +9,8 @@ import '../widget/open_project_button.dart';
 import '../widget/recent_projects_widget.dart';
 
 class ProjectSelectorDrawer extends NavigationDrawer {
-  const ProjectSelectorDrawer({super.key}) : super(NavigationDrawerTopOption.projectSelector);
+  const ProjectSelectorDrawer({super.key})
+      : super(NavigationDrawerTopOption.projectSelector, bodyDependOnProjectLoaded: false);
 
   static const Widget _verticalSpacer = SizedBox(height: 4.0);
 

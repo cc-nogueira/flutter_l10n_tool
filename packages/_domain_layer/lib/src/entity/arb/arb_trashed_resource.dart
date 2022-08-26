@@ -7,16 +7,19 @@ import 'arb_translation.dart';
 part 'arb_trashed_resource.freezed.dart';
 
 @freezed
-class ArbTrashedResource with _$ArbTrashedResource {
-  @With<ArbKeyMixin>()
+class ArbTrashedResource with _$ArbTrashedResource, ArbKeyMixin {
+  const ArbTrashedResource._();
+
   const factory ArbTrashedResource.definition({
     required ArbDefinition definition,
     required List<ArbTranslation> translations,
   }) = ArbTrashedDefinition;
 
-  @With<ArbKeyMixin>()
   const factory ArbTrashedResource.translation({
     required ArbDefinition definition,
     required ArbTranslation translation,
   }) = ArbTrashedTranslation;
+
+  @override
+  String get key => definition.key;
 }
