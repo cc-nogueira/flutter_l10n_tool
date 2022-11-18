@@ -20,7 +20,7 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
     final project = ref.read(projectProvider);
     final loc = AppLocalizations.of(context);
     if (loadStage.isFinal) {
-      _postFrameClose(context, ref.read);
+      _postFrameClose(context, ref);
     }
     final colors = Theme.of(context).colorScheme;
     return WillPopScope(
@@ -36,7 +36,7 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
             FormMixin.verticalSeparator,
             _progressDescription(context, loc, project, loadStage),
             const SizedBox(height: 40),
-            _dialogButtons(ref.read, colors, loadStage),
+            _dialogButtons(ref, colors, loadStage),
             FormMixin.verticalSeparator,
           ],
         ),
@@ -95,9 +95,9 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
   Widget _stageDescription(AppLocalizations loc, LoadStage loadStage) =>
       Text(loc.message_loading_stage(loadStage.description));
 
-  Widget _dialogButtons(Reader read, ColorScheme colors, LoadStage loadStage) {
+  Widget _dialogButtons(WidgetRef ref, ColorScheme colors, LoadStage loadStage) {
     final List<Widget> okCancelButtons = [
-      textButton(text: 'Cancel', onPressed: loadStage.complete ? null : () => _cancelLoading(read)),
+      textButton(text: 'Cancel', onPressed: loadStage.complete ? null : () => _cancelLoading(ref)),
     ];
 
     return Padding(
@@ -109,15 +109,15 @@ class ShowProjectLoadingDialog extends ConsumerWidget {
     );
   }
 
-  void _cancelLoading(Reader read) {
-    read(projectUsecaseProvider).cancelLoading();
+  void _cancelLoading(WidgetRef ref) {
+    ref.read(projectUsecaseProvider).cancelLoading();
   }
 
-  void _postFrameClose(BuildContext context, Reader read) {
+  void _postFrameClose(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (read(projectProvider).hasNoError &&
-          read(activeNavigationProvider) == NavigationDrawerTopOption.projectSelector) {
-        read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.resources;
+      if (ref.read(projectProvider).hasNoError &&
+          ref.read(activeNavigationProvider) == NavigationDrawerTopOption.projectSelector) {
+        ref.read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.resources;
       }
       Navigator.pop(context);
     });

@@ -17,9 +17,9 @@ class CloseProjectButton extends ConsumerWidget {
       style: style,
       icon: const Icon(Icons.close),
       label: Text(loc.label_close_project),
-      onPressed: projectLoaded ? () => _onPressed(ref.read) : null,
+      onPressed: projectLoaded ? () => _onPressed(ref) : null,
     );
   }
 
-  void _onPressed(Reader read) => read(projectUsecaseProvider).closeProject();
+  void _onPressed(WidgetRef ref) => ref.read(projectUsecaseProvider).closeProject();
 }

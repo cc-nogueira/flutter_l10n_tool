@@ -7,9 +7,9 @@ import '../../show_project_loading/page/show_project_loading_dialog.dart';
 import '../page/fix_loading_error_dialog.dart';
 
 abstract class FixActionWidget extends StatelessWidget {
-  const FixActionWidget({super.key, required this.read, required this.project});
+  const FixActionWidget({super.key, required this.ref, required this.project});
 
-  final Reader read;
+  final WidgetRef ref;
   final Project project;
 
   void showFixDialogAndReload(
@@ -32,7 +32,7 @@ abstract class FixActionWidget extends StatelessWidget {
       fixOK = false;
     }
     if (fixOK) {
-      read(projectUsecaseProvider).loadProject(projectPath: project.path);
+      ref.read(projectUsecaseProvider).loadProject(projectPath: project.path);
       await showDialog<void>(
         context: context,
         barrierDismissible: false,

@@ -25,8 +25,8 @@ class ProjectSelectorDrawer extends NavigationDrawer {
       textStyle: const TextStyle(fontWeight: FontWeight.normal),
     );
     final elevatedButtonStyle = ElevatedButton.styleFrom(
-      onPrimary: Theme.of(context).colorScheme.onSecondaryContainer,
-      primary: Theme.of(context).colorScheme.secondaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       textStyle: const TextStyle(fontWeight: FontWeight.normal),
     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0));
 

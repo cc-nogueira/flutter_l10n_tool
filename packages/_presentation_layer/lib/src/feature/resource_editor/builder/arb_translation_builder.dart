@@ -8,15 +8,15 @@ import 'arb_builder.dart';
 abstract class ArbTranslationBuilderBase<D extends ArbDefinition> extends ArbBuilder {
   ArbTranslationBuilderBase({required this.displayOption, required this.definition});
 
-  static const tileIcon = SizedBox(
+  final tileIcon = const SizedBox(
       width: ArbBuilder.leadingSize,
       height: ArbBuilder.leadingSize,
       child: Center(child: Icon(Icons.translate)));
 
-  static const warningIcon = SizedBox(
+  late final warningIcon = SizedBox(
       width: ArbBuilder.leadingSize,
       height: ArbBuilder.leadingSize,
-      child: Center(child: Icon(Icons.warning_amber, color: Colors.amberAccent)));
+      child: Center(child: Icon(Icons.warning_amber, color: warning?.iconColor)));
 
   /// Current display option ([DisplayOption.compact] or [DisplayOption.expanded]).
   final DisplayOption displayOption;
@@ -55,17 +55,17 @@ class ArbMissingTranslationBuilder extends ArbTranslationBuilderBase<ArbDefiniti
 
   @override
   List<Widget> tileLeadingIcons() {
-    return const [
+    return [
       IconTheme(
-        data: IconThemeData(color: Colors.amberAccent),
-        child: ArbTranslationBuilderBase.tileIcon,
+        data: IconThemeData(color: warning?.iconColor),
+        child: tileIcon,
       )
     ];
   }
 
   @override
   Widget descriptorWidget() =>
-      Text('Missing translation', style: textTheme.bodyMedium!.copyWith(color: Colors.amberAccent));
+      Text('Missing translation', style: textTheme.bodyMedium!.copyWith(color: warning?.iconColor));
 }
 
 /// Translation builders are usually instantiated with this class factory constructor.
@@ -201,7 +201,7 @@ class ArbPlaceholdersTranslationBuilder
         Tooltip(
           triggerMode: TooltipTriggerMode.tap,
           message: message,
-          child: ArbTranslationBuilderBase.warningIcon,
+          child: warningIcon,
         ),
       ];
     }
@@ -336,10 +336,10 @@ class ArbSelectTranslationBuilder
     if (hasMissingCases) {
       return [
         ...super.tileLeadingIcons(),
-        const Tooltip(
+        Tooltip(
           triggerMode: TooltipTriggerMode.tap,
           message: 'Missing select cases.',
-          child: ArbTranslationBuilderBase.warningIcon,
+          child: warningIcon,
         ),
       ];
     }

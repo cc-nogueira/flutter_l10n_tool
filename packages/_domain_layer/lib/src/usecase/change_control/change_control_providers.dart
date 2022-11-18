@@ -1,7 +1,7 @@
 part of 'change_control_usecase.dart';
 
 final changeControlUsecaseProvider =
-    Provider<ChangeControlUsecase>((ref) => ChangeControlUsecase(ref.read));
+    Provider<ChangeControlUsecase>((ref) => ChangeControlUsecase(ref));
 
 final _changeControlScopeProvider = StateProvider((ref) => ChangeControlScope());
 

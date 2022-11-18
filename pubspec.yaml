@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 0.0.1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.18.4 <3.0.0"
 
 dependencies:
   _di_layer:
@@ -13,11 +13,11 @@ dependencies:
   _presentation_layer:
     path: ./packages/_presentation_layer
 
-  bitsdojo_window: 0.1.2
+  bitsdojo_window: ^0.1.5
 
   flutter:
     sdk: flutter
-  flutter_riverpod: 2.0.0-dev.9
+  flutter_riverpod: ^2.1.1
 
 dev_dependencies:
   flutter_lints: ^2.0.1

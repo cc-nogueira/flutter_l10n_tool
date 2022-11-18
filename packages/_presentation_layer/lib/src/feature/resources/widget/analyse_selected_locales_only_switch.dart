@@ -20,11 +20,11 @@ class AnalyseSelectedLocalesOnlySwitch extends ConsumerWidget {
           height: 23,
           child: FittedBox(child: Text('Analyse only selected locales:', style: style)),
         ),
-        Switch(value: considerLocales, onChanged: (value) => _onChanged(ref.read, value)),
+        Switch(value: considerLocales, onChanged: (value) => _onChanged(ref, value)),
       ],
     );
   }
 
-  void _onChanged(Reader read, bool? value) =>
-      read(analyseSelectedLocalesOnlyProvider.notifier).state = value == true;
+  void _onChanged(WidgetRef ref, bool? value) =>
+      ref.read(analyseSelectedLocalesOnlyProvider.notifier).state = value == true;
 }

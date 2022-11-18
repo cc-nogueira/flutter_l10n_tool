@@ -24,7 +24,7 @@ typedef SelectEditionsNotifier = EditionsOneToMapNotifier<ArbDefinition, String,
 /// All these notifiers are available as exported providers (simple providers that export the value
 /// of each Notifier).
 class ArbScope {
-  final analysisProvider = StateProvider((ref) => ArbAnalysis(ref.read));
+  final analysisProvider = StateProvider((ref) => ArbAnalysis(ref));
 
   final editNewDefinitionProvider = StateProvider((_) => false);
 

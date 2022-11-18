@@ -37,8 +37,8 @@ class NavigationDrawerRail extends ConsumerWidget {
       destinations: _destinations(NavigationDrawerTopOption.values),
       selectedIndex: _topNavigationIndex(activeNavigation),
       onDestinationSelected: (index) =>
-          _onDestinationTap(ref.read, NavigationDrawerTopOption.values[index]),
-      trailing: _navigationTrailing(context, colors, ref.read, activeNavigation),
+          _onDestinationTap(ref, NavigationDrawerTopOption.values[index]),
+      trailing: _navigationTrailing(context, colors, ref, activeNavigation),
     );
   }
 
@@ -70,7 +70,7 @@ class NavigationDrawerRail extends ConsumerWidget {
   /// Internal - trailing navigation buttons.
   ///
   /// These button mimic the look and feel of this rail destination buttons.
-  Widget? _navigationTrailing(BuildContext context, ColorScheme colors, Reader read,
+  Widget? _navigationTrailing(BuildContext context, ColorScheme colors, WidgetRef ref,
       NavigationDrawerOption? activeNavigation) {
     final buttons = <Widget>[];
     for (final option in NavigationDrawerBottomOption.values) {
@@ -81,7 +81,7 @@ class NavigationDrawerRail extends ConsumerWidget {
           indicatorColor: option.color(colors),
           width: _navigationWidth,
           isActive: option == activeNavigation,
-          onTap: () => _onDestinationTap(read, option),
+          onTap: () => _onDestinationTap(ref, option),
         ),
       );
     }
@@ -101,6 +101,7 @@ class NavigationDrawerRail extends ConsumerWidget {
   /// Updates the state in riverpod [activeNavigationProvider].
   /// Since this widget also observes this provider it will be notified and rebuild as a consequence
   /// of this update.
-  void _onDestinationTap(Reader read, NavigationDrawerOption option) =>
-      read(activeNavigationProvider.notifier).update((state) => state == option ? null : option);
+  void _onDestinationTap(WidgetRef ref, NavigationDrawerOption option) => ref
+      .read(activeNavigationProvider.notifier)
+      .update((state) => state == option ? null : option);
 }

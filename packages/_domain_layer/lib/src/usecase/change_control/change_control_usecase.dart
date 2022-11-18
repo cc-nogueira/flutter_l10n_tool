@@ -6,12 +6,12 @@ import 'change_control_scope.dart';
 part 'change_control_providers.dart';
 
 class ChangeControlUsecase {
-  ChangeControlUsecase(this.read);
+  ChangeControlUsecase(this.ref);
 
-  final Reader read;
+  final Ref ref;
 
   void initScope() {
-    read(_changeControlScopeProvider.notifier).state = ChangeControlScope();
+    ref.read(_changeControlScopeProvider.notifier).state = ChangeControlScope();
   }
 
   /// Defines which [ArbDefinition] is currently being selected by the user.
@@ -30,7 +30,7 @@ class ChangeControlUsecase {
   }
 
   SelectedDefinitionNotifier _selectedChangeDefinitionNotifier() {
-    final scope = read(_changeControlScopeProvider);
-    return read(scope.selectedChangeDefinitionProvider.notifier);
+    final scope = ref.read(_changeControlScopeProvider);
+    return ref.read(scope.selectedChangeDefinitionProvider.notifier);
   }
 }

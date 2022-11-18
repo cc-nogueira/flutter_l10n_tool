@@ -23,57 +23,60 @@ class DefinitionWidget<D extends ArbDefinition> extends ConsumerWidget {
     final definitionBeingEdited = ref.read(beingEditedDefinitionsProvider)[original];
 
     return definitionBeingEdited is D
-        ? _form(ref.read, definitionBeingEdited)
-        : _tile(ref.read, displayOption, isOriginal: current == null);
+        ? _form(ref, definitionBeingEdited)
+        : _tile(ref, displayOption, isOriginal: current == null);
   }
 
-  Widget _tile(Reader read, DisplayOption displayOption, {required bool isOriginal}) =>
+  Widget _tile(WidgetRef ref, DisplayOption displayOption, {required bool isOriginal}) =>
       DefinitionTile.of(
         displayOption: displayOption,
         definition: currentOrOriginal,
         isOriginal: isOriginal,
-        onEdit: () => _edit(read, currentOrOriginal),
-        onRollback: () => _rollback(read),
+        onEdit: () => _edit(ref, currentOrOriginal),
+        onRollback: () => _rollback(ref),
       );
 
-  Widget _form(Reader read, D definitionBeingEdited) => DefinitionForm.of(
+  Widget _form(WidgetRef ref, D definitionBeingEdited) => DefinitionForm.of(
         originalDefinition: original,
         currentDefinition: currentOrOriginal,
         definitionBeingEdited: definitionBeingEdited,
-        onUpdateDefinition: (value) => _updateDefinition(read, value),
-        onSaveChanges: (value) => _saveChanges(read, value),
-        onDiscardChanges: () => _discardChanges(read),
+        onUpdateDefinition: (value) => _updateDefinition(ref, value),
+        onSaveChanges: (value) => _saveChanges(ref, value),
+        onDiscardChanges: () => _discardChanges(ref),
         onChangeType: (definition, {required type}) =>
-            _changeDefinitionType(read, definition, type: type),
+            _changeDefinitionType(ref, definition, type: type),
       );
 
-  void _edit(Reader read, ArbDefinition current) {
-    _updateDefinition(read, current);
-    _rebuild(read);
+  void _edit(WidgetRef ref, ArbDefinition current) {
+    _updateDefinition(ref, current);
+    _rebuild(ref);
   }
 
-  void _rollback(Reader read) {
-    read(arbUsecaseProvider).rollbackDefinition(original: original);
+  void _rollback(WidgetRef ref) {
+    ref.read(arbUsecaseProvider).rollbackDefinition(original: original);
   }
 
-  void _updateDefinition(Reader read, ArbDefinition beingEdited) {
-    read(arbUsecaseProvider).updateDefinitionBeingEdited(original: original, current: beingEdited);
+  void _updateDefinition(WidgetRef ref, ArbDefinition beingEdited) {
+    ref
+        .read(arbUsecaseProvider)
+        .updateDefinitionBeingEdited(original: original, current: beingEdited);
   }
 
-  void _discardChanges(Reader read) {
-    final usecase = read(arbUsecaseProvider);
+  void _discardChanges(WidgetRef ref) {
+    final usecase = ref.read(arbUsecaseProvider);
     usecase.discardDefinitionChanges(original: original);
-    _rebuild(read);
+    _rebuild(ref);
   }
 
-  void _saveChanges(Reader read, ArbDefinition value) {
-    read(arbUsecaseProvider).saveDefinition(original: original, value: value);
-    _rebuild(read);
+  void _saveChanges(WidgetRef ref, ArbDefinition value) {
+    ref.read(arbUsecaseProvider).saveDefinition(original: original, value: value);
+    _rebuild(ref);
   }
 
-  void _changeDefinitionType(Reader read, ArbDefinition value, {required ArbDefinitionType type}) {}
+  void _changeDefinitionType(WidgetRef ref, ArbDefinition value,
+      {required ArbDefinitionType type}) {}
 
-  void _rebuild(Reader read) => read(_rebuildProvider.notifier).update((state) => !state);
+  void _rebuild(WidgetRef ref) => ref.read(_rebuildProvider.notifier).update((state) => !state);
 }
 
 class NewDefinitionWidget extends ConsumerWidget {
@@ -85,21 +88,21 @@ class NewDefinitionWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return NewDefinitionForm(
       onSaveNewDefinition: ({required original, required value}) =>
-          _saveNewDefinition(ref.read, original: original, value: value),
-      onDiscardNewDefinition: ({required original}) => _discardNew(ref.read, original: original),
+          _saveNewDefinition(ref, original: original, value: value),
+      onDiscardNewDefinition: ({required original}) => _discardNew(ref, original: original),
     );
   }
 
-  void _discardNew(Reader read, {required ArbDefinition original}) {
+  void _discardNew(WidgetRef ref, {required ArbDefinition original}) {
     onDone().then((_) {
-      read(arbUsecaseProvider).cancelEditingNewDefinition(original: original);
+      ref.read(arbUsecaseProvider).cancelEditingNewDefinition(original: original);
     });
   }
 
-  void _saveNewDefinition(Reader read,
+  void _saveNewDefinition(WidgetRef ref,
       {required ArbDefinition original, required ArbDefinition value}) {
     onDone().then((_) {
-      read(arbUsecaseProvider).saveNewDefinition(original: original, value: value);
+      ref.read(arbUsecaseProvider).saveNewDefinition(original: original, value: value);
     });
   }
 }

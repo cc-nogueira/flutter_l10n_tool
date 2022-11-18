@@ -1,6 +1,7 @@
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/warning_theme_extension.dart';
 import 'buttons.dart';
 
 class ArbPlaceholderChip extends StatelessWidget {
@@ -60,6 +61,7 @@ class ArbChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final warning = Theme.of(context).extension<WarningTheme>();
     return IgnorePointer(
       ignoring: selected || (onPressed == null && onDelete == null),
       child: inputChip(
@@ -67,11 +69,11 @@ class ArbChip extends StatelessWidget {
         child: child,
         selected: selected,
         dotted: missing,
-        borderColor: missing ? Colors.amberAccent : null,
+        borderColor: missing ? warning?.iconColor : null,
         icon: missing
-            ? const Tooltip(
+            ? Tooltip(
                 message: 'Missing case.',
-                child: Icon(Icons.warning_amber, size: 20, color: Colors.amberAccent),
+                child: Icon(Icons.warning_amber, size: 20, color: warning?.iconColor),
               )
             : null,
         onPressed: () => onPressed?.call(),

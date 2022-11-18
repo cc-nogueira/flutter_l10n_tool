@@ -10,7 +10,7 @@ import 'fix_action_widgets.dart';
 class FixMissingArbFolderWidget extends FixActionWidget {
   const FixMissingArbFolderWidget({
     super.key,
-    required super.read,
+    required super.ref,
     required super.project,
     required this.exception,
   });
@@ -50,6 +50,6 @@ class FixMissingArbFolderWidget extends FixActionWidget {
   }
 
   void _showConfigurationDrawer() {
-    read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.configuration;
+    ref.read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.configuration;
   }
 }

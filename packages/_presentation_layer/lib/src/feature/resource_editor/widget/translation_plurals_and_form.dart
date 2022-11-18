@@ -55,20 +55,22 @@ class TranslationPluralsAndForm extends ConsumerWidget {
       formPlural: formPlural,
       existingPluralBeingEdited: existingPluralBeingEdited,
       onUpdateTranslation: onUpdateTranslation,
-      onUpdatePlural: (value) => _updateFormPlural(ref.read, locale, value),
-      onEditPlural: (value) => _editPlural(ref.read, locale, value),
+      onUpdatePlural: (value) => _updateFormPlural(ref, locale, value),
+      onEditPlural: (value) => _editPlural(ref, locale, value),
     );
   }
 
   /// Internal - update the plural under user edition through its usecase.
-  void _updateFormPlural(Reader read, String locale, ArbPlural? formPlural) {
-    read(arbUsecaseProvider)
+  void _updateFormPlural(WidgetRef ref, String locale, ArbPlural? formPlural) {
+    ref
+        .read(arbUsecaseProvider)
         .updateFormPlural(definition: definition, locale: locale, plural: formPlural);
   }
 
   /// Internal - track the plural being edited (or none) through its usecase.
-  void _editPlural(Reader read, String locale, ArbPlural? plural) {
-    read(arbUsecaseProvider)
+  void _editPlural(WidgetRef ref, String locale, ArbPlural? plural) {
+    ref
+        .read(arbUsecaseProvider)
         .trackExistingPluralBeingEdited(definition: definition, locale: locale, plural: plural);
   }
 }

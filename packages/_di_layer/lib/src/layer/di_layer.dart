@@ -2,8 +2,20 @@ import 'package:_core_layer/core_layer.dart';
 import 'package:_data_layer/data_layer.dart';
 import 'package:_domain_layer/domain_layer.dart';
 import 'package:_presentation_layer/presentation_layer.dart';
+import 'package:meta/meta.dart';
 
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'di_layer.g.dart';
+
+/// DI Layer provider
+@riverpod
+DiLayer diLayer(DiLayerRef ref) {
+  final diLayer = DiLayer(ref);
+  ref.onDispose(() => diLayer.dispose());
+  return diLayer;
+}
 
 /// Dependency Injection layer.
 ///
@@ -42,11 +54,13 @@ import 'package:riverpod/riverpod.dart';
 ///   diLayer = DILayer(read: container.read);
 /// });
 class DiLayer extends AppLayer {
-  DiLayer(this._read);
+  DiLayer(this.ref);
 
-  final Reader _read;
+  @internal
+  final Ref ref;
 
-  final _layerProviders = [
+  @internal
+  final layerProviders = [
     coreLayerProvider,
     domainLayerProvider,
     dataLayerProvider,
@@ -56,8 +70,8 @@ class DiLayer extends AppLayer {
   /// Init all layers and configure those that requires dependency injections.
   @override
   Future<void> init() async {
-    for (final layerProvider in _layerProviders) {
-      await _read(layerProvider).init();
+    for (final layerProvider in layerProviders) {
+      await ref.read(layerProvider).init();
     }
     _configureDomainLayer();
   }
@@ -65,17 +79,17 @@ class DiLayer extends AppLayer {
   /// Dispose all layers.
   @override
   void dispose() {
-    for (final layerProvider in _layerProviders.reversed) {
-      _read(layerProvider).dispose();
+    for (final layerProvider in layerProviders.reversed) {
+      ref.read(layerProvider).dispose();
     }
   }
 
   /// Configure domain layer with required implementations.
   void _configureDomainLayer() {
-    final domainConfiguration = _read(domainConfigurationProvider);
+    final domainConfiguration = ref.read(domainConfigurationProvider);
     domainConfiguration(
-      preferencesRepository: _read(preferencesRepositoryProvider),
-      recentProjectsRepository: _read(recentProjectsRepositoryProvider),
+      preferencesRepository: ref.read(preferencesRepositoryProvider),
+      recentProjectsRepository: ref.read(recentProjectsRepositoryProvider),
     );
   }
 }

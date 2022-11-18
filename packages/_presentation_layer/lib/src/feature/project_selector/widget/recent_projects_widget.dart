@@ -24,10 +24,10 @@ class RecentProjectsWidget extends ConsumerWidget {
     final loc = AppLocalizations.of(context);
     return showRecent
         ? Expanded(child: _buildShowRecent(context, ref, loc))
-        : _openRecentButton(ref.read, loc.label_open_recent, false);
+        : _openRecentButton(ref, loc.label_open_recent, false);
   }
 
-  Widget _openRecentButton(Reader read, String text, bool showRecent) => showRecent
+  Widget _openRecentButton(WidgetRef ref, String text, bool showRecent) => showRecent
       ? ElevatedButton.icon(
           style: elevatedButtonStyle,
           icon: const Icon(Icons.folder_special_outlined),
@@ -38,7 +38,7 @@ class RecentProjectsWidget extends ConsumerWidget {
               const Icon(Icons.arrow_drop_down_circle_outlined),
             ],
           ),
-          onPressed: () => _toggleShowRecent(read),
+          onPressed: () => _toggleShowRecent(ref),
         )
       : TextButton.icon(
           style: textButtonStyle,
@@ -50,7 +50,7 @@ class RecentProjectsWidget extends ConsumerWidget {
               const Padding(padding: EdgeInsets.only(right: 4.0), child: Icon(Icons.arrow_right)),
             ],
           ),
-          onPressed: () => _toggleShowRecent(read),
+          onPressed: () => _toggleShowRecent(ref),
         );
 
   Widget _buildShowRecent(BuildContext context, WidgetRef ref, AppLocalizations loc) {
@@ -68,7 +68,7 @@ class RecentProjectsWidget extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              _openRecentButton(ref.read, loc.label_open_recent, true),
+              _openRecentButton(ref, loc.label_open_recent, true),
               Expanded(
                 child: ListView(
                   shrinkWrap: true,
@@ -93,14 +93,14 @@ class RecentProjectsWidget extends ConsumerWidget {
     final recentList = ref.watch(recentProjectsProvider);
     return [
       for (final recent in recentList)
-        _recent(context, constraints, ref.read, loc, colors, recent, recent.path == project.path),
+        _recent(context, constraints, ref, loc, colors, recent, recent.path == project.path),
     ];
   }
 
   Widget _recent(
     BuildContext context,
     BoxConstraints constraints,
-    Reader read,
+    WidgetRef ref,
     AppLocalizations loc,
     ColorScheme colors,
     RecentProject recent,
@@ -128,9 +128,9 @@ class RecentProjectsWidget extends ConsumerWidget {
         ),
       ),
       trailing: IconButton(
-          onPressed: () => _removeRecentProject(read, recent),
+          onPressed: () => _removeRecentProject(ref, recent),
           icon: Icon(Icons.remove_circle_outline, color: subColor)),
-      onTap: () => _openRecent(context, read, loc, recent, isCurrent),
+      onTap: () => _openRecent(context, ref, loc, recent, isCurrent),
     );
 
     final maxSize = constraints.maxWidth - paddingLeft - paddingRight;
@@ -149,12 +149,12 @@ class RecentProjectsWidget extends ConsumerWidget {
 
   void _openRecent(
     BuildContext context,
-    Reader read,
+    WidgetRef ref,
     AppLocalizations loc,
     RecentProject project,
     bool isCurrent,
   ) async {
-    read(projectUsecaseProvider).loadProject(projectPath: project.path);
+    ref.read(projectUsecaseProvider).loadProject(projectPath: project.path);
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -162,9 +162,9 @@ class RecentProjectsWidget extends ConsumerWidget {
     );
   }
 
-  void _toggleShowRecent(Reader read) =>
-      read(_showRecentProvider.notifier).update((state) => !state);
+  void _toggleShowRecent(WidgetRef ref) =>
+      ref.read(_showRecentProvider.notifier).update((state) => !state);
 
-  void _removeRecentProject(Reader read, RecentProject value) =>
-      read(recentProjectsUsecaseProvider).remove(value);
+  void _removeRecentProject(WidgetRef ref, RecentProject value) =>
+      ref.read(recentProjectsUsecaseProvider).remove(value);
 }

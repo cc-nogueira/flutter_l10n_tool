@@ -98,7 +98,7 @@ class ChangeControlDrawer extends NavigationDrawer {
                 itemBuilder: (ctx, index) {
                   final definition = resources[index];
                   return _itemBuilder(
-                    ref.read,
+                    ref,
                     colors,
                     definition,
                     isSelected: definition == selected,
@@ -113,7 +113,7 @@ class ChangeControlDrawer extends NavigationDrawer {
   }
 
   Widget _itemBuilder(
-    Reader read,
+    WidgetRef ref,
     ColorScheme colors,
     ArbDefinition definition, {
     required bool isSelected,
@@ -125,18 +125,18 @@ class ChangeControlDrawer extends NavigationDrawer {
       colors: colors,
       name: definition.key,
       isSelected: isSelected,
-      onTap: () => _onResourceTap(read, definition),
+      onTap: () => _onResourceTap(ref, definition),
     );
   }
 
-  void _onResourceTap(Reader read, ArbDefinition definition) {
+  void _onResourceTap(WidgetRef ref, ArbDefinition definition) {
     final isCtrlPressed =
         RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
             RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
     if (isCtrlPressed) {
-      read(changeControlUsecaseProvider).toggle(definition);
+      ref.read(changeControlUsecaseProvider).toggle(definition);
     } else {
-      read(changeControlUsecaseProvider).select(definition);
+      ref.read(changeControlUsecaseProvider).select(definition);
     }
   }
 }

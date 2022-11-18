@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
+import '../../../common/theme/warning_theme_extension.dart';
 import '../../../common/widget/navigation_drawer.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
@@ -70,6 +71,7 @@ class ResourcesDrawer extends NavigationDrawer {
   @override
   List<Widget> children(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final colors = Theme.of(context).colorScheme;
+    final warning = Theme.of(context).extension<WarningTheme>();
     final project = ref.watch(projectProvider);
 
     final considerLocales = ref.watch(analyseSelectedLocalesOnlyProvider);
@@ -120,8 +122,9 @@ class ResourcesDrawer extends NavigationDrawer {
                       localesToAnalyse, currentDefinitions, currentTranslations, definition);
                   return _itemBuilder(
                     ctx,
-                    ref.read,
+                    ref,
                     colors,
+                    warning,
                     definition,
                     current: current,
                     isNew: isNew,
@@ -188,8 +191,9 @@ class ResourcesDrawer extends NavigationDrawer {
 
   Widget _itemBuilder(
     BuildContext context,
-    Reader read,
+    WidgetRef ref,
     ColorScheme colors,
+    WarningTheme? warning,
     ArbDefinition definition, {
     required ArbDefinition? current,
     required bool isSelected,
@@ -205,7 +209,7 @@ class ResourcesDrawer extends NavigationDrawer {
             : isModified
                 ? const Icon(Icons.save, size: 14)
                 : const SizedBox(width: 12);
-    final color = hasWarnings ? Colors.amberAccent : null;
+    final color = hasWarnings ? warning?.backgroundColor : null;
     final style = isSelected
         ? TextStyle(fontWeight: FontWeight.w600, color: color)
         : hasWarnings
@@ -221,18 +225,18 @@ class ResourcesDrawer extends NavigationDrawer {
       trailing: isSelected ? const Icon(Icons.keyboard_double_arrow_right) : null,
       selected: isSelected,
       title: Text(current?.key ?? definition.key, style: style),
-      onTap: () => _onResourceTap(read, definition),
+      onTap: () => _onResourceTap(ref, definition),
     );
   }
 
-  void _onResourceTap(Reader read, ArbDefinition definition) {
+  void _onResourceTap(WidgetRef ref, ArbDefinition definition) {
     final isCtrlPressed =
         RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
             RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
     if (isCtrlPressed) {
-      read(arbUsecaseProvider).toggle(definition);
+      ref.read(arbUsecaseProvider).toggle(definition);
     } else {
-      read(arbUsecaseProvider).select(definition);
+      ref.read(arbUsecaseProvider).select(definition);
     }
   }
 }

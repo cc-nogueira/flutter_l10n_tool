@@ -34,12 +34,12 @@ class ResourceDisplayOptions extends ConsumerWidget {
     final displayOption = ref.watch(displayOptionProvider);
     return _ResourceDisplayOptions(
       currentOption: displayOption,
-      onChanged: (option) => _onChanged(ref.read, option),
+      onChanged: (option) => _onChanged(ref, option),
     );
   }
 
-  void _onChanged(Reader read, DisplayOption option) {
-    read(preferencesUsecaseProvider).displayOption = option;
+  void _onChanged(WidgetRef ref, DisplayOption option) {
+    ref.read(preferencesUsecaseProvider).displayOption = option;
   }
 }
 
@@ -101,19 +101,19 @@ class LocaleOptions extends ConsumerWidget {
     if (locales.length < 2) {
       return Container();
     }
-    return _LocaleOptions(ref.read, locales, selectedLocales, showSelectedMark: showSelectedMark);
+    return _LocaleOptions(ref, locales, selectedLocales, showSelectedMark: showSelectedMark);
   }
 }
 
 class _LocaleOptions extends StatelessWidget {
   const _LocaleOptions(
-    this.read,
+    this.ref,
     this.locales,
     this.selectedLocales, {
     required this.showSelectedMark,
   });
 
-  final Reader read;
+  final WidgetRef ref;
   final List<String> locales;
   final Set<String> selectedLocales;
   final bool showSelectedMark;
@@ -127,7 +127,7 @@ class _LocaleOptions extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ..._localeButtons(textTheme, colors),
-        clearFiltersButton(colors, () => _onClearLocalesFilter(read)),
+        clearFiltersButton(colors, () => _onClearLocalesFilter(ref)),
       ],
     );
   }
@@ -150,15 +150,15 @@ class _LocaleOptions extends StatelessWidget {
                     : MainAxisAlignment.center,
             selected: selectedLocales.contains(locales[idx]),
             text: locales[idx],
-            onPressed: () => onLocalesFilterPressed(read, locales[idx]),
+            onPressed: () => onLocalesFilterPressed(ref, locales[idx]),
           ),
       ];
     }
     return [];
   }
 
-  void onLocalesFilterPressed(Reader read, String locale) {
-    final localesFilterNotifier = read(selectedLocalesProvider.notifier);
+  void onLocalesFilterPressed(WidgetRef ref, String locale) {
+    final localesFilterNotifier = ref.read(selectedLocalesProvider.notifier);
     localesFilterNotifier.update(
       (state) {
         if (state.contains(locale)) {
@@ -170,13 +170,14 @@ class _LocaleOptions extends StatelessWidget {
         if (state.isNotEmpty) {
           return {...state, locale};
         }
-        final first = read(allLocalesProvider).first;
+        final first = ref.read(allLocalesProvider).first;
         return {first, locale};
       },
     );
   }
 
-  void _onClearLocalesFilter(Reader read) => read(selectedLocalesProvider.notifier).state = {};
+  void _onClearLocalesFilter(WidgetRef ref) =>
+      ref.read(selectedLocalesProvider.notifier).state = {};
 
   TextStyle? _style(TextTheme theme, bool selected) =>
       selected ? theme.bodySmall?.copyWith(fontWeight: FontWeight.w600) : theme.bodySmall;

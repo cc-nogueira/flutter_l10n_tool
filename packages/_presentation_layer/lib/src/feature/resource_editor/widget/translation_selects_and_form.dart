@@ -58,20 +58,22 @@ class TranslationSelectsAndForm extends ConsumerWidget {
       existingOptionBeingEdited: existingOptionBeingEdited,
       knownCases: knownCases,
       onUpdateTranslation: onUpdateTranslation,
-      onUpdateOption: (value) => _updateFormOption(ref.read, locale, value),
-      onEditOption: (value) => _editOption(ref.read, locale, value),
+      onUpdateOption: (value) => _updateFormOption(ref, locale, value),
+      onEditOption: (value) => _editOption(ref, locale, value),
     );
   }
 
   /// Internal - update the plural under user edition through its usecase.
-  void _updateFormOption(Reader read, String locale, ArbSelectCase? formSelect) {
-    read(arbUsecaseProvider)
+  void _updateFormOption(WidgetRef ref, String locale, ArbSelectCase? formSelect) {
+    ref
+        .read(arbUsecaseProvider)
         .updateFormSelect(definition: definition, locale: locale, option: formSelect);
   }
 
   /// Internal - track the plural being edited (or none) through its usecase.
-  void _editOption(Reader read, String locale, ArbSelectCase? selection) {
-    read(arbUsecaseProvider)
+  void _editOption(WidgetRef ref, String locale, ArbSelectCase? selection) {
+    ref
+        .read(arbUsecaseProvider)
         .trackExistingSelectBeingEdited(definition: definition, locale: locale, option: selection);
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../provider/providers.dart';
 import '../repository/preferences_repository.dart';
@@ -10,6 +11,17 @@ import '../repository/recent_projects_repository.dart';
 import '../usecase/preferences/preferences_usecase.dart';
 import '../usecase/project/project_usecase.dart';
 import '../usecase/recent_projects/recent_projects_usecase.dart';
+
+part 'domain_layer.g.dart';
+
+/// Domain Layer provider
+@Riverpod(keepAlive: true)
+DomainLayer domainLayer(DomainLayerRef ref) => DomainLayer(ref: ref);
+
+/// Function provider for dependency configuration (implementation injection)
+@riverpod
+DomainConfiguration domainConfiguration(DomainConfigurationRef ref) =>
+    ref.watch(domainLayerProvider).configure;
 
 /// Function definition for Domain Layer dependencies
 typedef DomainConfiguration = void Function({
@@ -30,11 +42,11 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
   /// Constructor.
   ///
   /// Required a Riverpod Reader to instantite the [PreferencesUsecase].
-  DomainLayer({required this.read});
+  DomainLayer({required this.ref});
 
   /// Internal reader
   @internal
-  final Reader read;
+  final Ref ref;
 
   /// Configured [PreferencesUsecase] singleton.
   late final PreferencesUsecase preferencesUsecase;
@@ -52,7 +64,7 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
   @override
   Future<void> init() {
     final systemLocales = WidgetsBinding.instance.platformDispatcher.locales;
-    read(systemLocalesProvider.notifier).state = systemLocales;
+    ref.read(systemLocalesProvider.notifier).state = systemLocales;
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -65,7 +77,7 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
   @override
   void didChangeLocales(List<Locale>? locales) {
     if (locales != null) {
-      read(systemLocalesProvider.notifier).state = locales;
+      ref.read(systemLocalesProvider.notifier).state = locales;
     }
   }
 
@@ -73,9 +85,9 @@ class DomainLayer extends AppLayer with WidgetsBindingObserver {
     required PreferencesRepository preferencesRepository,
     required RecentProjectsRepository recentProjectsRepository,
   }) {
-    preferencesUsecase = PreferencesUsecase(read: read, repository: preferencesRepository);
+    preferencesUsecase = PreferencesUsecase(ref: ref, repository: preferencesRepository);
     recentProjectsUsecase =
-        RecentProjectsUsecase(read: read, recentProjectsRepository: recentProjectsRepository);
-    projectUsecase = ProjectUsecase(read: read, recentProjectsUsecase: recentProjectsUsecase);
+        RecentProjectsUsecase(ref: ref, recentProjectsRepository: recentProjectsRepository);
+    projectUsecase = ProjectUsecase(ref: ref, recentProjectsUsecase: recentProjectsUsecase);
   }
 }

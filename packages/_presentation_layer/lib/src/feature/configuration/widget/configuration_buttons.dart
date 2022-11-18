@@ -12,7 +12,7 @@ class ConfigurationButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return _ConfigurationButtons(
-      read: ref.read,
+      ref: ref,
       currentConfiguration: ref.watch(projectConfigurationProvider),
       formConfiguration: ref.watch(formConfigurationProvider),
     );
@@ -21,12 +21,12 @@ class ConfigurationButtons extends ConsumerWidget {
 
 class _ConfigurationButtons extends StatelessWidget {
   const _ConfigurationButtons({
-    required this.read,
+    required this.ref,
     required this.currentConfiguration,
     required this.formConfiguration,
   });
 
-  final Reader read;
+  final WidgetRef ref;
   final L10nConfiguration currentConfiguration;
   final L10nConfiguration formConfiguration;
 
@@ -51,15 +51,15 @@ class _ConfigurationButtons extends StatelessWidget {
   Widget _discardButton(bool isModified) => textButton(
       text: 'Discard Changes',
       onPressed: isModified
-          ? () => read(formConfigurationProvider.notifier).state = currentConfiguration
+          ? () => ref.read(formConfigurationProvider.notifier).state = currentConfiguration
           : null);
 
   Widget _confirmButton(BuildContext context, AppLocalizations loc, bool isModified) => textButton(
       text: 'Confirm', onPressed: isModified ? () async => await _confirm(context) : null);
 
   Future<void> _confirm(BuildContext context) async {
-    final usecase = read(projectUsecaseProvider);
-    final project = read(projectProvider);
+    final usecase = ref.read(projectUsecaseProvider);
+    final project = ref.read(projectProvider);
 
     await usecase.saveConfiguration(formConfiguration);
 

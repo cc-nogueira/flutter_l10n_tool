@@ -18,17 +18,17 @@ class OpenProjectButton extends ConsumerWidget {
       style: style,
       icon: const Icon(Icons.folder_outlined),
       label: Text('${loc.label_open_project} ...'),
-      onPressed: () => _onPressed(context, loc, ref.read),
+      onPressed: () => _onPressed(context, loc, ref),
     );
   }
 
-  void _onPressed(BuildContext context, AppLocalizations loc, Reader read) async {
+  void _onPressed(BuildContext context, AppLocalizations loc, WidgetRef ref) async {
     final projectPath = await getDirectoryPath(confirmButtonText: loc.label_choose);
     if (projectPath == null) {
       return;
     }
 
-    read(projectUsecaseProvider).loadProject(projectPath: projectPath);
+    ref.read(projectUsecaseProvider).loadProject(projectPath: projectPath);
     await showDialog<void>(
       context: context,
       barrierDismissible: false,

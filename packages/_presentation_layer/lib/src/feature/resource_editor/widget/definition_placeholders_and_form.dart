@@ -47,20 +47,21 @@ class DefinitionPlaceholdersAndForm extends ConsumerWidget {
       formPlaceholder: formPlaceholder,
       existingPlaceholderBeingEdited: existingPlaceholderBeingEdited,
       onUpdateDefinition: onUpdateDefinition,
-      onUpdatePlaceholder: (value) => _updateFormPlaceholder(ref.read, value),
-      onEditPlaceholder: (value) => _editPlaceholder(ref.read, value),
+      onUpdatePlaceholder: (value) => _updateFormPlaceholder(ref, value),
+      onEditPlaceholder: (value) => _editPlaceholder(ref, value),
     );
   }
 
   /// Internal - update the placeholder under user edition through its usecase.
-  void _updateFormPlaceholder(Reader read, ArbPlaceholder? formPlaceholder) {
-    read(arbUsecaseProvider)
+  void _updateFormPlaceholder(WidgetRef ref, ArbPlaceholder? formPlaceholder) {
+    ref
+        .read(arbUsecaseProvider)
         .updateFormPlaceholder(definition: originalDefinition, placeholder: formPlaceholder);
   }
 
   /// Internal - track the placeholder being edited (or none) through its usecase.
-  void _editPlaceholder(Reader read, ArbPlaceholder? placeholder) {
-    read(arbUsecaseProvider).trackExistingPlaceholderBeingEdited(
+  void _editPlaceholder(WidgetRef ref, ArbPlaceholder? placeholder) {
+    ref.read(arbUsecaseProvider).trackExistingPlaceholderBeingEdited(
         definition: originalDefinition, placeholder: placeholder);
   }
 }

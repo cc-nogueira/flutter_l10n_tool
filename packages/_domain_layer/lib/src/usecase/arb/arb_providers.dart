@@ -1,7 +1,7 @@
 part of 'arb_usecase.dart';
 
 /// [ArbUsecase] singleton provider.
-final arbUsecaseProvider = Provider<ArbUsecase>((ref) => ArbUsecase(ref.read));
+final arbUsecaseProvider = Provider<ArbUsecase>((ref) => ArbUsecase(ref));
 
 /// Internal - provider of the current [ArbScope].
 final _arbScopeProvider = StateProvider((ref) => ArbScope());

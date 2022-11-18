@@ -12,7 +12,7 @@ import '../../entity/project/recent_project.dart';
 import '../../exception/l10n_exception.dart';
 import '../../exception/l10n_fix_exception.dart';
 import '../../exception/l10n_pubspec_exception.dart';
-import '../../provider/providers.dart';
+import '../../layer/domain_layer.dart';
 import '../arb/arb_usecase.dart';
 import '../recent_projects/recent_projects_usecase.dart';
 import 'mixin/arb_mixin.dart';
@@ -44,18 +44,18 @@ part 'project_providers.dart';
 /// These original values may be used to rollback changes performed by the user.
 class ProjectUsecase
     with PubspecMixin, L10nConfigurationMixin, ArbMixin, ArbTemplateMixin, ArbValidationMixin {
-  const ProjectUsecase({required this.read, required this.recentProjectsUsecase});
+  const ProjectUsecase({required this.ref, required this.recentProjectsUsecase});
 
   static const asyncDelay = Duration(milliseconds: 100);
 
-  final Reader read;
+  final Ref ref;
   final RecentProjectsUsecase recentProjectsUsecase;
 
   /// Creates a new [ProjectScope] to load a new project.
   /// Also triggers the creation of a new ArbScope through [ArbUsecase.initScope].
   void initScope() {
-    read(_projectScopeProvider.notifier).state = ProjectScope();
-    read(arbUsecaseProvider).initScope();
+    ref.read(_projectScopeProvider.notifier).state = ProjectScope();
+    ref.read(arbUsecaseProvider).initScope();
   }
 
   /// Closes the open project by re initializing execution scopes.
@@ -84,22 +84,22 @@ class ProjectUsecase
     final projectNotifier = _projectNotifier();
     try {
       await _initProject(projectNotifier, projectPath: projectPath);
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _loadPubspec(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _defineConfiguration(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _readTemplateFile(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _readTranslationFiles(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _saveToRecentProjects(projectNotifier);
 
-      if (read(projectProvider).loadStage.isFinal) return;
+      if (ref.read(projectProvider).loadStage.isFinal) return;
       await _setLoaded(projectNotifier);
     } on L10nException catch (e) {
       projectNotifier.l10nException(e);
@@ -116,7 +116,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.initial);
     await Future.delayed(asyncDelay);
 
-    read(arbUsecaseProvider).clearSelection();
+    ref.read(arbUsecaseProvider).clearSelection();
     projectNotifier.init(projectPath);
   }
 
@@ -132,7 +132,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.readingPubspec);
     await Future.delayed(asyncDelay);
 
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final pubspec = await readPubspec(project);
     projectNotifier.name(pubspec.name);
 
@@ -156,7 +156,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.definingConfiguration);
     await Future.delayed(asyncDelay);
 
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final configuration = await readL10nConfiguration(project);
     projectNotifier.configuration(configuration);
   }
@@ -180,7 +180,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.readingDefinitions);
     await Future.delayed(asyncDelay);
 
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final config = project.configuration;
     late final Map<String, dynamic> arb;
     try {
@@ -230,7 +230,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.readingTranslations);
     await Future.delayed(asyncDelay);
 
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     late final List<ArbLocaleTranslations> allLocalesTranslations;
     try {
       allLocalesTranslations = await readArbTranslations(project);
@@ -253,7 +253,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.savingToRecentProjects);
     await Future.delayed(asyncDelay);
 
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final recentProject = RecentProject(name: project.name, path: project.path);
     recentProjectsUsecase.setFirst(recentProject);
   }
@@ -265,7 +265,7 @@ class ProjectUsecase
     projectNotifier.loadStage(LoadStage.loaded);
     await Future.delayed(asyncDelay);
 
-    read(arbUsecaseProvider).initProjectAnalysis();
+    ref.read(arbUsecaseProvider).initProjectAnalysis();
   }
 
   /// Save a user changed [L10nConfiguration].
@@ -276,7 +276,7 @@ class ProjectUsecase
   /// - Generates a YAML content from this configuration.
   /// - Write to l10n.yaml file.
   Future<void> saveConfiguration(L10nConfiguration conf) async {
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final writer = YAMLWriter();
     final content = writer.write({
       if (conf.arbDir.isNotEmpty) 'arb-dir': conf.arbDir,
@@ -390,7 +390,7 @@ class ProjectUsecase
   ///
   /// This [ProjectNotifier] is part of this usecase [ProjectScope].
   ProjectNotifier _projectNotifier() {
-    final scope = read(_projectScopeProvider);
-    return read(scope.projectProvider.notifier);
+    final scope = ref.read(_projectScopeProvider);
+    return ref.read(scope.projectProvider.notifier);
   }
 }

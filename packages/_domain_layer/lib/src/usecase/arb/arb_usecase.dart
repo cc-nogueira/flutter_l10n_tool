@@ -24,21 +24,21 @@ part 'arb_providers.dart';
 /// It is thus possible to indicate in the user interface what definitions and translations are
 /// currently being edited and witch have been modified by the user since the project was loaded.
 class ArbUsecase {
-  ArbUsecase(this.read);
+  ArbUsecase(this.ref);
 
-  final Reader read;
+  final Ref ref;
 
   /// Creates a new [ArbScope] to load a project without any modifications.
   void initScope() {
-    read(_arbScopeProvider.notifier).state = ArbScope();
+    ref.read(_arbScopeProvider.notifier).state = ArbScope();
   }
 
   void initProjectAnalysis() {
-    read(analysisProvider).init();
+    ref.read(analysisProvider).init();
   }
 
   void _updateTranslationsAnalysis(ArbDefinition definition) {
-    read(analysisProvider).updataTranslationsAnalysis(definition);
+    ref.read(analysisProvider).updataTranslationsAnalysis(definition);
   }
 
   void editNewDefinition() {
@@ -65,7 +65,7 @@ class ArbUsecase {
 
   /// Toggle the selection of a [ArbDefinition].
   void toggle(ArbDefinition? definition) {
-    if (read(editNewDefinitionProvider)) {
+    if (ref.read(editNewDefinitionProvider)) {
       select(definition);
     } else {
       _selectedDefinitionNotifier().toggleSelect(definition);
@@ -189,7 +189,7 @@ class ArbUsecase {
     required ArbTranslation value,
   }) {
     final locale = value.locale;
-    final translations = read(projectProvider).translations[locale];
+    final translations = ref.read(projectProvider).translations[locale];
     final original = translations?.translations[definition.key];
     if (value == original) {
       _currentTranslationsNotifier().remove(definition, locale);
@@ -296,81 +296,81 @@ class ArbUsecase {
   // -- StateNotifiers and StateControllers:
 
   StateController _editNewDefinitionNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.editNewDefinitionProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.editNewDefinitionProvider.notifier);
   }
 
   NewDefinitionsNotifier _newDefinitiosNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.newDefinitionsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.newDefinitionsProvider.notifier);
   }
 
   SelectedDefinitionNotifier _selectedDefinitionNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.selectedDefinitionProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.selectedDefinitionProvider.notifier);
   }
 
   ///Return the [currentDefinitionsProvider] notifier.
   DefinitionEditionsNotifier _currentDefinitionsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.currentDefinitionsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.currentDefinitionsProvider.notifier);
   }
 
   DefinitionEditionsNotifier _beingEditedDefinitionsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.beingEditedDefinitionsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.beingEditedDefinitionsProvider.notifier);
   }
 
   /// Return the [existingPlaceholdersBeingEditedProvider] notifier.
   PlaceholderEditionsNotifier _existingPlaceholdersBeingEditedNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.existingPlaceholdersBeingEditedProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.existingPlaceholdersBeingEditedProvider.notifier);
   }
 
   ///Return the [formPlaceholdersProvider] notifier.
   PlaceholderEditionsNotifier _formPlaceholdersNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.formPlaceholdersProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.formPlaceholdersProvider.notifier);
   }
 
   /// Return the [existingPluralsBeingEditedProvider] notifier.
   PluralEditionsNotifier _existingPluralsBeingEditedNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.existingPluralsBeingEditedProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.existingPluralsBeingEditedProvider.notifier);
   }
 
   ///Return the [formPluralsProvider] notifier.
   PluralEditionsNotifier _formPluralsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.formPluralsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.formPluralsProvider.notifier);
   }
 
   /// Return the [existingPluralsBeingEditedProvider] notifier.
   SelectEditionsNotifier _existingSelectsBeingEditedNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.existingSelectsBeingEditedProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.existingSelectsBeingEditedProvider.notifier);
   }
 
   ///Return the [formPluralsProvider] notifier.
   SelectEditionsNotifier _formSelectsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.formSelectsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.formSelectsProvider.notifier);
   }
 
   TranslationEditionsNotifier _currentTranslationsNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.currentTranslationsProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.currentTranslationsProvider.notifier);
   }
 
   ///Return the [beingEditedTranslationLocalesProvider] notifier.
   TranslationLocalesEditionsNotifier _beingEditedTranslationLocalesNotifier() {
-    final scope = read(_arbScopeProvider);
-    return read(scope.beingEditedTranslationLocalesProvider.notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.beingEditedTranslationLocalesProvider.notifier);
   }
 
   TranslationForLanguageEditionsNotifier _beingEditedTranslationsForLanguageNotifier(
       String locale) {
-    final scope = read(_arbScopeProvider);
-    return read(scope.beingEditedTranslationsForLocaleProvider(locale).notifier);
+    final scope = ref.read(_arbScopeProvider);
+    return ref.read(scope.beingEditedTranslationsForLocaleProvider(locale).notifier);
   }
 }

@@ -6,7 +6,7 @@ import 'package:riverpod/riverpod.dart';
 import '../../entity/preferences/display_option.dart';
 import '../../entity/preferences/language_option.dart';
 import '../../entity/preferences/preference.dart';
-import '../../provider/providers.dart';
+import '../../layer/domain_layer.dart';
 import '../../repository/preferences_repository.dart';
 
 part 'preferences_providers.dart';
@@ -26,12 +26,12 @@ part 'preferences_scope.dart';
 /// Preferences allowed values are available through this usecase singleton instance API.
 class PreferencesUsecase {
   /// Constructor requires the injection of [PreferencesRepository] implementation and a Riverpod
-  /// [Reader].
+  /// [Ref].
   ///
   /// The repository is used for preferences persistence.
   /// The Reader is used to manipulate local StateProviders that store and notify changes for  all
   /// preferences.
-  PreferencesUsecase({required this.read, required this.repository});
+  PreferencesUsecase({required this.ref, required this.repository});
 
   static const _displayOptionKey = 'display';
   static const _languageOptionKey = 'language';
@@ -42,7 +42,7 @@ class PreferencesUsecase {
 
   /// Internal Riverpod [Reader].
   @internal
-  final Reader read;
+  final Ref ref;
 
   /// Internal [PreferencesRepositoty] implementation.
   @internal
@@ -113,19 +113,19 @@ class PreferencesUsecase {
 
   /// Internal getter for this usecase [DisplayOptionNotifier]
   DisplayOptionNotifier _displayOptionNotifier() {
-    final scope = read(_preferencesScopeProvider);
-    return read(scope.displayOptionProvider.notifier);
+    final scope = ref.read(_preferencesScopeProvider);
+    return ref.read(scope.displayOptionProvider.notifier);
   }
 
   /// Internal getter for this usecase [LanguageOptionNotifier]
   LanguageOptionNotifier _languageOptionNotifier() {
-    final scope = read(_preferencesScopeProvider);
-    return read(scope.languageOptionProvider.notifier);
+    final scope = ref.read(_preferencesScopeProvider);
+    return ref.read(scope.languageOptionProvider.notifier);
   }
 
   /// Internal getter for this usecase [ThemeModeNotifier]
   ThemeModeNotifier _themeModeNotifier() {
-    final scope = read(_preferencesScopeProvider);
-    return read(scope.themeModeProvider.notifier);
+    final scope = ref.read(_preferencesScopeProvider);
+    return ref.read(scope.themeModeProvider.notifier);
   }
 }

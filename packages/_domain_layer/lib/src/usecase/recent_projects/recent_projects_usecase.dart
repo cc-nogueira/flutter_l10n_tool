@@ -3,16 +3,16 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../entity/project/recent_project.dart';
-import '../../provider/providers.dart';
+import '../../layer/domain_layer.dart';
 import '../../repository/recent_projects_repository.dart';
 
 part 'recent_projects_providers.dart';
 part 'recent_projects_scope.dart';
 
 class RecentProjectsUsecase {
-  const RecentProjectsUsecase({required this.read, required this.recentProjectsRepository});
+  const RecentProjectsUsecase({required this.ref, required this.recentProjectsRepository});
 
-  final Reader read;
+  final Ref ref;
 
   /// Internal [RecentProjectsRepository] implementation.
   @internal
@@ -27,7 +27,7 @@ class RecentProjectsUsecase {
   }
 
   void remove(RecentProject value) {
-    final list = read(recentProjectsProvider);
+    final list = ref.read(recentProjectsProvider);
     final without = [
       for (final each in list)
         if (each.id != value.id) each
@@ -50,7 +50,7 @@ class RecentProjectsUsecase {
   }
 
   Tuple2<RecentProject?, List<RecentProject>> _extract(RecentProject value) {
-    final list = read(recentProjectsProvider);
+    final list = ref.read(recentProjectsProvider);
     RecentProject? found;
     final left = <RecentProject>[];
     for (final each in list) {
@@ -64,7 +64,7 @@ class RecentProjectsUsecase {
   }
 
   StateController<List<RecentProject>> _recentProjectController() {
-    final scope = read(_recentProjectsScopeProvider);
-    return read(scope.recentProjectsProvider.notifier);
+    final scope = ref.read(_recentProjectsScopeProvider);
+    return ref.read(scope.recentProjectsProvider.notifier);
   }
 }

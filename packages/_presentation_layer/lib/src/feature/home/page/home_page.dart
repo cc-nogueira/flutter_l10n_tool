@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
+import '../../../common/theme/warning_theme_extension.dart';
 import '../../../common/widget/message_widget.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
@@ -24,7 +25,7 @@ class HomePage extends ConsumerWidget {
   Widget _body(BuildContext context, WidgetRef ref) {
     final project = ref.watch(projectProvider);
     if (project.hasError) {
-      return LoadErrorPage(ref.read, project);
+      return LoadErrorPage(ref, project);
     }
     if (project.isNotReady) {
       return _messageWidget(context);
@@ -32,7 +33,7 @@ class HomePage extends ConsumerWidget {
     if (project.generateWarning) {
       return Column(
         children: [
-          _generateWarningWidget(context, ref.read),
+          _generateWarningWidget(context, ref),
           const Expanded(child: ActivePage()),
         ],
       );
@@ -45,13 +46,14 @@ class HomePage extends ConsumerWidget {
     return MessageWidget(loc.title_home_page);
   }
 
-  Widget _generateWarningWidget(BuildContext context, Reader read) {
+  Widget _generateWarningWidget(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
-    const style = TextStyle(color: Colors.black);
+    final warning = Theme.of(context).extension<WarningTheme>();
+    final style = TextStyle(color: warning?.foregroundColor);
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      decoration: const BoxDecoration(color: Colors.amber),
+      decoration: BoxDecoration(color: warning?.backgroundColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -62,9 +64,9 @@ class HomePage extends ConsumerWidget {
               SelectableText(loc.message_alternative_configure_custom_output_folder, style: style),
               const SizedBox(width: 8.0),
               TextButton(
-                onPressed: () => _showConfigurationDrawer(read),
+                onPressed: () => _showConfigurationDrawer(ref),
                 style: TextButton.styleFrom(
-                    primary: const Color(0xFF930006), padding: EdgeInsets.zero),
+                    foregroundColor: const Color(0xFF930006), padding: EdgeInsets.zero),
                 child: Text(loc.title_project_configuration_drawer),
               ),
             ],
@@ -74,6 +76,6 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  void _showConfigurationDrawer(Reader read) =>
-      read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.configuration;
+  void _showConfigurationDrawer(WidgetRef ref) =>
+      ref.read(activeNavigationProvider.notifier).state = NavigationDrawerTopOption.configuration;
 }

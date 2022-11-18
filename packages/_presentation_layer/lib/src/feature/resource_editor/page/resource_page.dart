@@ -55,12 +55,12 @@ class _ResourcePage<D extends ArbDefinition> extends ConsumerWidget with _NewRes
           ],
         ),
       ),
-      floatingActionButton: _fab(ref.read),
+      floatingActionButton: _fab(ref),
     );
   }
 
-  Widget? _fab(Reader read) => FloatingActionButton(
-        onPressed: () => newResourceDefinition(read),
+  Widget? _fab(WidgetRef ref) => FloatingActionButton(
+        onPressed: () => newResourceDefinition(ref),
         child: const Icon(Icons.add),
       );
 
@@ -298,7 +298,7 @@ class _NoResouceSelectedPage extends ConsumerWidget with _NewResourceMixin {
     return Scaffold(
       body: Padding(padding: const EdgeInsets.all(8.0), child: _noResourceSelected(context, loc)),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => newResourceDefinition(ref.read),
+        onPressed: () => newResourceDefinition(ref),
         child: const Icon(Icons.add),
       ),
     );
@@ -316,8 +316,8 @@ class _NoResouceSelectedPage extends ConsumerWidget with _NewResourceMixin {
 }
 
 mixin _NewResourceMixin {
-  void newResourceDefinition(Reader read) {
-    final arbUsecase = read(arbUsecaseProvider);
+  void newResourceDefinition(WidgetRef ref) {
+    final arbUsecase = ref.read(arbUsecaseProvider);
     arbUsecase.editNewDefinition();
   }
 }

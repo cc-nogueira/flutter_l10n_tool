@@ -22,7 +22,8 @@ ButtonStyle segmentedButtonStyle(ColorScheme colors, MainAxisAlignment align,
     ),
     backgroundColor:
         selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
-    primary: selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurface,
+    foregroundColor:
+        selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurface,
     minimumSize: minimumSize,
     splashFactory: splashFactory,
   );
@@ -51,7 +52,7 @@ ButtonStyle chipButtonStyle(
         : null,
     backgroundColor:
         selected ? selectedBackgroundColor ?? colors.secondaryContainer : backgroundColor,
-    primary:
+    foregroundColor:
         selected ? selectedColor ?? colors.onSecondaryContainer : color ?? colors.onSurfaceVariant,
     minimumSize: minimumSize,
     alignment: align,
@@ -59,14 +60,14 @@ ButtonStyle chipButtonStyle(
 }
 
 ButtonStyle filledButtonStyle(ColorScheme colors) => ElevatedButton.styleFrom(
-      onPrimary: colors.onPrimary,
-      primary: colors.primary,
+      foregroundColor: colors.onPrimary,
+      backgroundColor: colors.primary,
       //textStyle: const TextStyle(fontWeight: FontWeight.normal),
     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0));
 
 ButtonStyle filledTonalButtonStyle(ColorScheme colors) => ElevatedButton.styleFrom(
-      onPrimary: colors.onSecondary,
-      primary: colors.secondary,
+      foregroundColor: colors.onSecondary,
+      backgroundColor: colors.secondary,
       // textStyle: const TextStyle(fontWeight: FontWeight.normal),
     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0));
 

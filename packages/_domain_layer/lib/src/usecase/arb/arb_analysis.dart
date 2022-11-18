@@ -13,23 +13,23 @@ typedef WarningState = EditionsOneToManyState<ArbDefinition, ArbWarning>;
 typedef WarningsNotifier = EditionsOneToManyNotifier<ArbDefinition, ArbWarning>;
 
 class ArbAnalysis {
-  ArbAnalysis(this.read);
+  ArbAnalysis(this.ref);
 
-  final Reader read;
+  final Ref ref;
   final knownCasesPerSelectDefinition = <String, Set<String>>{};
   final warningsProvider =
       StateNotifierProvider<WarningsNotifier, WarningState>((_) => WarningsNotifier());
 
   void init() {
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     _initSelectCases(project);
   }
 
   void updataTranslationsAnalysis(ArbDefinition definition) {
-    final project = read(projectProvider);
+    final project = ref.read(projectProvider);
     final locales = project.translations.keys;
     final projectTrans = project.translations.values;
-    final currentTrans = read(currentTranslationsProvider);
+    final currentTrans = ref.read(currentTranslationsProvider);
     final translations = _definitionTranslations(definition, projectTrans, currentTrans);
     _updateResourceWarnings(locales, definition, translations);
   }
@@ -156,5 +156,5 @@ class ArbAnalysis {
     }
   }
 
-  WarningsNotifier _warningsNotifier() => read(warningsProvider.notifier);
+  WarningsNotifier _warningsNotifier() => ref.read(warningsProvider.notifier);
 }

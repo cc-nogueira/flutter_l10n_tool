@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'color_schemes.dart';
+import 'warning_theme_extension.dart';
 
 /// ThemeBuilder for Material3.
 ///
@@ -30,15 +31,22 @@ class ThemeBuilder {
   ///
   /// Also configures scaffoldBackgroundColor.
   ThemeData _theme(ThemeMode mode) {
+    const warningTheme = WarningTheme(
+      foregroundColor: Colors.black,
+      backgroundColor: Colors.amber,
+      iconColor: Colors.amberAccent,
+    );
     final base = mode == ThemeMode.light
         ? ThemeData(
             brightness: Brightness.light,
             useMaterial3: true,
-            colorScheme: useGenerated ? lightColorScheme : null)
+            colorScheme: useGenerated ? lightColorScheme : null,
+            extensions: const <ThemeExtension<dynamic>>[warningTheme])
         : ThemeData(
             brightness: Brightness.dark,
             useMaterial3: true,
-            colorScheme: useGenerated ? darkColorScheme : null);
+            colorScheme: useGenerated ? darkColorScheme : null,
+            extensions: const <ThemeExtension<dynamic>>[warningTheme]);
 
     if (useGenerated) {
       return base.copyWith(scaffoldBackgroundColor: base.colorScheme.surface);
