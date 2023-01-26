@@ -7,6 +7,6 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Text(message, style: Theme.of(context).textTheme.headline5),
+        child: Text(message, style: Theme.of(context).textTheme.headlineSmall),
       );
 }

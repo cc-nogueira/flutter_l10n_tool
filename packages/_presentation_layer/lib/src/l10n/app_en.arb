@@ -12,14 +12,14 @@
     }
   },
 
-  "test_plural": "Testing plurals: {count, plural, =0{no dogs} =1{a dog} =2{two dogs} many{many dogs} other{a number of dogs}",
+  "test_plural": "Testing plurals: {count, plural, =0{no dogs} =1{a dog} =2{two dogs} many{many dogs} other{a number of dogs}}",
   "@test_plural": {
     "placeholders": {
       "count": {}
     }
   },
 
-  "test_select": "Testing selects: {type, select, dark{dark}, light{light}, medium{medium}} for theme mode.",
+  "test_select": "Testing selects: {type, select, dark{dark} light{light} other{medium}} for theme mode.",
   "@test_select": {
     "placeholders": {
       "type": {}
@@ -99,7 +99,7 @@
     "description": "Fix action label"
   },
 
-  "label_placeholder_date_format_type": "{option, select, icu{Built-in} custom{Custom}}",
+  "label_placeholder_date_format_type": "{option, select, icu{Built-in} other{Custom}}",
   "@label_placeholder_date_format_type": {
     "placeholders": {
       "option": {}

@@ -29,10 +29,12 @@ class OpenProjectButton extends ConsumerWidget {
     }
 
     ref.read(projectUsecaseProvider).loadProject(projectPath: projectPath);
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const ShowProjectLoadingDialog(),
-    );
+    if (context.mounted) {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const ShowProjectLoadingDialog(),
+      );
+    }
   }
 }

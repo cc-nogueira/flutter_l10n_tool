@@ -111,7 +111,7 @@ class RecentProjectsWidget extends ConsumerWidget {
     const paddingRight = 8.0;
 
     final textTheme = Theme.of(context).textTheme;
-    final subColor = isCurrent ? colors.secondary : textTheme.caption!.color;
+    final subColor = isCurrent ? colors.secondary : textTheme.bodySmall!.color;
     final titleStyle = isCurrent ? TextStyle(color: colors.secondary) : null;
     final subStyle = textTheme.bodyMedium!.copyWith(color: subColor);
     final tile = ListTile(
@@ -128,8 +128,7 @@ class RecentProjectsWidget extends ConsumerWidget {
         ),
       ),
       trailing: IconButton(
-          onPressed: () => _removeRecentProject(ref, recent),
-          icon: Icon(Icons.remove_circle_outline, color: subColor)),
+          onPressed: () => _removeRecentProject(ref, recent), icon: Icon(Icons.remove_circle_outline, color: subColor)),
       onTap: () => _openRecent(context, ref, loc, recent, isCurrent),
     );
 
@@ -162,8 +161,7 @@ class RecentProjectsWidget extends ConsumerWidget {
     );
   }
 
-  void _toggleShowRecent(WidgetRef ref) =>
-      ref.read(_showRecentProvider.notifier).update((state) => !state);
+  void _toggleShowRecent(WidgetRef ref) => ref.read(_showRecentProvider.notifier).update((state) => !state);
 
   void _removeRecentProject(WidgetRef ref, RecentProject value) =>
       ref.read(recentProjectsUsecaseProvider).remove(value);

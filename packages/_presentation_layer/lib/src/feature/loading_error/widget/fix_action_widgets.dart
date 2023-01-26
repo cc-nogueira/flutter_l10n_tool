@@ -33,11 +33,13 @@ abstract class FixActionWidget extends StatelessWidget {
     }
     if (fixOK) {
       ref.read(projectUsecaseProvider).loadProject(projectPath: project.path);
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) => const ShowProjectLoadingDialog(),
-      );
+      if (context.mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => const ShowProjectLoadingDialog(),
+        );
+      }
     }
   }
 }

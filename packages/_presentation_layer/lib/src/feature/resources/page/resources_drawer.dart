@@ -6,13 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../common/theme/warning_theme_extension.dart';
-import '../../../common/widget/navigation_drawer.dart';
+import '../../../common/widget/navigation_drawer.dart' as common;
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
 import '../widget/analyse_selected_locales_only_switch.dart';
 import '../widget/resource_filtters.dart';
 
-class ResourcesDrawer extends NavigationDrawer {
+class ResourcesDrawer extends common.NavigationDrawer {
   const ResourcesDrawer({super.key}) : super(NavigationDrawerTopOption.resources);
 
   @override
@@ -50,8 +50,7 @@ class ResourcesDrawer extends NavigationDrawer {
       if (activeFilters.contains(ResourceFilter.added))
         (ArbDefinition def) => _isNewDefinition(locales, newDefinitions, def),
       if (activeFilters.contains(ResourceFilter.beingEdited))
-        (ArbDefinition def) =>
-            _isBeingEdited(locales, beingEditedDefinitions, beingEditedTranslations, def),
+        (ArbDefinition def) => _isBeingEdited(locales, beingEditedDefinitions, beingEditedTranslations, def),
       if (activeFilters.contains(ResourceFilter.modified))
         (ArbDefinition def) => _isModified(locales, currentDefinitions, currentTranslations, def),
       if (activeFilters.contains(ResourceFilter.withWarnings))
@@ -75,8 +74,7 @@ class ResourcesDrawer extends NavigationDrawer {
     final project = ref.watch(projectProvider);
 
     final considerLocales = ref.watch(analyseSelectedLocalesOnlyProvider);
-    final localesToAnalyse =
-        considerLocales ? ref.watch(activeLocalesProvider) : ref.watch(allLocalesProvider);
+    final localesToAnalyse = considerLocales ? ref.watch(activeLocalesProvider) : ref.watch(allLocalesProvider);
     final newDefinitions = ref.watch(newDefinitionsProvider);
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final currentTranslations = ref.watch(currentTranslationsProvider);
@@ -116,10 +114,9 @@ class ResourcesDrawer extends NavigationDrawer {
                   final current = currentDefinitions[definition];
                   final hasWarnings = _hasWarnings(localesToAnalyse, warnings, definition);
                   final isNew = _isNewDefinition(localesToAnalyse, newDefinitions, definition);
-                  final isBeingEdited = _isBeingEdited(localesToAnalyse, beingEditedDefinitions,
-                      beingEditedTranslations, definition);
-                  final isModified = _isModified(
-                      localesToAnalyse, currentDefinitions, currentTranslations, definition);
+                  final isBeingEdited =
+                      _isBeingEdited(localesToAnalyse, beingEditedDefinitions, beingEditedTranslations, definition);
+                  final isModified = _isModified(localesToAnalyse, currentDefinitions, currentTranslations, definition);
                   return _itemBuilder(
                     ctx,
                     ref,
@@ -230,9 +227,8 @@ class ResourcesDrawer extends NavigationDrawer {
   }
 
   void _onResourceTap(WidgetRef ref, ArbDefinition definition) {
-    final isCtrlPressed =
-        RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
-            RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
+    final isCtrlPressed = RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+        RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
     if (isCtrlPressed) {
       ref.read(arbUsecaseProvider).toggle(definition);
     } else {

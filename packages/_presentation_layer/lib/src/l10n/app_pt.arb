@@ -1,8 +1,8 @@
 {
   "@@locale": "pt",
 
-  "test_select": "Testando selects: {type, select, dark{escuro}, light{claro}} para o modo de exibição.",
-  "test_plural": "Testando plurais: {coun, plural, =0{nenhum} =1{um cachorro} few{alguns dogs} many{muitos cães} other{cães}",
+  "test_select": "Testando selects: {type, select, dark{escuro} other{claro}} para o modo de exibição.",
+  "test_plural": "Testando plurais: {coun, plural, =0{nenhum} =1{um cachorro} few{alguns dogs} many{muitos cães} other{cães}}",
   "text_exta_resource": "Testando an extra resource not present in the template file",
 
   "title_home_page": "Localization App",

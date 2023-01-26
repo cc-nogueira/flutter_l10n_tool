@@ -47,13 +47,37 @@
 		},
 		"peacock.color": "#661900",
 		"files.exclude": {
+			"**/.git": false,
+			"**/.svn": false,
+			"**/.hg": false,
+			"**/CVS": false,
+			"**/.DS_Store": false,
+			"**/Thumbs.db": false,
+			"**/.gitignore": false,
+			"**/*.iml": false,
+			".dart_tool": false,
+			".idea": false,
+			".flutter-plugins": false,
+			".flutter-plugins-dependencies": false,
+			".gitignore": false,
+			".metadata": false,
+			".packages": false,
+			".vscode": false,
+			"analysis_options.yaml": false,
+			"build": false,
+			"LICENSE": false,
+			"packages": false,
+			"PRIVACY_POLICY.md": false,
+			"pubspec.lock": false
+		},
+		"explorerExclude.backup": {
 			"**/.git": true,
-			"**/.gitignore": true,
 			"**/.svn": true,
 			"**/.hg": true,
 			"**/CVS": true,
 			"**/.DS_Store": true,
 			"**/Thumbs.db": true,
+			"**/.gitignore": true,
 			"**/*.iml": true,
 			".dart_tool": true,
 			".idea": true,
@@ -69,9 +93,6 @@
 			"packages": true,
 			"PRIVACY_POLICY.md": true,
 			"pubspec.lock": true
-		},
-		"explorerExclude.backup": {
-		
 		}
 	}
 }

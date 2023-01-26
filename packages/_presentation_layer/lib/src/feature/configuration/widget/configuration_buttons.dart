@@ -50,12 +50,10 @@ class _ConfigurationButtons extends StatelessWidget {
 
   Widget _discardButton(bool isModified) => textButton(
       text: 'Discard Changes',
-      onPressed: isModified
-          ? () => ref.read(formConfigurationProvider.notifier).state = currentConfiguration
-          : null);
+      onPressed: isModified ? () => ref.read(formConfigurationProvider.notifier).state = currentConfiguration : null);
 
-  Widget _confirmButton(BuildContext context, AppLocalizations loc, bool isModified) => textButton(
-      text: 'Confirm', onPressed: isModified ? () async => await _confirm(context) : null);
+  Widget _confirmButton(BuildContext context, AppLocalizations loc, bool isModified) =>
+      textButton(text: 'Confirm', onPressed: isModified ? () async => await _confirm(context) : null);
 
   Future<void> _confirm(BuildContext context) async {
     final usecase = ref.read(projectUsecaseProvider);
@@ -64,10 +62,12 @@ class _ConfigurationButtons extends StatelessWidget {
     await usecase.saveConfiguration(formConfiguration);
 
     await usecase.loadProject(projectPath: project.path);
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) => const ShowProjectLoadingDialog(),
-    );
+    if (context.mounted) {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) => const ShowProjectLoadingDialog(),
+      );
+    }
   }
 }

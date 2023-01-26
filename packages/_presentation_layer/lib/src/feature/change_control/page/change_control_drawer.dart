@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
-import '../../../common/widget/navigation_drawer.dart';
+import '../../../common/widget/navigation_drawer.dart' as common;
 import '../../../l10n/app_localizations.dart';
 import '../../../provider/presentation_providers.dart';
 import '../../resources/widget/analyse_selected_locales_only_switch.dart';
 
-class ChangeControlDrawer extends NavigationDrawer {
+class ChangeControlDrawer extends common.NavigationDrawer {
   const ChangeControlDrawer({super.key}) : super(NavigationDrawerTopOption.changeControl);
 
   static const staged = ArbDefinition.placeholders(key: 'Staged Changes');
@@ -55,14 +55,12 @@ class ChangeControlDrawer extends NavigationDrawer {
     final colors = Theme.of(context).colorScheme;
 
     final considerLocales = ref.watch(analyseSelectedLocalesOnlyProvider);
-    final localesToAnalyse =
-        considerLocales ? ref.watch(activeLocalesProvider) : ref.watch(allLocalesProvider);
+    final localesToAnalyse = considerLocales ? ref.watch(activeLocalesProvider) : ref.watch(allLocalesProvider);
     final selected = ref.watch(selectedChangeDefinitionProvider);
     final newDefinitions = ref.watch(newDefinitionsProvider);
     final currentDefinitions = ref.watch(currentDefinitionsProvider);
     final currentTranslations = ref.watch(currentTranslationsProvider);
-    final trashedResources =
-        <ArbDefinition, ArbTrashedResource>{}; //ref.watch(newDefinitionsProvider);
+    final trashedResources = <ArbDefinition, ArbTrashedResource>{}; //ref.watch(newDefinitionsProvider);
 
     final changedResources = _changedResources(
       newDefinitions: newDefinitions,
@@ -130,9 +128,8 @@ class ChangeControlDrawer extends NavigationDrawer {
   }
 
   void _onResourceTap(WidgetRef ref, ArbDefinition definition) {
-    final isCtrlPressed =
-        RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
-            RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
+    final isCtrlPressed = RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+        RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.controlRight);
     if (isCtrlPressed) {
       ref.read(changeControlUsecaseProvider).toggle(definition);
     } else {
@@ -171,9 +168,8 @@ class ResourceTile extends StatelessWidget {
 
   Widget get tileText => Text(name, style: textStyle);
 
-  TextStyle get textStyle => isSelected
-      ? TextStyle(fontWeight: FontWeight.w600, color: textColor)
-      : TextStyle(color: textColor);
+  TextStyle get textStyle =>
+      isSelected ? TextStyle(fontWeight: FontWeight.w600, color: textColor) : TextStyle(color: textColor);
 
   EdgeInsets get tilePadding => const EdgeInsets.only(left: 12, top: 2, bottom: 4);
 

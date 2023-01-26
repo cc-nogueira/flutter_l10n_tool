@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "label_display_option": "{option, select, compact{Compact} expanded{Expanded}}",
+  "label_display_option": "{option, select, compact{Compact} other{Expanded}}",
   "@label_display_option": {
     "placeholders": {
       "option": {}

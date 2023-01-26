@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
-import '../../../common/widget/navigation_drawer.dart';
+import '../../../common/widget/navigation_drawer.dart' as common;
 import '../../../l10n/app_localizations.dart';
 import '../widget/close_project_button.dart';
 import '../widget/open_project_button.dart';
 import '../widget/recent_projects_widget.dart';
 
-class ProjectSelectorDrawer extends NavigationDrawer {
+class ProjectSelectorDrawer extends common.NavigationDrawer {
   const ProjectSelectorDrawer({super.key})
       : super(NavigationDrawerTopOption.projectSelector, bodyDependOnProjectLoaded: false);
 
@@ -35,8 +35,7 @@ class ProjectSelectorDrawer extends NavigationDrawer {
       const Divider(),
       OpenProjectButton(style: textButtonStyle),
       _verticalSpacer,
-      RecentProjectsWidget(
-          textButtonStyle: textButtonStyle, elevatedButtonStyle: elevatedButtonStyle),
+      RecentProjectsWidget(textButtonStyle: textButtonStyle, elevatedButtonStyle: elevatedButtonStyle),
     ];
   }
 }

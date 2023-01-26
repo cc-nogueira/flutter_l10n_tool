@@ -24,7 +24,7 @@ class ArbBuilder {
   }
 
   TextStyle get titleStyle => textTheme.titleMedium!;
-  TextStyle get subtitleStyle => textTheme.bodyMedium!.copyWith(color: textTheme.caption?.color);
+  TextStyle get subtitleStyle => textTheme.bodyMedium!.copyWith(color: textTheme.bodySmall?.color);
   TextStyle get markingStyle => subtitleStyle;
   TextStyle get valueStyle => textTheme.bodyMedium!;
   TextStyle get optionStyle => textTheme.bodyMedium!.copyWith(color: colors.primary);

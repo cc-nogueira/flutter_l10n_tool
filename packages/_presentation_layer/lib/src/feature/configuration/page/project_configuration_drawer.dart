@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/navigation/navigation_drawer_option.dart';
 import '../../../common/widget/form_mixin.dart';
-import '../../../common/widget/navigation_drawer.dart';
+import '../../../common/widget/navigation_drawer.dart' as common;
 import '../../../l10n/app_localizations.dart';
 import '../widget/configuration_buttons.dart';
 import '../widget/configuration_form.dart';
 import '../widget/configuration_toggle_buttons.dart';
 
-class ProjectConfigurationDrawer extends NavigationDrawer {
+class ProjectConfigurationDrawer extends common.NavigationDrawer {
   const ProjectConfigurationDrawer({super.key})
       : super(
           NavigationDrawerTopOption.configuration,
